@@ -1,0 +1,21 @@
+<package>
+  <name>flexbe_mirror</name>
+  <version>1.0.0</version>
+  <description>
+     flexbe_mirror implements functionality to remotely mirror an executed behavior.
+  </description>
+  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/flexbe_mirror</url>
+  <author>Philipp Schillinger</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>smach_ros</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>flexbe_core</run_depend>
+  <run_depend>flexbe_widget</run_depend>
+  <run_depend>flexbe_msgs</run_depend>
+
+</package>

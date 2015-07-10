@@ -1,0 +1,3 @@
+int32 behavior_id
+
+int32 current_state_checksum

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<node name="behavior" pkg="flexbe_onboard" type="start_behavior" output="screen" respawn="true"/>
+
+
+</launch>

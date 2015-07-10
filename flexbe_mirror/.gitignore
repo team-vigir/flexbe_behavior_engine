@@ -1,0 +1,10 @@
+/.settings/
+/build/
+/lib/
+/msg_gen/
+build
+devel
+lib
+msg_gen
+srv_gen
+qtcreator-build

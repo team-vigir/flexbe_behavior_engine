@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_widget')
+import rospy
+import os
+import sys
+
+if __name__ == '__main__':
+
+	# config
+	sep = ", "
+	output_latex = False
+
+	if len(sys.argv) < 4:
+		print "Usage:"
+		print "> rosrun flexbe_widget evaluate_logs [logfile] [key] [value1, value2, ...]"
+		print ""
+		print '- logfile: One of the logged files in ~/logs.'
+		print '           Use an empty string ("") for latest file.'
+		print " - key:    One of the following keys:"
+		print "           total, state_path, state_name, state_class, transition"
+		print " - value:  List of generated output values, choose from:"
+		print "           count_interventions, count_wait, time, time_wait, time_run, wrong_decisions, right_decisions, approved_decisions, visits"
+
+	else:
+
+		filename = sys.argv[1]
+		keyname = sys.argv[2]
+		valuelist = sys.argv[3:]
+
+		behavior_name = ""
+		log_lines = []	# raw
+		entries = []	# pre-processed
+		result = {}		# fully processed
+
+		# read file
+		logfolder = os.chdir(os.path.expanduser("~/logs"))
+		file_path = max(os.listdir('.'), key = os.path.getctime) if filename == "" else filename
+		with open(file_path) as f:
+			log_lines = [line.rstrip('\n') for line in f]
+
+		# pre-process content
+		last_time = None
+		last_outcome = None
+		last_blocked = False
+		for line in log_lines:
+			l = line.split(',')
+
+			if last_time is None:
+				last_time = float(l[0])
+				last_outcome = l[3]
+				behavior_name = l[1]
+				continue
+
+			time = float(l[0]) - last_time
+			entries.append({
+				'total': "TOTAL",
+				'state_path': l[1],
+				'state_name': l[1].rsplit('/',1)[1].replace('_', ' '),
+				'state_class': l[2],
+				'transition': l[1].rsplit('/',1)[1].replace('_', ' ') + " > " + l[3],
+				'count_interventions': 1 - int(l[4]),
+				'count_wait': 1 - int(l[5]),
+				'time': time,
+				'time_wait': time if int(l[5]) == 0 else 0,
+				'time_run': time if int(l[5]) == 1 else 0,
+				'wrong_decisions': 1 if last_blocked and int(l[5]) == 1 and int(l[4]) == 1 and last_outcome != l[3] else 0,
+				'right_decisions': 1 if int(l[5]) == 1 and int(l[4]) == 1 else 0,
+				'approved_decisions': 1 if last_blocked and int(l[5]) == 1 and int(l[4]) == 1 and last_outcome == l[3] else 0,
+				'visits': 1 if not last_blocked else 0
+			})
+			last_time = float(l[0])
+			last_outcome = l[3]
+			last_blocked = int(l[5]) == 0
+
+		# collect result
+		for entry in entries:
+			k = entry[keyname]
+			if not result.has_key(k):
+				result[k] = dict()
+				for v in valuelist:
+					result[k][v] = 0
+
+			for v in valuelist:
+				result[k][v] += entry[v]
+
+		# output
+		printed_header = False
+		for k,r in result.iteritems():
+			if not printed_header:
+				print behavior_name
+				header = "%s%s%s" % (keyname, sep, sep.join([str(h) for h,v in r.iteritems()]))
+				print header
+				printed_header = True
+
+			print "%s%s%s" % (k, sep, sep.join([str(v) for h,v in r.iteritems()]))
+
+		if output_latex:
+			print ""
+			print ""
+			printed_header = False
+			print "\\begin{tabular}{|l|%s}" % "".join(['r|' for x in range(len(valuelist))])
+			for k,r in result.iteritems():
+				if not printed_header:
+					header = "%s & %s \\\\" % (keyname, " & ".join([str(h) for h,v in r.iteritems()]))
+					print "\\hline"
+					print header
+					print "\\hline"
+					printed_header = True
+
+				print "%s & %s \\\\" % (k.replace("_", " "), " & ".join([str("%.3f" % v) for h,v in r.iteritems()]))
+			print "\\hline"
+			print "\\end{tabular}"

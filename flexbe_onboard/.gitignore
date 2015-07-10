@@ -1,0 +1,7 @@
+build
+devel
+lib
+msg_gen
+srv_gen
+qtcreator-build
+/tmp/

@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_widget')
+import rospy
+from flexbe_msgs.msg import BehaviorSelection
+from rospkg import RosPack
+
+import pickle
+import zlib
+import difflib
+
+
+def _callback(msg):
+	new_code = msg.behavior_code
+	rp = p = RosPack()
+	path = rp.get_path('vigir_behavior_flexbe_test_behavior')
+	path += "/src/vigir_behavior_flexbe_test_behavior/flexbe_test_behavior_sm_original.py"
+	with open(path) as f:
+		lines = [line.rstrip('\n') for line in f]
+	old_code = "\n".join(lines)
+
+	sqm = difflib.SequenceMatcher(a=old_code, b=new_code)
+	diffs = [x[1] for x in sqm.get_grouped_opcodes(0)]
+	patch = []
+	for opcode, a0, a1, b0, b1 in diffs:
+		content = new_code[b0:b1]
+		patch.append(tuple([a0, a1, content]))
+	print "Modifications:"
+	print str(patch)
+
+	packed = zlib.compress(pickle.dumps(patch), 9)
+	print "Size of compressed patch: " + str(packed.__sizeof__())
+
+	received = pickle.loads(zlib.decompress(packed))
+	gen_code = ""
+	last_index = 0
+	for a0, a1, content in received:
+		gen_code += old_code[last_index:a0] + content
+		last_index = a1
+	gen_code += old_code[last_index:]
+
+#	print gen_code
+	print "Differences between desired and reconstructed modifications:"
+	print str([x for x in difflib.unified_diff(gen_code, new_code)])
+
+	sqm2 = difflib.SequenceMatcher(a=old_code, b=gen_code)
+	diffs2 = [x[1] for x in sqm2.get_grouped_opcodes(0)]
+	print "The following changes have been made:"
+	for opcode, a0, a1, b0, b1 in diffs2:
+		if opcode == "equal": continue
+		change_string = "\033[1m" + opcode + "\033[0m" + ("   " if opcode == "replace" else "    ")
+		if a0 != a1:
+			change_string += old_code[max(0, a0 - 10):a0] + "\033[41m" + old_code[a0:a1]  + "\033[0m" + old_code[a1:min(len(old_code), a1 + 10)]
+		if a0 != a1 and b0 != b1:
+			change_string += "   \033[1mby\033[0m   "
+		if b0 != b1:
+			change_string += gen_code[max(0, b0 - 10):b0] + "\033[42m" + gen_code[b0:b1]  + "\033[0m" + gen_code[b1:min(len(gen_code), b1 + 10)]
+		change_string = change_string.replace("\n", "\\n")
+		change_string = change_string.replace("\t", "\\t")
+		print change_string
+
+
+
+if __name__ == '__main__':
+    rospy.init_node('flexbe_widget')
+    
+    sub = rospy.Subscriber("/flexbe/start_behavior", BehaviorSelection, _callback)
+
+    # Wait for ctrl-c to stop the application
+    rospy.spin()

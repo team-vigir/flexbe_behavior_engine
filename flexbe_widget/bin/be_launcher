@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_widget')
+import rospy
+import sys
+import getopt
+
+from flexbe_widget.behavior_launcher import BehaviorLauncher
+from flexbe_msgs.msg import BehaviorRequest
+
+def usage():
+	print "Soon..."
+
+if __name__ == '__main__':
+	rospy.init_node('flexbe_widget')
+
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "hb:a:", ["help", "behavior=", "autonomy="])
+	except getopt.GetoptError:
+		usage()
+		sys.exit(2)
+
+	behavior = ""
+	autonomy = 255
+
+	for opt, arg in opts:
+		if opt in ("-h", "--help"):
+			usage()
+			sys.exit()
+		elif opt in ("-b", "--behavior"):
+			behavior = arg
+		elif opt in ("-a", "--autonomy"):
+			autonomy = int(arg)
+	
+	launcher = BehaviorLauncher()
+
+	if behavior != "":
+		request = BehaviorRequest()
+		request.behavior_name = behavior
+		request.autonomy_level = autonomy
+		rospy.sleep(0.2) # wait for publishers...
+		launcher._callback(request)
+
+	# Wait for ctrl-c to stop the application
+	rospy.spin()

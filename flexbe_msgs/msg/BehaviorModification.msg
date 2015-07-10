@@ -1,0 +1,3 @@
+int16 index_begin
+int16 index_end
+string new_content

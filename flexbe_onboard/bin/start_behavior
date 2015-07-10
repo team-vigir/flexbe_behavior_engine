@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_onboard')
+import rospy
+
+from flexbe_core.proxy import ProxySubscriberCached
+
+from flexbe_onboard.flexbe_onboard import VigirBeOnboard
+
+if __name__ == '__main__':
+    rospy.init_node('flexbe_onboard')
+    
+    VigirBeOnboard()
+
+    # Wait for ctrl-c to stop the application
+    rospy.spin()
+
+    ProxySubscriberCached().shutdown()

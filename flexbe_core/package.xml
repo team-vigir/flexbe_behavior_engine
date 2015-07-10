@@ -1,0 +1,19 @@
+<package>
+  <name>flexbe_core</name>
+  <version>1.0.0</version>
+  <description>
+     flexbe_core provides the core smach extension for the FlexBE behavior engine.
+  </description>
+  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/flexbe_core</url>
+  <author>Philipp Schillinger</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>smach_ros</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>flexbe_msgs</run_depend>
+
+</package>

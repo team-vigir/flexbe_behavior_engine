@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<group ns="behavior">
+	<node name="behavior" pkg="flexbe_onboard" type="start_behavior" output="screen" respawn="true"/>
+</group>
+
+<node name="behavior_onboard_nethogs" pkg="flexbe_widget" type="nethogs" output="screen" launch-prefix="xterm -e" />
+
+</launch>

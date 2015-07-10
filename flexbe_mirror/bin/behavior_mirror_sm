@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_mirror')
+import rospy
+
+from flexbe_core.proxy import ProxySubscriberCached
+
+from flexbe_mirror.flexbe_mirror import VigirBehaviorMirror
+
+if __name__ == '__main__':
+    rospy.init_node('flexbe_mirror')
+    
+    VigirBehaviorMirror()
+
+    # Wait for ctrl-c to stop the application
+    rospy.spin()
+
+    ProxySubscriberCached().shutdown()

@@ -1,0 +1,14 @@
+<<<<<<< HEAD
+/build/
+/lib/
+/msg_gen/
+/srv_gen/
+=======
+build
+devel
+bin
+lib
+msg_gen
+srv_gen
+qtcreator-build
+>>>>>>> refs/remotes/origin/master

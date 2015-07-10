@@ -1,0 +1,33 @@
+# Available request types
+
+uint8 POINT_LOCATION 	    = 0
+uint8 SELECTED_OBJECT_ID    = 1
+uint8 WAYPOINT_GOAL_POSE    = 2
+uint8 GHOST_JOINT_STATES    = 3
+uint8 FOOTSTEP_PLAN_HEADER  = 4
+
+
+# Choose one of the available request types above
+uint8 request_type
+
+# Request message displayed to the operator
+# Provide context information, i.e. for which purpose the data is required.
+# The operator will be told which type of data to provide indepently from this message.
+string msg
+
+---
+
+uint8 RESULT_OK 		= 0
+uint8 RESULT_FAILED		= 1
+uint8 RESULT_ABORTED	= 2
+
+# Indicates if the request has been successful
+uint8 result_code
+
+# Serialized data which was requested
+# In case of result_code != RESULT_OK, this field will contain unserialized data regarding the reason of failure instead.
+string data
+
+---
+
+
