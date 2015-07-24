@@ -31,7 +31,7 @@ class BehaviorInput(object):
 		rospy.loginfo("--> Got a request!")
 		rospy.loginfo('"%s"' % goal.msg)
 	
-		relay_ocs_client_ = actionlib.SimpleActionClient('/vigir/ocs/behavior_ocs', BehaviorInputAction)
+		relay_ocs_client_ = actionlib.SimpleActionClient('/flexbe/operator_input', BehaviorInputAction)
 			
 		# wait for data msg
 		print "waiting"
