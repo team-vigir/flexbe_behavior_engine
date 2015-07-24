@@ -17,6 +17,4 @@
   <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
 
-  <run_depend>flexbe_behaviors</run_depend>
-
 </package>

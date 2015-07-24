@@ -42,6 +42,12 @@ class VigirBeOnboard(object):
         #ProxyPublisher._simulate_delay = True
         #ProxySubscriberCached._simulate_delay = True
 
+        behaviors_package = "flexbe_behaviors"
+        if rospy.has_param("behaviors_package"):
+        	behaviors_package = rospy.get_param("behaviors_package")
+        else:
+        	rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
+
         # prepare temp folder
         rp = rospkg.RosPack()
         self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
@@ -50,7 +56,7 @@ class VigirBeOnboard(object):
         sys.path.append(self._tmp_folder)
 
         # prepare manifest folder access
-        manifest_folder = os.path.join(rp.get_path('flexbe_behaviors'), 'behaviors/')
+        manifest_folder = os.path.join(rp.get_path(behaviors_package), 'behaviors/')
         rospy.loginfo("Parsing available behaviors...")
         file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
         manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
