@@ -20,7 +20,13 @@ class BehaviorLauncher(object):
 		self._rp = RosPack()
 		self._behavior_lib = dict()
 
-		manifest_folder = os.path.join(self._rp.get_path('flexbe_behaviors'), 'behaviors/')
+		behaviors_package = "flexbe_behaviors"
+		if rospy.has_param("behaviors_package"):
+			behaviors_package = rospy.get_param("behaviors_package")
+		else:
+			rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
+
+		manifest_folder = os.path.join(self._rp.get_path(behaviors_package), 'behaviors/')
 
 		file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
 		manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
