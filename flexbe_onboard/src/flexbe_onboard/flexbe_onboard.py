@@ -8,6 +8,7 @@ import sys
 import inspect
 import threading
 import time
+import smach
 import random
 import zlib
 import xml.etree.ElementTree as ET
@@ -38,15 +39,21 @@ class VigirBeOnboard(object):
         '''
         self.be = None
         Logger.initialize()
+        smach.set_loggers (
+            rospy.logdebug, # hide SMACH transition log spamming
+            rospy.logwarn,
+            rospy.logdebug,
+            rospy.logerr
+        )
 
         #ProxyPublisher._simulate_delay = True
         #ProxySubscriberCached._simulate_delay = True
 
         behaviors_package = "flexbe_behaviors"
         if rospy.has_param("behaviors_package"):
-        	behaviors_package = rospy.get_param("behaviors_package")
+            behaviors_package = rospy.get_param("behaviors_package")
         else:
-        	rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
+            rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
 
         # prepare temp folder
         rp = rospkg.RosPack()

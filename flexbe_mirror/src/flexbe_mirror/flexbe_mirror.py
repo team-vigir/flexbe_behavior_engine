@@ -2,7 +2,7 @@
 
 import roslib; roslib.load_manifest('flexbe_mirror')
 import rospy
-import smach_ros
+import smach
 import threading
 import zlib
 
@@ -30,6 +30,13 @@ class VigirBehaviorMirror(object):
         Constructor
         '''
         self._sm = None
+
+        smach.set_loggers (
+            rospy.logdebug, # hide SMACH transition log spamming
+            rospy.logwarn,
+            rospy.logdebug,
+            rospy.logerr
+        )
         
         # set up proxys for sm <--> GUI communication
         # publish topics
