@@ -1,0 +1,45 @@
+#!/bin/bash
+if [ $# != 1 ]; then
+	echo -e "\e[93mPlease provide your desired project name as argument.\033[0m"
+	exit 2
+fi
+
+name=$1
+echo -e "Will initialize new behaviors repo \e[1m${name}_behaviors\033[0m ..."
+
+echo ""
+echo -e "\e[96m(1/4) Checking package dependencies...\033[0m"
+sudo apt-get install ros-indigo-rosbridge-server
+
+echo ""
+echo -e "\e[96m(2/4) Fetching project structure...\033[0m"
+git clone https://github.com/pschillinger/flexbe_project_behaviors.git ${name}_behaviors
+cd ${name}_behaviors
+
+echo ""
+echo -e "\e[96m(3/4) Configuring project template...\033[0m"
+sed -i -e "s/PROJECT_flexbe_states/${name}_flexbe_states/g" PROJECT_flexbe_states/CMakeLists.txt PROJECT_flexbe_states/package.xml PROJECT_flexbe_states/setup.py
+mv PROJECT_flexbe_states/src/PROJECT_flexbe_states PROJECT_flexbe_states/src/${name}_flexbe_states
+mv PROJECT_flexbe_states ${name}_flexbe_states
+rm README.md
+echo -e "# ${name}_behaviors\r\nThis repo contains all ${name}-specific states and behaviors." >> README.md
+echo "Done"
+
+echo ""
+echo -e "\e[96m(4/4) Initializing new repository...\033[0m"
+rm -rf .git
+git init
+git add .
+git commit -m "Initial commit"
+
+echo ""
+echo -e "\e[92mCongratulations\033[0m, your new repository  \e[1m${name}_behaviors\033[0m  is ready to be pushed!"
+echo -e "Please run the following commands to push it:"
+echo -e "  git remote add origin [your_repo_url]"
+echo -e "  git push origin master"
+echo ""
+echo -e "Make sure to install and configure the FlexBE Chrome App."
+echo ""
+echo -e "Your new repository already contains an example behavior and a template for writing own states."
+echo ""
+
