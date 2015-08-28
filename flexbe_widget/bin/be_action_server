@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('flexbe_widget')
+import rospy
+import sys
+import getopt
+
+from flexbe_widget.behavior_action_server import BehaviorActionServer
+from flexbe_msgs.msg import BehaviorRequest
+
+
+if __name__ == '__main__':
+	rospy.init_node('flexbe_action_server')
+	
+	server = BehaviorActionServer()
+
+	# Wait for ctrl-c to stop the application
+	rospy.spin()
