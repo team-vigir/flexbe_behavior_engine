@@ -1,0 +1,18 @@
+# Commands the execution of any behavior.
+
+# name of the behavior to be executed
+string behavior_name
+
+# optional list of behavior parameters
+string[] arg_keys
+string[] arg_values
+
+---
+
+# result of the executed behavior
+string outcome
+
+---
+
+# path of the current state
+string current_state

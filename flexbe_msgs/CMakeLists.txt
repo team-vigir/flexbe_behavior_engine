@@ -24,6 +24,7 @@ add_message_files(FILES
 )
 add_action_files(FILES 
   BehaviorInput.action
+  BehaviorExecution.action
 )
 #add_action_files(FILES ...)
 # opt arg DEPENDENCIES ...
