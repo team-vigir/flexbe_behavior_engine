@@ -90,11 +90,10 @@ class OperatableState(PreemptableState):
             elif outcome != OperatableState._loopback_name:
                 self._sent_outcome_requests = []
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
+                self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
                 StateLogger.log_state_execution(self._get_path(), self.__class__.__name__, outcome, not self._force_transition, True)
 
         self._force_transition = False
-
-        self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
         
         return outcome
 
