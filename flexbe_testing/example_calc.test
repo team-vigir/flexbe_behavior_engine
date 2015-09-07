@@ -1,0 +1,22 @@
+# Declare state to be tested
+path: flexbe_states.calculation_state
+class: CalculationState
+
+# Source for message-based data
+#data: vigir_flexbe_behaviors/config/test.bag
+
+# Define state parameters
+params:
+    calculation: "lambda x: x + 1"
+
+# Define input data
+input:
+    input_value: 2
+
+
+# Define expected output data
+output:
+    output_value: 3
+
+# Define expected outcome
+outcome: done

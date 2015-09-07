@@ -1,0 +1,22 @@
+# Declare state to be tested
+path: flexbe_states.calculation_state
+class: CalculationState
+
+# Source for message-based data
+data: flexbe_testing/test_calc.bag
+
+# Define state parameters
+params:
+    calculation: "lambda x: x.position.x + 1"
+
+# Define input data
+input:
+    input_value: /calc_input
+
+
+# Define expected output data
+output:
+    output_value: 7.4
+
+# Define expected outcome
+outcome: done

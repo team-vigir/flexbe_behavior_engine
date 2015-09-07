@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import rospy
+import sys
+import os
+import yaml
+import smach
+
+from flexbe_core import Logger
+
+from flexbe_testing.state_tester import StateTester
+
+if __name__ == '__main__':
+	rospy.init_node('flexbe_testing')
+
+	Logger.initialize()
+	smach.set_loggers(
+		rospy.logdebug, # hide SMACH transition log spamming
+		rospy.logwarn,
+		rospy.logdebug,
+		rospy.logerr
+	)
+
+	filenames = list()
+	if len(sys.argv) > 1:
+		print 'Loading provided test cases...'
+		for arg in sys.argv[1:]:
+			if os.path.isfile(os.path.expanduser(arg)):
+				filenames.append(os.path.expanduser(arg))
+
+	test_cases = dict()
+	for filename in filenames:
+		with open(filename, 'r') as f:
+			config = yaml.load(f)
+		(folder, name) = os.path.split(filename)
+		test_cases[name] = config
+
+	print 'Ready for testing! (%d tests)' % len(test_cases)
+	tester = StateTester()
+
+	success_cases = 0
+	for test_name, test_config in test_cases.iteritems():
+		success_cases += tester.run_test(test_name, test_config)
+
+	print 'Testing completed, %d of %d tests successful.' % (success_cases, len(test_cases))
+
+	
