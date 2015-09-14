@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import inspect
 import rospkg
+import rospy
 import os
 import rosbag
 import smach
@@ -73,7 +74,7 @@ class StateTester(object):
 
 		# execute state
 		outcome = LoopbackState._loopback_name
-		while outcome == LoopbackState._loopback_name:
+		while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
 			outcome = state.execute(userdata)
 
 		# evaluate output
