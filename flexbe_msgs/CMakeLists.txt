@@ -23,6 +23,7 @@ add_message_files(FILES
   StateInstantiation.msg
   SynthesisErrorCodes.msg
   SynthesisRequest.msg
+  UICommand.msg
 )
 add_action_files(FILES 
   BehaviorInput.action
