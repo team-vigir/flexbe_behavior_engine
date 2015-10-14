@@ -15,6 +15,9 @@ class ProxyActionClient(object):
     """
     _clients = {}
 
+    _result = {}
+    _feedback = {}
+
     def __init__(self, topics = {}):
         """
         Initializes the proxy with optionally a given set of clients.
@@ -73,14 +76,35 @@ class ProxyActionClient(object):
         if topic not in ProxyActionClient._clients:
             raise ValueError('ProxyActionClient: topic %s not yet registered!' % topic)
         
-        ProxyActionClient._clients[topic].send_goal(goal)
+        ProxyActionClient._result[topic] = None
+        ProxyActionClient._feedback[topic] = None
+        
+        ProxyActionClient._clients[topic].send_goal(goal,
+            done_cb = lambda ts, r: self._done_callback(topic, ts, r),
+            feedback_cb = lambda f: self._feedback_callback(topic, f)
+        )
+
+    def _done_callback(self, topic, terminal_state, result):
+        ProxyActionClient._result[topic] = result
+
+    def _feedback_callback(self, topic, feedback):
+        ProxyActionClient._feedback[topic] = feedback
 
 
     def has_result(self, topic):
-        return ProxyActionClient._clients[topic].wait_for_result(rospy.Duration.from_sec(0.1))
+        return ProxyActionClient._result[topic] is not None
 
     def get_result(self, topic):
-        return ProxyActionClient._clients[topic].get_result()
+        return ProxyActionClient._result[topic]
+
+    def has_feedback(self, topic):
+        return ProxyActionClient._feedback[topic] is not None
+
+    def get_feedback(self, topic):
+        return ProxyActionClient._feedback[topic]
+
+    def get_state(self, topic):
+        return ProxyActionClient._clients[topic].get_state()
 
     def cancel(self, topic):
         ProxyActionClient._clients[topic].cancel_goal()

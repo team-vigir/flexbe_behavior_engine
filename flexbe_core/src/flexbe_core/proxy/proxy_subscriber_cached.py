@@ -59,6 +59,8 @@ class ProxySubscriberCached(object):
         if ProxySubscriberCached._simulate_delay:
             time.sleep(max(0, random.gauss(2, 0.6))) # for simulating comms_bridge delay
 
+        if not ProxySubscriberCached._topics.has_key(topic):
+            return
         ProxySubscriberCached._topics[topic]['last_msg'] = msg
         if ProxySubscriberCached._topics[topic]['buffered']:
             ProxySubscriberCached._topics[topic]['msg_queue'].append(msg)

@@ -5,7 +5,11 @@ import tf
 
 
 class ProxyTransformListener(object):
-    listener = None
+    _listener = None
     
-    def start(self):
-        ProxyTransformListener.listener = tf.TransformListener()
+    def __init__(self):
+        if ProxyTransformListener._listener is None:
+                ProxyTransformListener._listener = tf.TransformListener()
+
+    def listener(self):
+        return ProxyTransformListener._listener
