@@ -1,0 +1,21 @@
+# Minimal template for a behavior synthesis action.
+# As long as your action type supports at least the fields listed below, you can also use a custom one.
+
+# Request message as set in the FlexBE UI
+SynthesisRequest request
+
+---
+
+# Provides feedback regarding possibly occured errors
+SynthesisErrorCodes error_code
+
+# Result of behavior synthesis as a list of state instantiations
+StateInstantiation[] states
+
+---
+
+# Any custom feedback message regarding the status
+string status
+
+# Progress indication from 0 (started) to 1 (completed)
+float32 progress

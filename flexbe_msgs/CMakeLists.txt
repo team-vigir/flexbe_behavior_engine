@@ -21,10 +21,13 @@ add_message_files(FILES
   ContainerStructure.msg
   OutcomeRequest.msg
   StateInstantiation.msg
+  SynthesisErrorCodes.msg
+  SynthesisRequest.msg
 )
 add_action_files(FILES 
   BehaviorInput.action
   BehaviorExecution.action
+  BehaviorSynthesis.action
 )
 #add_action_files(FILES ...)
 # opt arg DEPENDENCIES ...
