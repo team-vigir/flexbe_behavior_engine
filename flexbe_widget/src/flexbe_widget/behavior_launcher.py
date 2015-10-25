@@ -13,9 +13,9 @@ import xml.etree.ElementTree as ET
 class BehaviorLauncher(object):
 
 	def __init__(self):
-		self._sub = rospy.Subscriber("/flexbe/request_behavior", BehaviorRequest, self._callback)
-		self._pub = rospy.Publisher("/flexbe/start_behavior", BehaviorSelection, queue_size=100)
-		self._mirror_pub = rospy.Publisher("/flexbe/mirror/structure", ContainerStructure, queue_size=100)
+		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
+		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100)
+		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
 
 		self._rp = RosPack()
 		self._behavior_lib = dict()

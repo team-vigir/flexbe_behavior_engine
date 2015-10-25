@@ -77,8 +77,8 @@ class VigirBeOnboard(object):
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
 
-        self.status_topic = '/flexbe/status'
-        self.feedback_topic = '/flexbe/command_feedback'
+        self.status_topic = 'flexbe/status'
+        self.feedback_topic = 'flexbe/command_feedback'
 
         self._pub.createPublisher(self.status_topic, BEStatus, _latch = True)
         self._pub.createPublisher(self.feedback_topic, CommandFeedback)
@@ -86,10 +86,10 @@ class VigirBeOnboard(object):
         # listen for new behavior to start
         self._running = False
         self._switching = False
-        self._sub.subscribe('/flexbe/start_behavior', BehaviorSelection, self._behavior_callback)
+        self._sub.subscribe('flexbe/start_behavior', BehaviorSelection, self._behavior_callback)
 
         # heartbeat
-        self._pub.createPublisher('/flexbe/heartbeat', Empty)
+        self._pub.createPublisher('flexbe/heartbeat', Empty)
         self._execute_heartbeat()
 
         rospy.sleep(0.5) # wait for publishers etc to really be set up
@@ -338,7 +338,7 @@ class VigirBeOnboard(object):
 
     def _heartbeat_worker(self):
         while True:
-            self._pub.publish('/flexbe/heartbeat', Empty())
+            self._pub.publish('flexbe/heartbeat', Empty())
             time.sleep(1) # sec
 
 

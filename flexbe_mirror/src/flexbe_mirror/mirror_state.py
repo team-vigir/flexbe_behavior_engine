@@ -30,7 +30,7 @@ class MirrorState(EventState):
         self._target_name = target_name
         self._target_path = target_path
         
-        self._outcome_topic = '/flexbe/mirror/outcome'
+        self._outcome_topic = 'flexbe/mirror/outcome'
 
         self._pub = ProxyPublisher() #{'/flexbe/behavior_update': String}
         self._sub = ProxySubscriberCached({self._outcome_topic: UInt8})
@@ -53,7 +53,7 @@ class MirrorState(EventState):
     
     def on_enter(self, userdata):
         #rospy.loginfo("Mirror entering %s", self._target_path)
-        self._pub.publish('/flexbe/behavior_update', String("/" + "/".join(self._target_path.split("/")[1:])))
+        self._pub.publish('flexbe/behavior_update', String("/" + "/".join(self._target_path.split("/")[1:])))
     
     
     

@@ -40,8 +40,8 @@ class VigirBehaviorMirror(object):
         
         # set up proxys for sm <--> GUI communication
         # publish topics
-        self._pub = ProxyPublisher({'/flexbe/behavior_update': String,
-                                    '/flexbe/request_mirror_structure': Int32})
+        self._pub = ProxyPublisher({'flexbe/behavior_update': String,
+                                    'flexbe/request_mirror_structure': Int32})
             
         self._running = False
         self._stopping = False
@@ -49,7 +49,7 @@ class VigirBehaviorMirror(object):
         self._starting_path = None
         self._current_struct = None
 
-        self._outcome_topic = '/flexbe/mirror/outcome'
+        self._outcome_topic = 'flexbe/mirror/outcome'
 
         self._struct_buffer = list()
         
@@ -58,10 +58,10 @@ class VigirBehaviorMirror(object):
         self._sub.subscribe(self._outcome_topic, UInt8)
         self._sub.enable_buffer(self._outcome_topic)
 
-        self._sub.subscribe('/flexbe/mirror/structure', ContainerStructure, self._mirror_callback)
-        self._sub.subscribe('/flexbe/status', BEStatus, self._status_callback)
-        self._sub.subscribe('/flexbe/mirror/sync', BehaviorSync, self._sync_callback)
-        self._sub.subscribe('/flexbe/mirror/preempt', Empty, self._preempt_callback)
+        self._sub.subscribe('flexbe/mirror/structure', ContainerStructure, self._mirror_callback)
+        self._sub.subscribe('flexbe/status', BEStatus, self._status_callback)
+        self._sub.subscribe('flexbe/mirror/sync', BehaviorSync, self._sync_callback)
+        self._sub.subscribe('flexbe/mirror/preempt', Empty, self._preempt_callback)
     
     
     def _mirror_callback(self, msg):

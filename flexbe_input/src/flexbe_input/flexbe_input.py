@@ -21,8 +21,8 @@ class BehaviorInput(object):
 		Constructor
 		'''
 		#onboard connection
-		self._as = ComplexActionServer('/flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
-		#self._as = actionlib.SimpleActionServer('/flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
+		self._as = ComplexActionServer('flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
+		#self._as = actionlib.SimpleActionServer('flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
 		self._as.start()
 
 		rospy.loginfo("Ready for data requests...")			
@@ -31,7 +31,7 @@ class BehaviorInput(object):
 		rospy.loginfo("--> Got a request!")
 		rospy.loginfo('"%s"' % goal.msg)
 	
-		relay_ocs_client_ = actionlib.SimpleActionClient('/flexbe/operator_input', BehaviorInputAction)
+		relay_ocs_client_ = actionlib.SimpleActionClient('flexbe/operator_input', BehaviorInputAction)
 			
 		# wait for data msg
 		print "waiting"

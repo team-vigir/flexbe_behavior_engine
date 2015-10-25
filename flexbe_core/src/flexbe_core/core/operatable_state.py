@@ -27,8 +27,8 @@ class OperatableState(PreemptableState):
         self._mute = False  # is set to true when used in silent state machine (don't report transitions)
         self._sent_outcome_requests = []  # contains those outcomes that already requested a transition
         
-        self._outcome_topic = '/flexbe/mirror/outcome'
-        self._request_topic = '/flexbe/outcome_request'
+        self._outcome_topic = 'flexbe/mirror/outcome'
+        self._request_topic = 'flexbe/outcome_request'
         self._pub = ProxyPublisher()
         
         self.__execute = self.execute
