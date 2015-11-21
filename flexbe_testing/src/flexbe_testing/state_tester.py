@@ -92,9 +92,11 @@ class StateTester(object):
 					expected[output_key] = self._parse_data_value(output_value, bag)
 
 			# execute state
+			state.on_start()
 			outcome = LoopbackState._loopback_name
 			while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
 				outcome = state.execute(userdata)
+			state.on_stop()
 
 			# evaluate output
 			output_ok = True
