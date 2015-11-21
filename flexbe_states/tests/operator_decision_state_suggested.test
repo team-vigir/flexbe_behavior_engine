@@ -1,0 +1,9 @@
+path: flexbe_states.operator_decision_state
+class: OperatorDecisionState
+
+params:
+    outcomes: ['left', 'right']
+    hint: 'Choose a direction for exploration'
+    suggestion: 'right'
+
+outcome: right

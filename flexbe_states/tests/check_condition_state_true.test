@@ -1,0 +1,10 @@
+path: flexbe_states.check_condition_state
+class: CheckConditionState
+
+params:
+    predicate: "lambda x: x > 0"
+
+input:
+    input_value: 8
+
+outcome: "true"

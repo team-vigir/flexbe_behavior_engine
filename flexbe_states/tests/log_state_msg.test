@@ -1,0 +1,10 @@
+path: flexbe_states.log_state
+class: LogState
+
+data: flexbe_states/tests/bags/pose3d.bag
+
+params:
+    text: /calc_input
+    severity: 0
+
+outcome: done
