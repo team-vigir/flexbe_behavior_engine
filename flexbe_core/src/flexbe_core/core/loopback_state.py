@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import rospy
 
-from rospy.exceptions import ROSInterruptException
-
 from flexbe_core.core.lockable_state import LockableState
 
 class LoopbackState(LockableState):
@@ -29,11 +27,6 @@ class LoopbackState(LockableState):
 
     def _loopback_execute(self, *args, **kwargs):
         result = self.__execute(*args, **kwargs)
-        
-        try:
-            self._rate.sleep()
-        except ROSInterruptException:
-            rospy.logwarn('Interrupted rate sleep.')
             
         if result is None or result == 'None':
             result = self._loopback_name

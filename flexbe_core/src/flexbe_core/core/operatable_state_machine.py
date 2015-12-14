@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import rospy
 import zlib
+import smach
+
+from rospy.exceptions import ROSInterruptException
 
 from flexbe_core.core.preemptable_state_machine import PreemptableStateMachine
 from flexbe_core.core.lockable_state_machine import LockableStateMachine
@@ -27,6 +30,7 @@ class OperatableStateMachine(PreemptableStateMachine):
     def __init__(self, *args, **kwargs):
         super(OperatableStateMachine, self).__init__(*args, **kwargs)
         self._message = None
+        self._rate = rospy.Rate(10)
 
         self.id = None
         self.autonomy = None
@@ -37,6 +41,78 @@ class OperatableStateMachine(PreemptableStateMachine):
         self._pub = ProxyPublisher()
 
         self._sub = ProxySubscriberCached()
+
+
+    def execute(self, parent_ud = smach.UserData()):
+        # Spew some info
+        smach.loginfo("State machine starting in initial state '%s' with userdata: \n\t%s" %
+                (self._current_label, list(self.userdata.keys())))
+
+        # Set initial state 
+        self._set_current_state(self._initial_state_label)
+
+        # Initialize preempt state
+        self._preempted_label = None
+        self._preempted_state = None
+
+        # Call start callbacks
+        self.call_start_cbs()
+
+        container_outcome = None
+        # Step through state machine
+        while container_outcome is None and not smach.is_shutdown():
+            # Update the state machine
+            container_outcome = self._async_execute(parent_ud)
+
+        if smach.is_shutdown():
+            container_outcome = 'preempted'
+
+        return container_outcome
+
+
+    def _async_execute(self, parent_ud = smach.UserData()):
+        """Run the state machine on entry to this state.
+        This will set the "closed" flag and spin up the execute thread. Once
+        this flag has been set, it will prevent more states from being added to
+        the state machine. 
+        """
+
+        # This will prevent preempts from getting propagated to non-existent children
+        with self._state_transitioning_lock:
+            # Check state consistency
+            try:
+                self.check_consistency()
+            except (smach.InvalidStateError, smach.InvalidTransitionError):
+                smach.logerr("Container consistency check failed.")
+                return None
+
+            # Set running flag
+            self._is_running = True
+
+            # Copy input keys
+            self._copy_input_keys(parent_ud, self.userdata)
+
+            # Initialize container outcome
+            container_outcome = None
+
+            # Step through state machine
+            if self._is_running and not smach.is_shutdown():
+                # Update the state machine
+                container_outcome = self._update_once()
+                if self._current_state is not None:
+                    try:
+                        self._current_state._rate.sleep()
+                    except ROSInterruptException:
+                        rospy.logwarn('Interrupted rate sleep.')
+
+            if container_outcome is not None:
+                # Copy output keys
+                self._copy_output_keys(self.userdata, parent_ud)
+
+            # We're no longer running
+            self._is_running = False
+
+        return container_outcome
 
 
     @staticmethod

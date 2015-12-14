@@ -6,6 +6,8 @@ from jumpable_state_machine import JumpableStateMachine
 from operatable_state_machine import OperatableStateMachine
 from lockable_state_machine import LockableStateMachine
 
+from concurrency_container import ConcurrencyContainer
+
 from preemptable_state import PreemptableState
 from manually_transitionable_state import ManuallyTransitionableState
 from operatable_state import OperatableState

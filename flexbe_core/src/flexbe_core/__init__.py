@@ -9,7 +9,7 @@ import roslib; roslib.load_manifest('flexbe_core')
 #
 
 from .core import EventState
-from .core import OperatableStateMachine, JumpableStateMachine, SilentStateMachine, LockableStateMachine
+from .core import OperatableStateMachine, JumpableStateMachine, SilentStateMachine, LockableStateMachine, ConcurrencyContainer
 
 from .behavior import Behavior
 

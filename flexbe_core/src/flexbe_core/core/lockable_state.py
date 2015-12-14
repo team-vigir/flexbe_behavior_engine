@@ -50,7 +50,7 @@ class LockableState(ManuallyTransitionableState):
             return None
             
         if not self._locked and not self._stored_outcome is None and not self._stored_outcome == 'None':
-            if self._parent.transition_allowed(self._stored_outcome):
+            if self._parent.transition_allowed(self.name, self._stored_outcome):
                 outcome = self._stored_outcome
                 self._stored_outcome = None
                 return outcome
@@ -62,7 +62,7 @@ class LockableState(ManuallyTransitionableState):
         if outcome is None or outcome == 'None':
             return None
 
-        if not self._parent is None and not self._parent.transition_allowed(outcome):
+        if not self._parent is None and not self._parent.transition_allowed(self.name, outcome):
             self._stored_outcome = outcome
             return None
 

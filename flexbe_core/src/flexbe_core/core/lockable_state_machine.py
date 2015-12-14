@@ -48,11 +48,11 @@ class LockableStateMachine(smach.StateMachine):
         return transition_target in self._states
 
 
-    def transition_allowed(self, outcome):
+    def transition_allowed(self, state, outcome):
         if outcome is None or outcome == 'None':
             return True
-        transition_target = self._current_transitions[outcome]
-        return self._is_internal_transition(transition_target) or (not self._locked and (self._parent is None or self._parent.transition_allowed(transition_target)))
+        transition_target = self._transitions[state][outcome]
+        return self._is_internal_transition(transition_target) or (not self._locked and (self._parent is None or self._parent.transition_allowed(self.name, transition_target)))
 
 
     def _get_path(self):
