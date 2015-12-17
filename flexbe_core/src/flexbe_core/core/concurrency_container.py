@@ -31,6 +31,17 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
 
 
     def _update_once(self):
+        # Check if a preempt was requested before or while the last state was running
+        if self.preempt_requested():
+            if self._preempted_state is not None:
+                if self._preempted_state.preempt_requested():
+                    self._preempt_current_state()
+                else:
+                    self._preempt_requested = False
+                    self._preempted_state = None
+            else:
+                self._preempt_current_state()
+
         #self._state_transitioning_lock.release()
         for state in self._ordered_states:
             if state.name in self._returned_outcomes.keys() and self._returned_outcomes[state.name] != self._loopback_name:
