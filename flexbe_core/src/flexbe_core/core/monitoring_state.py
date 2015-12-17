@@ -15,16 +15,6 @@ class MonitoringState(smach.State):
     For each conditions, an outcome is added or mapped which will be returned if the condition is not met. 
     """
 
-    COMPONENT_CRASHED = 'component_crashed'
-    HIGH_TEMP = 'high_temp'
-    ROBOT_FALLEN = 'robot_fallen'
-
-    KEY_MAPPING = {
-        'component_crashed':        'diag_name1',
-        'high_temp':                'diag_name2',
-        'robot_fallen':             'diag_name3'
-    }
-
     def __init__(self, *args, **kwargs):
         super(MonitoringState, self).__init__(*args, **kwargs)
 
@@ -35,6 +25,7 @@ class MonitoringState(smach.State):
         self.name = None
         self._parent = None
         self._is_controlled = False
+        self._force_monitoring = False
 
         self._monitored_keys = dict()
         self._sent_keys = list()
@@ -43,14 +34,14 @@ class MonitoringState(smach.State):
         self.__execute = self.execute
         self.execute = self._monitoring_execute
 
-        self._diagnostics_topic = '/health_monitor/status'
+        self._diagnostics_topic = '/diagnostics'
         self._sub = ProxySubscriberCached()
 
 
     def _monitoring_execute(self, *args, **kwargs):
         new_status = None
         had_warning = False
-        if self._is_controlled and self._sub.has_buffered(self._diagnostics_topic):
+        if (self._force_monitoring or self._is_controlled) and self._sub.has_buffered(self._diagnostics_topic):
             new_status = ""
             diag_msg = self._sub.get_from_buffer(self._diagnostics_topic)
             for status in diag_msg.status:
@@ -82,11 +73,16 @@ class MonitoringState(smach.State):
 
     def monitor(self, key, outcome = None):
         oc = outcome if not outcome is None else key
-        self._monitored_keys[MonitoringState.KEY_MAPPING[key]] = oc
+        self._monitored_keys[key] = oc
         if not oc in self._outcomes:
             self.register_outcomes([oc])
             self._outcome_list.append(oc)
 
+    def force_monitoring(self):
+        self._force_monitoring = True
+        if not self._is_controlled:
+            self._sub.subscribe(self._diagnostics_topic, DiagnosticArray)
+            self._sub.enable_buffer(self._diagnostics_topic)
 
     def _enable_ros_control(self):
         self._is_controlled = True
