@@ -3,8 +3,10 @@ import inspect
 import rospkg
 import rospy
 import os
+import re
 import rosbag
 import smach
+import roslaunch
 
 from flexbe_core import OperatableStateMachine, EventState
 from flexbe_core.core.loopback_state import LoopbackState
@@ -15,6 +17,8 @@ class StateTester(object):
 	def __init__(self):
 		self._counter = 0
 		self._rp = rospkg.RosPack()
+
+		self._run_id = rospy.get_param('/run_id')
 
 		self._print_debug_positive = rospy.get_param('~print_debug_positive', True)
 		self._print_debug_negative = rospy.get_param('~print_debug_negative', True)
@@ -69,7 +73,11 @@ class StateTester(object):
 			StateClass = next(c for n,c in clsmembers if n == config['class'])
 			if config.has_key('params'):
 				for key, value in config['params'].iteritems():
-					config['params'][key] = self._parse_data_value(value, bag)
+					try:
+						config['params'][key] = self._parse_data_value(value, bag)
+					except Exception as e:
+						if not self._compact_format:
+							print '\033[33;1m  >\033[0m\033[33m unable to get message from topic %s: ignoring replacement...\033[0m' % (str(value))
 				state = StateClass(**config['params'])
 			elif not import_only:
 				state = StateClass()
@@ -79,6 +87,24 @@ class StateTester(object):
 			return 0
 
 		if not import_only:
+			# load and prepare launch file
+			if config.has_key('launch'):
+				launchpath = None
+				launchcontent = None
+				if config['launch'].startswith('~') or config['launch'].startswith('/'):
+					launchpath = os.path.expanduser(config['launch'])
+				elif re.match(r'.+\.launch$', config['launch']):
+					launchpath = os.path.join(self._rp.get_path(config['launch'].split('/')[0]), '/'.join(config['launch'].split('/')[1:]))
+				else:
+					launchcontent = config['launch']
+				launchconfig = roslaunch.config.ROSLaunchConfig()
+				loader = roslaunch.xmlloader.XmlLoader()
+				if launchpath is not None:
+					loader.load(launchpath, launchconfig, verbose = False)
+				else:
+					loader.load_string(launchcontent, launchconfig, verbose = False)
+				launchrunner = roslaunch.launch.ROSLaunchRunner(self._run_id, launchconfig)
+
 			# set input values
 			userdata = smach.UserData()
 			if config.has_key('input'):
@@ -91,12 +117,24 @@ class StateTester(object):
 				for output_key, output_value in config['output'].iteritems():
 					expected[output_key] = self._parse_data_value(output_value, bag)
 
+			# start launch file if there is any
+			if config.has_key('launch'):
+				#print '\033[35m'
+				run = launchrunner.launch()
+				if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m launchfile running'
+
 			# execute state
 			state.on_start()
 			outcome = LoopbackState._loopback_name
 			while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
 				outcome = state.execute(userdata)
+				if config.has_key('launch'):
+					launchrunner.spin_once()
 			state.on_stop()
+			if config.has_key('launch'):
+				#print '\033[35m'
+				launchrunner.stop()
+				if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m launchfile stopped'
 
 			# evaluate output
 			output_ok = True
