@@ -1,0 +1,16 @@
+path: flexbe_states.subscriber_state
+class: SubscriberState
+
+# need to start the following command before testing (on same master):
+# rostopic pub /test geometry_msgs/Pose "{position: {x: 6.4}}"
+
+data: flexbe_states/tests/bags/pose3d.bag
+
+params:
+    topic: //test
+    blocking: True
+
+output:
+    message: /calc_input
+
+outcome: received

@@ -1,0 +1,10 @@
+path: flexbe_states.subscriber_state
+class: SubscriberState
+
+params:
+    topic: '/this_topic_should_not_be_available_during_testing'
+
+output:
+    message: None
+
+outcome: unavailable
