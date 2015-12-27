@@ -38,6 +38,8 @@ class PreemptableState(LoopbackState):
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
 
+        PreemptableState.preempt = False
+
 
     def _preemptable_execute(self, *args, **kwargs):
         preempting = False
@@ -45,10 +47,10 @@ class PreemptableState(LoopbackState):
             self._sub.remove_last_msg(self._preempt_topic)
             self._pub.publish(self._feedback_topic, CommandFeedback(command="preempt"))
             preempting = True
+            PreemptableState.preempt = True
             rospy.loginfo("--> Behavior will be preempted")
 
         if PreemptableState.preempt:
-            PreemptableState.preempt = False
             preempting = True
             rospy.loginfo("Behavior will be preempted")
             
