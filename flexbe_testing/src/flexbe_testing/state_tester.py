@@ -50,6 +50,29 @@ class StateTester(object):
 		print '\033[34;1m#%2d %s \033[0m\033[34m(%s%s)\033[0m' % (self._counter, name, config['class'], ' > %s' % config['outcome'] if not import_only else '')
 		prefix = '>>>' if not self._compact_format else '  >'
 
+
+		# load and start launch file
+		if not import_only and config.has_key('launch'):
+			launchpath = None
+			launchcontent = None
+			if config['launch'].startswith('~') or config['launch'].startswith('/'):
+				launchpath = os.path.expanduser(config['launch'])
+			elif re.match(r'.+\.launch$', config['launch']):
+				launchpath = os.path.join(self._rp.get_path(config['launch'].split('/')[0]), '/'.join(config['launch'].split('/')[1:]))
+			else:
+				launchcontent = config['launch']
+			launchconfig = roslaunch.config.ROSLaunchConfig()
+			loader = roslaunch.xmlloader.XmlLoader()
+			if launchpath is not None:
+				loader.load(launchpath, launchconfig, verbose = False)
+			else:
+				loader.load_string(launchcontent, launchconfig, verbose = False)
+			launchrunner = roslaunch.launch.ROSLaunchRunner(self._run_id, launchconfig)
+
+			#print '\033[35m'
+			run = launchrunner.launch()
+			if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m launchfile running'
+
 		# prepare rosbag if available
 		bag = None
 		if config.has_key('data'):
@@ -87,24 +110,6 @@ class StateTester(object):
 			return 0
 
 		if not import_only:
-			# load and prepare launch file
-			if config.has_key('launch'):
-				launchpath = None
-				launchcontent = None
-				if config['launch'].startswith('~') or config['launch'].startswith('/'):
-					launchpath = os.path.expanduser(config['launch'])
-				elif re.match(r'.+\.launch$', config['launch']):
-					launchpath = os.path.join(self._rp.get_path(config['launch'].split('/')[0]), '/'.join(config['launch'].split('/')[1:]))
-				else:
-					launchcontent = config['launch']
-				launchconfig = roslaunch.config.ROSLaunchConfig()
-				loader = roslaunch.xmlloader.XmlLoader()
-				if launchpath is not None:
-					loader.load(launchpath, launchconfig, verbose = False)
-				else:
-					loader.load_string(launchcontent, launchconfig, verbose = False)
-				launchrunner = roslaunch.launch.ROSLaunchRunner(self._run_id, launchconfig)
-
 			# set input values
 			userdata = smach.UserData()
 			if config.has_key('input'):
@@ -117,12 +122,6 @@ class StateTester(object):
 				for output_key, output_value in config['output'].iteritems():
 					expected[output_key] = self._parse_data_value(output_value, bag)
 
-			# start launch file if there is any
-			if config.has_key('launch'):
-				#print '\033[35m'
-				run = launchrunner.launch()
-				if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m launchfile running'
-
 			# execute state
 			state.on_start()
 			outcome = LoopbackState._loopback_name
@@ -131,6 +130,7 @@ class StateTester(object):
 				if config.has_key('launch'):
 					launchrunner.spin_once()
 			state.on_stop()
+			
 			if config.has_key('launch'):
 				#print '\033[35m'
 				launchrunner.stop()
