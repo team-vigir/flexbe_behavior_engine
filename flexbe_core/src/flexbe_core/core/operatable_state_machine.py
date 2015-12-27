@@ -44,24 +44,28 @@ class OperatableStateMachine(PreemptableStateMachine):
 
 
     def execute(self, parent_ud = smach.UserData()):
-        # Spew some info
-        smach.loginfo("State machine starting in initial state '%s' with userdata: \n\t%s" %
-                (self._current_label, list(self.userdata.keys())))
+        # First time in this state machine
+        if self._current_state is None:
+            # Spew some info
+            smach.loginfo("State machine starting in initial state '%s' with userdata: \n\t%s" %
+                    (self._current_label, list(self.userdata.keys())))
+            # Set initial state
+            self._set_current_state(self._initial_state_label)
 
-        # Set initial state 
-        self._set_current_state(self._initial_state_label)
+            # Initialize preempt state
+            self._preempted_label = None
+            self._preempted_state = None
 
-        # Initialize preempt state
-        self._preempted_label = None
-        self._preempted_state = None
+            # Call start callbacks
+            self.call_start_cbs()
 
-        # Call start callbacks
-        self.call_start_cbs()
-
-        container_outcome = None
-        # Step through state machine
-        while container_outcome is None and not smach.is_shutdown():
-            # Update the state machine
+        container_outcome = self._loopback_name
+        if self.id is not None:
+            # only top-level statemachine should loop for outcome
+            while container_outcome == self._loopback_name and not smach.is_shutdown():
+                # Update the state machine
+                container_outcome = self._async_execute(parent_ud)
+        else:
             container_outcome = self._async_execute(parent_ud)
 
         if smach.is_shutdown():
@@ -105,9 +109,11 @@ class OperatableStateMachine(PreemptableStateMachine):
                     except ROSInterruptException:
                         rospy.logwarn('Interrupted rate sleep.')
 
-            if container_outcome is not None:
+            if container_outcome is not None and container_outcome != self._loopback_name:
                 # Copy output keys
                 self._copy_output_keys(self.userdata, parent_ud)
+            else:
+                container_outcome = self._loopback_name
 
             # We're no longer running
             self._is_running = False
@@ -140,6 +146,9 @@ class OperatableStateMachine(PreemptableStateMachine):
         if isinstance(state, LoopbackState):
             transitions[LoopbackState._loopback_name] = label
             autonomy[LoopbackState._loopback_name] = -1
+        if isinstance(state, OperatableStateMachine):
+            transitions[OperatableStateMachine._loopback_name] = label
+            autonomy[OperatableStateMachine._loopback_name] = -1
             
         self._ordered_states.append(state)
         state.name = label

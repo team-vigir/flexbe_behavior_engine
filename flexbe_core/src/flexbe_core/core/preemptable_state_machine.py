@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 import rospy
 
-from flexbe_core.core.lockable_state_machine import LockableStateMachine
+from flexbe_core.core.loopback_state_machine import LoopbackStateMachine
 
 
-class PreemptableStateMachine(LockableStateMachine):
+class PreemptableStateMachine(LoopbackStateMachine):
     """
     A state machine that can be preempted.
     If preempted, the state machine will return the outcome preempted.

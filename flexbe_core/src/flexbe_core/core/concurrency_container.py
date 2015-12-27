@@ -52,14 +52,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
                             state.get_registered_input_keys(),
                             state.get_registered_output_keys(),
                             self._remappings[state.name])
-                if isinstance(state, OperatableStateMachine):
-                    if state._current_state is None:
-                        state._set_current_state(state._initial_state_label)
-                    self._returned_outcomes[state.name] = state._async_execute(ud)
-                    if self._returned_outcomes[state.name] is None:
-                        self._returned_outcomes[state.name] = self._loopback_name
-                else:
-                    self._returned_outcomes[state.name] = state.execute(ud)
+                self._returned_outcomes[state.name] = state.execute(ud)
                 #print 'execute %s --> %s' % (state.name, self._returned_outcomes[state.name])
             except smach.InvalidUserCodeError as ex:
                 smach.logerr("State '%s' failed to execute." % state.name)
