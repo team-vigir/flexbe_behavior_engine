@@ -17,4 +17,6 @@
   <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
 
+  <test_depend>rosunit</test_depend>
+
 </package>

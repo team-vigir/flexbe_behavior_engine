@@ -4,6 +4,8 @@
 
 <arg name="testcases" default="" />
 
+<arg name="package" default="" />
+
 <arg name="print_debug_positive" default="true" />
 <arg name="print_debug_negative" default="true" />
 <arg name="mute_info" default="false" />
@@ -12,6 +14,7 @@
 <arg name="compact_format" default="false" />
 
 <node name="flexbe_testing" pkg="flexbe_testing" type="testing_node" output="screen" args="$(arg testcases)">
+	<param name="~package" value="$(arg package)" />
 	<param name="~print_debug_positive" value="$(arg print_debug_positive)" />
 	<param name="~print_debug_negative" value="$(arg print_debug_negative)" />
 	<param name="~mute_info" value="$(arg mute_info)" />

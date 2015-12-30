@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<arg name="testcases" default="" />
+
+<arg name="package" default="" />
+
+<test name="flexbe_testing" pkg="flexbe_testing" type="testing_node" test-name="$(arg package)" args="$(arg testcases)">
+	<param name="~package" value="$(arg package)" />
+	<param name="~perform_rostest" value="true" />
+	<param name="~compact_format" value="true" />
+</test>
+
+</launch>

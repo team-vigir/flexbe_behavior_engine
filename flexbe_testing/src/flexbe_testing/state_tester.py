@@ -7,16 +7,19 @@ import re
 import rosbag
 import smach
 import roslaunch
+import unittest
+import rosunit
 
-from flexbe_core import OperatableStateMachine, EventState
 from flexbe_core.core.loopback_state import LoopbackState
 
 
 class StateTester(object):
 
-	def __init__(self):
+	def __init__(self, test_package):
 		self._counter = 0
 		self._rp = rospkg.RosPack()
+		self._pkg = test_package
+		self._evaluation_tests = dict()
 
 		self._run_id = rospy.get_param('/run_id')
 
@@ -89,11 +92,18 @@ class StateTester(object):
 			if self._print_debug_positive: print '\033[1m  +\033[0m using data source: %s' % bagpath
 
 		# import state
-		state = None
 		try:
 			package = __import__(config['path'], fromlist=[config['path']])
 			clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__ == package.__name__)
 			StateClass = next(c for n,c in clsmembers if n == config['class'])
+		except Exception as e:
+			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, self.config['class'], self.config['path'], str(e))
+			return 0
+		if self._print_debug_positive: print '\033[1m  +\033[0m state imported'
+
+		if not import_only:
+			# prepare parameters
+			params = None
 			if config.has_key('params'):
 				for key, value in config['params'].iteritems():
 					try:
@@ -101,15 +111,20 @@ class StateTester(object):
 					except Exception as e:
 						if not self._compact_format:
 							print '\033[33;1m  >\033[0m\033[33m unable to get message from topic %s: ignoring replacement...\033[0m' % (str(value))
-				state = StateClass(**config['params'])
-			elif not import_only:
-				state = StateClass()
-			if self._print_debug_positive: print '\033[1m  +\033[0m state imported'
-		except Exception as e:
-			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
-			return 0
+				params = config['params']
 
-		if not import_only:
+			# instatiate state
+			state = None
+			try:
+				if params is None:
+					state = StateClass()
+				else:
+					state = StateClass(**params)
+			except Exception as e:
+				print '\033[31;1m%s\033[0m\033[31m unable to instantiate state %s (%s) with params:\n\t%s\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(params), str(e))
+				return 0
+			if self._print_debug_positive: print '\033[1m  +\033[0m state instantiated'
+
 			# set input values
 			userdata = smach.UserData()
 			if config.has_key('input'):
@@ -123,14 +138,18 @@ class StateTester(object):
 					expected[output_key] = self._parse_data_value(output_value, bag)
 
 			# execute state
-			state.on_start()
-			outcome = LoopbackState._loopback_name
-			while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
-				outcome = state.execute(userdata)
-				if config.has_key('launch'):
-					launchrunner.spin_once()
-			state.on_stop()
-			
+			try:
+				state.on_start()
+				outcome = LoopbackState._loopback_name
+				while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
+					outcome = state.execute(userdata)
+					if config.has_key('launch'):
+						launchrunner.spin_once()
+				state.on_stop()
+			except Exception as e:
+				print '\033[31;1m%s\033[0m\033[31m failed to execute state %s (%s)\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
+				return 0
+
 			if config.has_key('launch'):
 				#print '\033[35m'
 				launchrunner.stop()
@@ -140,7 +159,10 @@ class StateTester(object):
 			output_ok = True
 			for expected_key, expected_value in expected.iteritems():
 				if expected_key in userdata.keys():
-					if expected_value != userdata[expected_key]:
+					equals = userdata[expected_key] == expected_value
+					self._evaluation_tests['test_%s_output_%s' % (name.split('.')[0], expected_key)] = \
+						self._test_output(userdata[expected_key], expected_value)
+					if not equals:
 						if self._print_debug_negative: print '\033[1m  -\033[0m wrong result for %s: %s != %s' % (expected_key, userdata[expected_key], expected_value)
 						output_ok = False
 			if len(expected) > 0 and output_ok:
@@ -148,11 +170,12 @@ class StateTester(object):
 
 			# evaluate outcome
 			outcome_ok = outcome == config['outcome']
+			self._evaluation_tests['test_%s_outcome' % name.split('.')[0]] = self._test_outcome(outcome, config['outcome'])
 			if outcome_ok:
 				if self._print_debug_positive: print '\033[1m  +\033[0m correctly returned outcome %s' % outcome
 			else:
 				if self._print_debug_negative: print '\033[1m  -\033[0m wrong outcome: %s' % outcome
-
+			
 		# report result
 		if import_only or outcome_ok and output_ok:
 			print '\033[32;1m%s\033[0m\033[32m %s completed!\033[0m' % (prefix, name)
@@ -160,6 +183,10 @@ class StateTester(object):
 		else:
 			print '\033[31;1m%s\033[0m\033[31m %s failed!\033[0m' % (prefix, name)
 			return 0
+
+	def perform_rostest(self):
+		TestCase = type(self._pkg + '_test_class', (unittest.TestCase,), self._evaluation_tests)
+		rosunit.unitrun(self._pkg, self._pkg + '_flexbe_tests', TestCase)
 
 
 	def _parse_data_value(self, data_value, bag):
@@ -180,3 +207,16 @@ class StateTester(object):
 			data_value = data_value[1:]
 
 		return data_value
+
+
+	# ROSUNIT callbacks
+
+	def _test_output(self, value, expected):
+		def _test_call(test_self):
+			test_self.assertEquals(value, expected, "output")
+		return _test_call
+
+	def _test_outcome(self, outcome, expected):
+		def _test_call(test_self):
+			test_self.assertEquals(outcome, expected, "output")
+		return _test_call
