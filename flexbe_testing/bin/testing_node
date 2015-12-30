@@ -28,12 +28,14 @@ if __name__ == '__main__':
 		(folder, name) = os.path.split(filename)
 		test_cases[name] = config
 
+	perform_rostest = rospy.get_param('~perform_rostest', False)
 	test_package = rospy.get_param('~package')
-	if test_package == '':
+
+	if perform_rostest and test_package == '':
 		rospy.logerr('Need to pass the name of the package under testing as arg "package" to the flexbe_testing launch file!')
 
 	print 'Ready for testing! (%d tests)' % len(test_cases)
-	tester = StateTester(test_package)
+	tester = StateTester()
 
 	success_cases = 0
 	for test_name, test_config in test_cases.iteritems():
@@ -46,8 +48,7 @@ if __name__ == '__main__':
 	print '\033[%smTesting completed, %d of %d tests successful.\033[0m' % (result_color, success_cases, len(test_cases))
 	print ''
 
-	perform_rostest = rospy.get_param('~perform_rostest', False)
 	if perform_rostest:
-		tester.perform_rostest()
+		tester.perform_rostest(test_package)
 
 	

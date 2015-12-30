@@ -15,10 +15,9 @@ from flexbe_core.core.loopback_state import LoopbackState
 
 class StateTester(object):
 
-	def __init__(self, test_package):
+	def __init__(self):
 		self._counter = 0
 		self._rp = rospkg.RosPack()
-		self._pkg = test_package
 		self._evaluation_tests = dict()
 
 		self._run_id = rospy.get_param('/run_id')
@@ -184,9 +183,9 @@ class StateTester(object):
 			print '\033[31;1m%s\033[0m\033[31m %s failed!\033[0m' % (prefix, name)
 			return 0
 
-	def perform_rostest(self):
-		TestCase = type(self._pkg + '_test_class', (unittest.TestCase,), self._evaluation_tests)
-		rosunit.unitrun(self._pkg, self._pkg + '_flexbe_tests', TestCase)
+	def perform_rostest(self, test_pkg):
+		TestCase = type(test_pkg + '_test_class', (unittest.TestCase,), self._evaluation_tests)
+		rosunit.unitrun(test_pkg, test_pkg + '_flexbe_tests', TestCase)
 
 
 	def _parse_data_value(self, data_value, bag):
