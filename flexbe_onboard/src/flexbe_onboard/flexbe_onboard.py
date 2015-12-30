@@ -255,8 +255,13 @@ class VigirBeOnboard(object):
         try:
             for i in range(len(msg.arg_keys)):
                 key_splitted = msg.arg_keys[i].rsplit('/', 1)
-                behavior = key_splitted[0]
-                key = key_splitted[1]
+                if len(key_splitted) == 1:
+                    behavior = ''
+                    key = key_splitted[0]
+                    rospy.logwarn('Parameter key %s has no path specification, assuming: /%s' % (key, key))
+                else:
+                    behavior = key_splitted[0]
+                    key = key_splitted[1]
                 found = False
                 
                 if behavior == '' and hasattr(be, key):
