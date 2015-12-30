@@ -10,6 +10,7 @@ import threading
 import time
 import smach
 import random
+import yaml
 import zlib
 import xml.etree.ElementTree as ET
 
@@ -206,8 +207,9 @@ class VigirBeOnboard(object):
                 last_index = mod.index_end
             file_content += be_content[last_index:]
             if zlib.adler32(file_content) != msg.behavior_checksum:
-                mismatch_msg = ("checksum mismatch of behavior versions! \n"
-                                "Attempted to load behavior: %s" % str(be_filepath))
+                mismatch_msg = ("Checksum mismatch of behavior versions! \n"
+                                "Attempted to load behavior: %s\n"
+                                "Make sure that all computers are on the same version."  % str(be_filepath))
                 raise Exception(mismatch_msg)
             else:
                 rospy.loginfo("Successfully applied %d modifications." % len(msg.modifications))
@@ -235,7 +237,7 @@ class VigirBeOnboard(object):
             be = beclass()
             rospy.loginfo('Behavior ' + be.name + ' created.')
         except Exception as e:
-            Logger.logerr('Unable to import temporary behavior file:\n%s' % str(e))
+            Logger.logerr('Exception caught in behavior definition:\n%s' % str(e))
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
             return
         
@@ -317,6 +319,8 @@ class VigirBeOnboard(object):
             value = float(value)
         elif type(attr) is bool:
             value = (value != "0")
+        elif type(attr) is dict:
+            value = yaml.load(value)
         setattr(obj, name, value)
         suffix = ' (' + behavior + ')' if behavior != '' else ''
         rospy.loginfo(name + ' = ' + str(value) + suffix)

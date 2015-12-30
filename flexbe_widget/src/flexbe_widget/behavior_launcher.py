@@ -8,6 +8,7 @@ import pickle
 import zlib
 import difflib
 import os
+import yaml
 import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
@@ -56,8 +57,29 @@ class BehaviorLauncher(object):
 		be_selection = BehaviorSelection()
 		be_selection.behavior_id = be_id
 		be_selection.autonomy_level = msg.autonomy_level
-		be_selection.arg_keys = msg.arg_keys
-		be_selection.arg_values = msg.arg_values
+		try:
+			for k, v in zip(msg.arg_keys, msg.arg_values):
+				if k.split('/')[-1].startswith('YAML:'):
+					key = '/'.join(k.split('/')[0:-1]) + '/' + k.split('/')[-1].split(':')[1]
+					path = v.split(':')[0]
+					ns = v.split(':')[1]
+					if path.startswith('~') or path.startswith('/'):
+						yamlpath = os.path.expanduser(path)
+					else:
+						yamlpath = os.path.join(self._rp.get_path(path.split('/')[0]), '/'.join(path.split('/')[1:]))
+					with open(yamlpath, 'r') as f:
+						content = yaml.load(f)
+					if ns != '' and ns in content:
+						content = content[ns]
+					be_selection.arg_keys.append(key)
+					be_selection.arg_values.append(yaml.dump(content))
+				else:
+					be_selection.arg_keys.append(k)
+					be_selection.arg_values.append(v)
+		except Exception as e:
+			rospy.logwarn('Failed to parse and substitute behavior arguments, will use direct input.\n%s' % str(e))
+			be_selection.arg_keys = msg.arg_keys
+			be_selection.arg_values = msg.arg_values
 
 		be_structure = ContainerStructure()
 		be_structure.containers = msg.structure
