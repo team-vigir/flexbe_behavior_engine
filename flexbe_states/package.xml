@@ -13,9 +13,12 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>rostest</build_depend>
+
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rosbag</run_depend>
   <run_depend>flexbe_msgs</run_depend>
+  <run_depend>flexbe_testing</run_depend>
 
 </package>
