@@ -52,6 +52,7 @@ class StateTester(object):
 		print '\033[34;1m#%2d %s \033[0m\033[34m(%s%s)\033[0m' % (self._counter, name, config['class'], ' > %s' % config['outcome'] if not import_only else '')
 		prefix = '>>>' if not self._compact_format else '  >'
 
+		self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 
 		# load and start launch file
 		if not import_only and config.has_key('launch'):
@@ -178,6 +179,7 @@ class StateTester(object):
 		# report result
 		if import_only or outcome_ok and output_ok:
 			print '\033[32;1m%s\033[0m\033[32m %s completed!\033[0m' % (prefix, name)
+			self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(True)
 			return 1
 		else:
 			print '\033[31;1m%s\033[0m\033[31m %s failed!\033[0m' % (prefix, name)
@@ -212,10 +214,15 @@ class StateTester(object):
 
 	def _test_output(self, value, expected):
 		def _test_call(test_self):
-			test_self.assertEquals(value, expected, "output")
+			test_self.assertEquals(value, expected, "Output value %s does not match expected %s" % (value, expected))
 		return _test_call
 
 	def _test_outcome(self, outcome, expected):
 		def _test_call(test_self):
-			test_self.assertEquals(outcome, expected, "output")
+			test_self.assertEquals(outcome, expected, "Outcome %s does not match expected %s" % (outcome, expected))
+		return _test_call
+
+	def _test_pass(self, passed):
+		def _test_call(test_self):
+			test_self.assertTrue(passed, "State did not pass flexbe tests.")
 		return _test_call
