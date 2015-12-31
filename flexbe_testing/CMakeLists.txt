@@ -26,3 +26,9 @@ FILE(GLOB BIN_FILES "bin/*")
 # install executables
 install(PROGRAMS ${BIN_FILES} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+# run tests
+if(CATKIN_ENABLE_TESTING)
+	find_package(rostest REQUIRED)
+	add_rostest(test/selftest.test)
+endif()
