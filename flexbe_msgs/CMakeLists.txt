@@ -19,6 +19,7 @@ add_message_files(FILES
   CommandFeedback.msg
   Container.msg
   ContainerStructure.msg
+  OutcomeCondition.msg
   OutcomeRequest.msg
   StateInstantiation.msg
   SynthesisErrorCodes.msg
