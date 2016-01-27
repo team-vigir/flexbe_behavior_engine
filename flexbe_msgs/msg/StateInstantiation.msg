@@ -48,7 +48,7 @@ string[] outcomes
 # Transition targets (state names or container outcomes) of the outcomes
 string[] transitions
 # Required autonomy level of the outcomes
-uint8[] autonomy
+int8[] autonomy
 
 # Userdata of this state
 # Merges own input_keys and output_keys, no duplicates
