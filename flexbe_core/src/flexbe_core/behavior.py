@@ -14,7 +14,7 @@ Created on 20.05.2013
 
 class Behavior(object):
     '''
-    This is the superclass for all of the different behaviors.
+    This is the superclass for all implemented behaviors.
     '''
 
     def __init__(self):

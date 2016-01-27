@@ -46,7 +46,7 @@ class ProxyServiceCaller(object):
             warning_sent = False
             available = False
             try:
-                t = Timer(1, self._print_warning, [topic])
+                t = Timer(1, self._print_wait_warning, [topic])
                 t.start()
                 rospy.wait_for_service(topic, wait_duration)
                 available = True
@@ -88,5 +88,5 @@ class ProxyServiceCaller(object):
             raise
 
 
-    def _print_warning(self, topic):
+    def _print_wait_warning(self, topic):
         Logger.logwarn("Waiting for service client %s..." % (topic))

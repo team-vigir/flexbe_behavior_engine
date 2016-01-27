@@ -45,7 +45,7 @@ class ProxyActionClient(object):
         """
         if topic not in ProxyActionClient._clients:
             client = actionlib.SimpleActionClient(topic, msg_type)
-            t = Timer(1, self._print_warning, [topic])
+            t = Timer(1, self._print_wait_warning, [topic])
             t.start()
             available = client.wait_for_server(rospy.Duration.from_sec(wait_duration))
             warning_sent = False
@@ -92,22 +92,59 @@ class ProxyActionClient(object):
 
 
     def has_result(self, topic):
+        """
+        Checks if the given action call already has a result.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxyActionClient._result[topic] is not None
 
     def get_result(self, topic):
+        """
+        Returns the result message of the given action call.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxyActionClient._result[topic]
 
     def has_feedback(self, topic):
+        """
+        Checks if the given action call has any feedback.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxyActionClient._feedback[topic] is not None
 
     def get_feedback(self, topic):
+        """
+        Returns the latest feedback message of the given action call.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxyActionClient._feedback[topic]
 
     def get_state(self, topic):
+        """
+        Determines the current actionlib state of the given action topic.
+        A list of possible states is defined in actionlib_msgs/GoalState.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxyActionClient._clients[topic].get_state()
 
     def cancel(self, topic):
+        """
+        Cancels the current action call on the given action topic.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         ProxyActionClient._clients[topic].cancel_goal()
 
-    def _print_warning(self, topic):
+    def _print_wait_warning(self, topic):
         Logger.logwarn("Waiting for action client %s..." % (topic))
