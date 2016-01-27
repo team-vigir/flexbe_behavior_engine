@@ -59,6 +59,9 @@ class OperatableStateMachine(PreemptableStateMachine):
             # Call start callbacks
             self.call_start_cbs()
 
+            # Copy input keys
+            self._copy_input_keys(parent_ud, self.userdata)
+
         container_outcome = self._loopback_name
         if self.id is not None:
             # only top-level statemachine should loop for outcome
@@ -92,9 +95,6 @@ class OperatableStateMachine(PreemptableStateMachine):
 
             # Set running flag
             self._is_running = True
-
-            # Copy input keys
-            self._copy_input_keys(parent_ud, self.userdata)
 
             # Initialize container outcome
             container_outcome = None
