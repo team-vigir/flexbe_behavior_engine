@@ -6,7 +6,7 @@ from flexbe_core.core.operatable_state_machine import OperatableStateMachine
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import Container, OutcomeRequest
-from std_msgs.msg import UInt8
+from std_msgs.msg import UInt8, String
 
 from flexbe_core.state_logger import StateLogger
 
@@ -29,6 +29,7 @@ class OperatableState(PreemptableState):
         
         self._outcome_topic = '/flexbe/mirror/outcome'
         self._request_topic = '/flexbe/outcome_request'
+        self._debug_topic = '/flexbe/debug/current_state'
         self._pub = ProxyPublisher()
         
         self.__execute = self.execute
@@ -91,6 +92,7 @@ class OperatableState(PreemptableState):
                 self._sent_outcome_requests = []
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
                 self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
+                self._pub.publish(self._debug_topic, String("%s > %s" % (self._get_path(), outcome)))
                 StateLogger.log_state_execution(self._get_path(), self.__class__.__name__, outcome, not self._force_transition, True)
 
         self._force_transition = False
@@ -101,6 +103,7 @@ class OperatableState(PreemptableState):
     def _enable_ros_control(self):
         super(OperatableState, self)._enable_ros_control()
         self._pub.createPublisher(self._outcome_topic, UInt8)
+        self._pub.createPublisher(self._debug_topic, String)
         self._pub.createPublisher(self._request_topic, OutcomeRequest)
     
     
