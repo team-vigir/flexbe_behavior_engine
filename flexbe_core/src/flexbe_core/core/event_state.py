@@ -13,6 +13,7 @@ class EventState(OperatableState):
         super(EventState, self).__init__(*args, **kwargs)
         
         self._entering = True
+        self._skipped = False
         self.__execute = self.execute
         self.execute = self._event_execute
         
@@ -20,6 +21,9 @@ class EventState(OperatableState):
         if self._entering:
             self._entering = False
             self.on_enter(*args, **kwargs)
+        if self._skipped:
+            self._skipped = False
+            self.on_resume(*args, **kwargs)
         
         execute_outcome = self.__execute(*args, **kwargs)
         
@@ -28,6 +32,11 @@ class EventState(OperatableState):
             self.on_exit(*args, **kwargs)
             
         return execute_outcome
+
+    def _notify_skipped(self):
+        if not self._skipped:
+            self.on_pause()
+            self._skipped = True
     
     
     # Events
@@ -42,6 +51,18 @@ class EventState(OperatableState):
     def on_stop(self):
         """
         Will be executed once when the behavior stops or is preempted.
+        """
+        pass
+
+    def on_pause(self):
+        """
+        Will be executed each time this state is paused.
+        """
+        pass
+
+    def on_resume(self, userdata):
+        """
+        Will be executed each time this state is resumed.
         """
         pass
     
