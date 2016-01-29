@@ -10,12 +10,13 @@ string state_path
 # e.g. "CalculationState"
 string CLASS_STATEMACHINE 	= :STATEMACHINE
 string CLASS_CONCURRENCY 	= :CONCURRENCY
+string CLASS_PRIORITY 		= :PRIORITY
 string CLASS_BEHAVIOR 		= :BEHAVIOR
 string state_class
 
 
 
-# Only relevant for state machine and concurrency
+# Only relevant for state machine, priority, and concurrency
 # Name of the initial state / state to be monitored
 string initial_state_name
 # Input and output keys (can be remapped below)
