@@ -37,7 +37,7 @@ class Logger(object):
         Logger._last_status_update = rospy.get_rostime()
 
         msg = BehaviorLog()
-        msg.text = text
+        msg.text = str(text)
         msg.status_code = severity
         Logger._pub.publish(Logger.LOGGING_TOPIC, msg)
 
