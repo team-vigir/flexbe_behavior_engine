@@ -65,6 +65,16 @@ class ProxyServiceCaller(object):
                 ProxyServiceCaller._services[topic] = rospy.ServiceProxy(topic, msg_type, persistent)
                 if warning_sent:
                     Logger.loginfo("Finally found action client %s..." % (topic))
+
+
+    def is_available(self, topic):
+        """
+        Checks if the service on the given topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxyServiceCaller._services
             
             
     def call(self, topic, request):

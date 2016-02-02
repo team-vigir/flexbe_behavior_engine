@@ -106,6 +106,16 @@ class ProxySubscriberCached(object):
         """
         ProxySubscriberCached._topics[topic]['buffered'] = False
         ProxySubscriberCached._topics[topic]['msg_queue'] = []
+            
+
+    def is_available(self, topic):
+        """
+        Checks if the subscriber on the given topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxySubscriberCached._topics
        
        
     def get_last_msg(self, topic):

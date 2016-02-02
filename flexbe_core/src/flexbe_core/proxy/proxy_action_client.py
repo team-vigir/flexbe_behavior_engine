@@ -91,6 +91,15 @@ class ProxyActionClient(object):
         ProxyActionClient._feedback[topic] = feedback
 
 
+    def is_available(self, topic):
+        """
+        Checks if the client on the given action topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxyActionClient._clients
+
     def has_result(self, topic):
         """
         Checks if the given action call already has a result.

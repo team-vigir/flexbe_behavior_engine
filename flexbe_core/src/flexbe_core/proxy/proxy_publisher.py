@@ -48,7 +48,17 @@ class ProxyPublisher(object):
             pub = rospy.Publisher(topic, msg_type, latch = _latch, queue_size=100)
             ProxyPublisher._topics[topic] = pub
             
+
+    def is_available(self, topic):
+        """
+        Checks if the publisher on the given topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxyPublisher._topics
             
+
     def publish(self, topic, msg):
         """
         Publishes a message on the specified topic.
