@@ -59,8 +59,8 @@ class BehaviorLauncher(object):
 		be_selection.autonomy_level = msg.autonomy_level
 		try:
 			for k, v in zip(msg.arg_keys, msg.arg_values):
-				if k.split('/')[-1].startswith('YAML:'):
-					key = '/'.join(k.split('/')[0:-1]) + '/' + k.split('/')[-1].split(':')[1]
+				if k.startswith('/YAML:'):
+					key = k.replace(r'^/YAML:', '/')
 					path = v.split(':')[0]
 					ns = v.split(':')[1]
 					if path.startswith('~') or path.startswith('/'):
