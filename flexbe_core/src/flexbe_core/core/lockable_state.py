@@ -25,9 +25,9 @@ class LockableState(ManuallyTransitionableState):
         self.__execute = self.execute
         self.execute = self._lockable_execute
 
-        self._feedback_topic = '/flexbe/command_feedback'
-        self._lock_topic = '/flexbe/command/lock'
-        self._unlock_topic = '/flexbe/command/unlock'
+        self._feedback_topic = 'flexbe/command_feedback'
+        self._lock_topic = 'flexbe/command/lock'
+        self._unlock_topic = 'flexbe/command/unlock'
 
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()

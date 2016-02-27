@@ -32,8 +32,8 @@ class PreemptableState(LoopbackState):
         self.__execute = self.execute
         self.execute = self._preemptable_execute
 
-        self._feedback_topic = '/flexbe/command_feedback'
-        self._preempt_topic = '/flexbe/command/preempt'
+        self._feedback_topic = 'flexbe/command_feedback'
+        self._preempt_topic = 'flexbe/command/preempt'
 
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()

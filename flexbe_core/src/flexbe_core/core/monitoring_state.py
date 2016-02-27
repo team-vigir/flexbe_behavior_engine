@@ -34,7 +34,7 @@ class MonitoringState(smach.State):
         self.__execute = self.execute
         self.execute = self._monitoring_execute
 
-        self._diagnostics_topic = '/diagnostics'
+        self._diagnostics_topic = 'diagnostics'
         self._sub = ProxySubscriberCached()
 
 

@@ -21,8 +21,8 @@ class ManuallyTransitionableState(MonitoringState):
         self.__execute = self.execute
         self.execute = self._manually_transitionable_execute
 
-        self._feedback_topic = '/flexbe/command_feedback'
-        self._transition_topic = '/flexbe/command/transition'
+        self._feedback_topic = 'flexbe/command_feedback'
+        self._transition_topic = 'flexbe/command/transition'
 
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()

@@ -17,15 +17,15 @@ import xml.etree.ElementTree as ET
 class BehaviorActionServer(object):
 
 	def __init__(self):
-		self._pub = rospy.Publisher('/flexbe/start_behavior', BehaviorSelection, queue_size=100)
-		self._status_sub = rospy.Subscriber('/flexbe/status', BEStatus, self._status_cb)
-		self._state_sub = rospy.Subscriber('/flexbe/behavior_update', String, self._state_cb)
+		self._pub = rospy.Publisher('flexbe/start_behavior', BehaviorSelection, queue_size=100)
+		self._status_sub = rospy.Subscriber('flexbe/status', BEStatus, self._status_cb)
+		self._state_sub = rospy.Subscriber('flexbe/behavior_update', String, self._state_cb)
 
 		self._behavior_running = False
 		self._current_state = None
 		self._engine_status = None
 
-		self._as = actionlib.SimpleActionServer('/flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
+		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
 		self._as.start()
 
 		self._rp = RosPack()

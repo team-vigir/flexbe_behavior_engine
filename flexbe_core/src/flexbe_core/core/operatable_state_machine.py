@@ -172,9 +172,9 @@ class OperatableStateMachine(PreemptableStateMachine):
     def destroy(self):
         self._notify_stop()
         self._disable_ros_control()
-        self._sub.unsubscribe_topic('/flexbe/command/autonomy')
-        self._sub.unsubscribe_topic('/flexbe/command/sync')
-        self._sub.unsubscribe_topic('/flexbe/request_mirror_structure')
+        self._sub.unsubscribe_topic('flexbe/command/autonomy')
+        self._sub.unsubscribe_topic('flexbe/command/sync')
+        self._sub.unsubscribe_topic('flexbe/request_mirror_structure')
         StateLogger.shutdown()
         
         
@@ -190,15 +190,15 @@ class OperatableStateMachine(PreemptableStateMachine):
         self.name = name
         self.id = id
 
-        self._pub.createPublisher('/flexbe/mirror/sync', BehaviorSync, _latch = True)   # Update mirror with currently active state (high bandwidth mode)
-        self._pub.createPublisher('/flexbe/mirror/preempt', Empty, _latch = True)       # Preempts the mirror
-        self._pub.createPublisher('/flexbe/mirror/structure', ContainerStructure)       # Sends the current structure to the mirror
-        self._pub.createPublisher('/flexbe/log', BehaviorLog)                           # Topic for logs to the GUI
-        self._pub.createPublisher('/flexbe/command_feedback', CommandFeedback)          # Gives feedback about executed commands to the GUI
+        self._pub.createPublisher('flexbe/mirror/sync', BehaviorSync, _latch = True)   # Update mirror with currently active state (high bandwidth mode)
+        self._pub.createPublisher('flexbe/mirror/preempt', Empty, _latch = True)       # Preempts the mirror
+        self._pub.createPublisher('flexbe/mirror/structure', ContainerStructure)       # Sends the current structure to the mirror
+        self._pub.createPublisher('flexbe/log', BehaviorLog)                           # Topic for logs to the GUI
+        self._pub.createPublisher('flexbe/command_feedback', CommandFeedback)          # Gives feedback about executed commands to the GUI
 
-        self._sub.subscribe('/flexbe/command/autonomy', UInt8, self._set_autonomy_level)
-        self._sub.subscribe('/flexbe/command/sync', Empty, self._sync_callback)
-        self._sub.subscribe('/flexbe/request_mirror_structure', Int32, self._mirror_structure_callback)
+        self._sub.subscribe('flexbe/command/autonomy', UInt8, self._set_autonomy_level)
+        self._sub.subscribe('flexbe/command/sync', Empty, self._sync_callback)
+        self._sub.subscribe('flexbe/request_mirror_structure', Int32, self._mirror_structure_callback)
 
         StateLogger.initialize(name)
         if OperatableStateMachine.autonomy_level != 255:
@@ -218,7 +218,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         else:
             OperatableStateMachine.autonomy_level = msg.data
 
-        self._pub.publish('/flexbe/command_feedback', CommandFeedback(command="autonomy", args=[]))
+        self._pub.publish('flexbe/command_feedback', CommandFeedback(command="autonomy", args=[]))
 
 
     def _sync_callback(self, msg):
@@ -226,8 +226,8 @@ class OperatableStateMachine(PreemptableStateMachine):
         msg = BehaviorSync()
         msg.behavior_id = self.id
         msg.current_state_checksum = zlib.adler32(self._get_deep_state()._get_path())
-        self._pub.publish('/flexbe/mirror/sync', msg)
-        self._pub.publish('/flexbe/command_feedback', CommandFeedback(command="sync", args=[]))
+        self._pub.publish('flexbe/mirror/sync', msg)
+        self._pub.publish('flexbe/command_feedback', CommandFeedback(command="sync", args=[]))
         rospy.loginfo("<-- Sent synchronization message for mirror.")
 
 
@@ -235,7 +235,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         rospy.loginfo("--> Creating behavior structure for mirror...")
         msg = self._build_msg('')
         msg.behavior_id = self.id
-        self._pub.publish('/flexbe/mirror/structure', msg)
+        self._pub.publish('flexbe/mirror/structure', msg)
         rospy.loginfo("<-- Sent behavior structure for mirror.")
 
 
