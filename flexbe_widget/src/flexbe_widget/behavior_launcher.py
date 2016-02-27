@@ -4,6 +4,8 @@ import rospy
 from flexbe_msgs.msg import *
 from rospkg import RosPack
 
+from flexbe_core import Logger
+
 import pickle
 import zlib
 import difflib
@@ -16,10 +18,13 @@ class BehaviorLauncher(object):
 	def __init__(self):
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100)
+		self._status_pub = rospy.Publisher("flexbe/status", BEStatus, queue_size=100)
 		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
 
 		self._rp = RosPack()
 		self._behavior_lib = dict()
+
+		Logger.initialize()
 
 		behaviors_package = "flexbe_behaviors"
 		if rospy.has_param("behaviors_package"):
@@ -49,7 +54,8 @@ class BehaviorLauncher(object):
 		try:
 			be_id, behavior = next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == msg.behavior_name)
 		except Exception as e:
-			rospy.logwarn("Did not find behavior with requested name: %s" % msg.behavior_name)
+			Logger.logerr("Did not find behavior with requested name: %s" % msg.behavior_name)
+			self._status_pub.publish(BEStatus(code=BEStatus.ERROR))
 			return
 
 		rospy.loginfo("Request for behavior " + behavior["name"])
