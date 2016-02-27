@@ -124,7 +124,7 @@ class VigirBehaviorMirror(object):
         if self._sm is None:
             rospy.logwarn('Missing correct mirror structure, requesting...')
             rospy.sleep(0.2) # no clean way to wait for publisher to be ready...
-            self._pub.publish('/flexbe/request_mirror_structure', Int32(msg.behavior_id))
+            self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
             self._active_id = msg.behavior_id
             return
 
@@ -136,16 +136,16 @@ class VigirBehaviorMirror(object):
         if self._sm is not None and self._running:
             if msg is not None and msg.code == BEStatus.FINISHED:
                 rospy.loginfo('Onboard behavior finished successfully.')
-                self._pub.publish('/flexbe/behavior_update', String())
+                self._pub.publish('flexbe/behavior_update', String())
             elif msg is not None and msg.code == BEStatus.SWITCHING:
                 self._starting_path = None
                 rospy.loginfo('Onboard performing behavior switch.')
             elif msg is not None and msg.code == BEStatus.READY:
                 rospy.loginfo('Onboard engine just started, stopping currently running mirror.')
-                self._pub.publish('/flexbe/behavior_update', String())
+                self._pub.publish('flexbe/behavior_update', String())
             elif msg is not None:
                 rospy.logwarn('Onboard behavior failed!')
-                self._pub.publish('/flexbe/behavior_update', String())
+                self._pub.publish('flexbe/behavior_update', String())
 
             PreemptableState.preempt = True
             rate = rospy.Rate(10)

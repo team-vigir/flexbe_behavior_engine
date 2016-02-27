@@ -32,7 +32,7 @@ class MirrorState(EventState):
         
         self._outcome_topic = 'flexbe/mirror/outcome'
 
-        self._pub = ProxyPublisher() #{'/flexbe/behavior_update': String}
+        self._pub = ProxyPublisher() #{'flexbe/behavior_update': String}
         self._sub = ProxySubscriberCached({self._outcome_topic: UInt8})
         
         

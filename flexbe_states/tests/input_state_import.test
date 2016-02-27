@@ -1,0 +1,4 @@
+path: flexbe_states.input_state
+class: InputState
+
+import_only: true

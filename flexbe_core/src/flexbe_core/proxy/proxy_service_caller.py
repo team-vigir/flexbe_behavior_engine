@@ -46,7 +46,7 @@ class ProxyServiceCaller(object):
             warning_sent = False
             available = False
             try:
-                t = Timer(1, self._print_warning, [topic])
+                t = Timer(1, self._print_wait_warning, [topic])
                 t.start()
                 rospy.wait_for_service(topic, wait_duration)
                 available = True
@@ -65,6 +65,16 @@ class ProxyServiceCaller(object):
                 ProxyServiceCaller._services[topic] = rospy.ServiceProxy(topic, msg_type, persistent)
                 if warning_sent:
                     Logger.loginfo("Finally found action client %s..." % (topic))
+
+
+    def is_available(self, topic):
+        """
+        Checks if the service on the given topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxyServiceCaller._services
             
             
     def call(self, topic, request):
@@ -88,5 +98,5 @@ class ProxyServiceCaller(object):
             raise
 
 
-    def _print_warning(self, topic):
+    def _print_wait_warning(self, topic):
         Logger.logwarn("Waiting for service client %s..." % (topic))

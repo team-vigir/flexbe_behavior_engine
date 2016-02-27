@@ -1,0 +1,11 @@
+path: flexbe_states.decision_state
+class: DecisionState
+
+params:
+    outcomes: ['positive', 'negative']
+    conditions: "lambda x: 'positive' if x > 0 else 'negative'"
+
+input:
+    input_value: -4
+
+outcome: negative

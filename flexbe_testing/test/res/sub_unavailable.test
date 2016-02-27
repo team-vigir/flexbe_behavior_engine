@@ -1,0 +1,10 @@
+path: flexbe_testing.test.test_sub_state
+class: TestSubState
+
+params:
+    topic: //flexbe_testing/test_sub
+
+output:
+    output_value: None
+
+outcome: unavailable

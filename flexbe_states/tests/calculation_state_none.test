@@ -1,0 +1,13 @@
+path: flexbe_states.calculation_state
+class: CalculationState
+
+params:
+    calculation: None
+
+input:
+    input_value: 2
+
+output:
+    output_value: None
+
+outcome: done

@@ -13,6 +13,7 @@ Created on 03/09/2015
 
 class ConcurrentState(EventState):
     '''
+    DEPRECATED.
     Implements concurrent execution of states.
     Depending on the outcomes of the single states, the outcome of this state is determined according to the given set of rules.
 

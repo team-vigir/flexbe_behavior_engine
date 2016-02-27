@@ -55,7 +55,15 @@ class ProxySubscriberCached(object):
             
             
     def _callback(self, msg, topic):
-        """ Standard callback that is executed when a message is received. """
+        """
+        Standard callback that is executed when a message is received.
+        
+        @type topic: message
+        @param topic: The latest message received on this topic.
+        
+        @type topic: string
+        @param topic: The topic to which this callback belongs.
+        """
         if ProxySubscriberCached._simulate_delay:
             time.sleep(max(0, random.gauss(2, 0.6))) # for simulating comms_bridge delay
 
@@ -80,23 +88,53 @@ class ProxySubscriberCached(object):
       
         
     def enable_buffer(self, topic):
-        """ Enables the buffer on the given topic. """
+        """
+        Enables the buffer on the given topic.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         ProxySubscriberCached._topics[topic]['buffered'] = True
         
         
     def disable_buffer(self, topic):
-        """ Disables the buffer on the given topic. """
+        """
+        Disables the buffer on the given topic.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         ProxySubscriberCached._topics[topic]['buffered'] = False
         ProxySubscriberCached._topics[topic]['msg_queue'] = []
+            
+
+    def is_available(self, topic):
+        """
+        Checks if the subscriber on the given topic is available.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return topic in ProxySubscriberCached._topics
        
        
     def get_last_msg(self, topic):
-        """ Returns the latest cached message of the given topic. """
+        """
+        Returns the latest cached message of the given topic.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxySubscriberCached._topics[topic]['last_msg']
     
     
     def get_from_buffer(self, topic):
-        """ Returns the oldest buffered message of the given topic. """
+        """
+        Pops the oldest buffered message of the given topic.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         if not ProxySubscriberCached._topics[topic]['buffered']:
             rospy.logwarn('Attempted to access buffer of non-buffered topic!')
             return None
@@ -106,17 +144,35 @@ class ProxySubscriberCached(object):
     
     
     def has_msg(self, topic):
-        """ Determines if the given topic has a message in its cache. """
+        """
+        Determines if the given topic has a message in its cache.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return ProxySubscriberCached._topics[topic]['last_msg'] is not None
     
     
     def has_buffered(self, topic):
-        """ Determines if the given topic has any messages in its buffer. """
+        """
+        Determines if the given topic has any messages in its buffer.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         return len(ProxySubscriberCached._topics[topic]['msg_queue']) > 0
     
     
     def remove_last_msg(self, topic, clear_buffer=False):   # better pop last msg
-        """ Removes the cached message of the given topic and optionally clears its buffer. """
+        """
+        Removes the cached message of the given topic and optionally clears its buffer.
+
+        @type topic: string
+        @param topic: The topic of interest.
+
+        @type topic: boolean
+        @param topic: Set to true if the buffer of the given topic should be cleared as well.
+        """
         if ProxySubscriberCached._persistant_topics.count(topic) > 0: return
         ProxySubscriberCached._topics[topic]['last_msg'] = None
         if clear_buffer:
@@ -127,19 +183,32 @@ class ProxySubscriberCached(object):
         """
         Makes the given topic persistant which means messages can no longer be removed
         (remove_last_msg will have no effect), only overwritten by a new message.
+
+        @type topic: string
+        @param topic: The topic of interest.
         """
         ProxySubscriberCached._persistant_topics.append(topic)
         
         
     def has_topic(self, topic):
-        """ Determines if the given topic is already subscribed. """
+        """
+        Determines if the given topic is already subscribed.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         if topic in ProxySubscriberCached._topics:
             return True
         return False
         
         
     def unsubscribe_topic(self, topic):
-        """ Removes the given topic from the list of subscribed topics. """
+        """
+        Removes the given topic from the list of subscribed topics.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
         if topic in ProxySubscriberCached._topics:
             ProxySubscriberCached._topics[topic]['subscriber'].unregister()
             ProxySubscriberCached._topics.pop(topic)

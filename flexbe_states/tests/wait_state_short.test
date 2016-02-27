@@ -1,0 +1,7 @@
+path: flexbe_states.wait_state
+class: WaitState
+
+params:
+    wait_time: 0.5
+
+outcome: done

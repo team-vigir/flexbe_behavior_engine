@@ -93,24 +93,42 @@ class BehaviorActionServer(object):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 
 		self._pub.publish(be_selection)
-		self._behavior_running = True
+		self._behavior_running = False
 
 		rate = rospy.Rate(10)
-		while self._behavior_running and not rospy.is_shutdown():
+		while not rospy.is_shutdown():
 			if self._current_state is not None:
 				self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
 				self._current_state = None
 
-			rate.sleep()
+			if self._engine_status.code == BEStatus.ERROR:
+				rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+				self._as.set_aborted('')
+				break
 
-		rospy.loginfo('Finished behavior execution!')
-		self._as.set_succeeded('')
+			if not self._behavior_running:
+				if self._engine_status.code == BEStatus.STARTED:
+					self._behavior_running = True
+					rospy.loginfo('Behavior execution has started!')
+				rate.sleep()
+				continue
+
+			if self._engine_status.code == BEStatus.FINISHED:
+				rospy.loginfo('Finished behavior execution!')
+				self._as.set_succeeded(self._current_state if self._current_state is not None else '')
+				break
+			if self._engine_status.code == BEStatus.FAILED:
+				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
+				self._as.set_aborted('')
+				break
+
+			rate.sleep()
+			
+		rospy.loginfo('Ready for next start request.')
 
 
 	def _status_cb(self, msg):
 		self._engine_status = msg
-		if msg.code == BEStatus.FINISHED or msg.code == BEStatus.FAILED:
-			self._behavior_running = False
 
 
 	def _state_cb(self, msg):

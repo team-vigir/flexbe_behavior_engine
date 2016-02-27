@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<arg name="testcases" default="" />
+
+<arg name="package" default="" />
+
+<arg name="print_debug_positive" default="true" />
+<arg name="print_debug_negative" default="true" />
+<arg name="mute_info" default="false" />
+<arg name="mute_warn" default="false" />
+<arg name="mute_error" default="false" />
+<arg name="compact_format" default="false" />
+
+<node name="flexbe_testing" pkg="flexbe_testing" type="testing_node" output="screen" args="$(arg testcases)">
+	<param name="~package" value="$(arg package)" />
+	<param name="~print_debug_positive" value="$(arg print_debug_positive)" />
+	<param name="~print_debug_negative" value="$(arg print_debug_negative)" />
+	<param name="~mute_info" value="$(arg mute_info)" />
+	<param name="~mute_warn" value="$(arg mute_warn)" />
+	<param name="~mute_error" value="$(arg mute_error)" />
+	<param name="~compact_format" value="$(arg compact_format)" />
+</node>
+
+</launch>

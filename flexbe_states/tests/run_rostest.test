@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<arg name="pkg" value="flexbe_states" />
+<arg name="path" value="$(find flexbe_states)/tests" />
+
+<include file="$(find flexbe_testing)/test/flexbe_rostest.test">
+	<arg name="package" value="$(arg pkg)" />
+	<arg name="testcases" value="
+
+		$(arg path)/calculation_state_simple.test
+		$(arg path)/calculation_state_none.test
+		$(arg path)/check_condition_state_true.test
+		$(arg path)/check_condition_state_invalid.test
+		$(arg path)/concurrent_state_import.test
+		$(arg path)/decision_state_simple.test
+		$(arg path)/flexible_calculation_state_simple.test
+		$(arg path)/input_state_import.test
+		$(arg path)/log_state_string.test
+		$(arg path)/log_state_int.test
+		$(arg path)/log_state_msg.test
+		$(arg path)/operator_decision_state_suggested.test
+		$(arg path)/subscriber_state_unavailable.test
+		$(arg path)/wait_state_short.test
+
+	" />
+</include>
+
+</launch>

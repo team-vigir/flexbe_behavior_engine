@@ -1,0 +1,7 @@
+path: flexbe_states.log_state
+class: LogState
+
+params:
+    text: "testmsg"
+
+outcome: done

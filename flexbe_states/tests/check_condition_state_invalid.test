@@ -1,0 +1,10 @@
+path: flexbe_states.check_condition_state
+class: CheckConditionState
+
+params:
+    predicate: "not a function"
+
+input:
+    input_value: 8
+
+outcome: "false"

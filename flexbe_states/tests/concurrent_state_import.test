@@ -1,0 +1,4 @@
+path: flexbe_states.concurrent_state
+class: ConcurrentState
+
+import_only: true

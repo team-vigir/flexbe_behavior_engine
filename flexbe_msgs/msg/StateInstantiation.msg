@@ -9,20 +9,30 @@ string state_path
 # Use one of the provided CLASS constants if this is not a primitive state
 # e.g. "CalculationState"
 string CLASS_STATEMACHINE 	= :STATEMACHINE
+string CLASS_CONCURRENCY 	= :CONCURRENCY
+string CLASS_PRIORITY 		= :PRIORITY
 string CLASS_BEHAVIOR 		= :BEHAVIOR
 string state_class
 
 
 
-# Only relevant for state machines
-# Name of the initial state
+# Only relevant for state machine, priority, and concurrency
+# Name of the initial state / state to be monitored
 string initial_state_name
+# Input and output keys (can be remapped below)
+string[] input_keys
+string[] output_keys
 
-# Only relevant for behaviors
+# Only relevant for concurrency
+# Outcome conditions
+string[] cond_outcome
+OutcomeCondition[] cond_transition
+
+# Only relevant for behavior
 # Name of the class implementing this state
 string behavior_class
 
-# Only relevant for primitive states
+# Only relevant for primitive state
 # List of parameter names and values of this state
 # Order of names and values has to match
 string[] parameter_names
@@ -30,13 +40,16 @@ string[] parameter_values
 
 
 
+# Position of this state in the editor [x,y]
+float32[2] position
+
 # Outcomes of this state
 # Defines the order of the lists: transitions, autonomy
 string[] outcomes
 # Transition targets (state names or container outcomes) of the outcomes
 string[] transitions
 # Required autonomy level of the outcomes
-uint8[] autonomy
+int8[] autonomy
 
 # Userdata of this state
 # Merges own input_keys and output_keys, no duplicates

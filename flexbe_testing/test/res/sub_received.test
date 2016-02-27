@@ -1,0 +1,14 @@
+path: flexbe_testing.test.test_sub_state
+class: TestSubState
+
+launch: '<launch>
+		<node name="test_pub" pkg="rostopic" type="rostopic" args="pub -r 20 /flexbe_testing/test_sub std_msgs/String testmsg" />
+	</launch>'
+
+params:
+    topic: //flexbe_testing/test_sub
+
+output:
+    output_value: testmsg
+
+outcome: received

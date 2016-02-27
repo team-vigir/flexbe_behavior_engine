@@ -1,0 +1,13 @@
+path: flexbe_states.calculation_state
+class: CalculationState
+
+params:
+    calculation: "lambda x: x + 1"
+
+input:
+    input_value: 2
+
+output:
+    output_value: 3
+
+outcome: done

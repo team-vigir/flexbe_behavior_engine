@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<arg name="pkg" value="flexbe_testing" />
+<arg name="path" value="$(find flexbe_testing)/test/res" />
+
+<include file="$(find flexbe_testing)/test/flexbe_rostest.test">
+	<arg name="package" value="$(arg pkg)" />
+	<arg name="testcases" value="
+
+		$(arg path)/import_only.test
+		$(arg path)/test_add.test
+		$(arg path)/sub_unavailable.test
+
+	" />
+</include>
+
+</launch>
