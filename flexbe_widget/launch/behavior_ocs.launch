@@ -2,13 +2,16 @@
 
 <launch>
 
+<arg name="port" default="9090" />
 <arg name="ns" default="" />
 
 <node name="behavior_mirror" pkg="flexbe_mirror" type="behavior_mirror_sm" output="screen" />
 
 <node name="behavior_input" pkg="flexbe_input" type="behavior_input" output="screen" />
 
-<node name="behavior_rosbridge" pkg="rosbridge_server" type="rosbridge_websocket" output="screen" />
+<node name="behavior_rosbridge" pkg="rosbridge_server" type="rosbridge_websocket" output="screen">
+	<param name="port" value="$(arg port)"/>
+</node>
 <node name="behavior_rosapi" pkg="rosapi" type="rosapi_node" output="screen">
 	<param name="namespace" value="$(arg ns)" />
 </node>
