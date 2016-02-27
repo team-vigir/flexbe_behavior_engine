@@ -49,6 +49,11 @@ class MirrorState(EventState):
             if msg.data < len(self._given_outcomes):
                 rospy.loginfo("State update: %s > %s", self._target_name, self._given_outcomes[msg.data])
                 return self._given_outcomes[msg.data]
+
+        try:
+            self._rate.sleep()
+        except ROSInterruptException:
+            print 'Interrupted mirror sleep.'
     
     
     def on_enter(self, userdata):
