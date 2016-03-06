@@ -79,6 +79,9 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             self.call_termination_cbs([s.name for s in self._ordered_states],outcome)
             self._returned_outcomes = dict()
             self.on_exit(self.userdata)
+            # right now, going out of a cc may break sync
+            # thus, as a quick fix, explicitly sync again
+            self._parent._inner_sync_request = True
 
             return outcome
         else:

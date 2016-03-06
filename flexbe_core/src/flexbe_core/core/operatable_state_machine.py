@@ -37,6 +37,7 @@ class OperatableStateMachine(PreemptableStateMachine):
 
         self._autonomy = {}
         self._ordered_states = []
+        self._inner_sync_request = False
         
         self._pub = ProxyPublisher()
 
@@ -114,6 +115,16 @@ class OperatableStateMachine(PreemptableStateMachine):
                 self._copy_output_keys(self.userdata, parent_ud)
             else:
                 container_outcome = self._loopback_name
+
+            # provide explicit sync as back-up functionality
+            # should be used only if there is no other choice
+            # since it requires additional 8 byte + header update bandwith and time to restart mirror
+            if self._inner_sync_request:
+                self._inner_sync_request = False
+                msg = BehaviorSync()
+                msg.behavior_id = self.id
+                msg.current_state_checksum = zlib.adler32(self._get_deep_state()._get_path())
+                self._pub.publish('flexbe/mirror/sync', msg)
 
             # We're no longer running
             self._is_running = False
