@@ -323,3 +323,7 @@ class OperatableStateMachine(PreemptableStateMachine):
                 state._disable_ros_control()
             if isinstance(state, OperatableStateMachine):
                 state._disable_ros_control()
+
+    def on_exit(self, userdata):
+        if self._current_state is not None:
+            self._current_state.on_exit(userdata)
