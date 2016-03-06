@@ -5,6 +5,7 @@ from flexbe_msgs.msg import *
 from rospkg import RosPack
 
 from flexbe_core import Logger
+from std_msgs.msg import String
 
 import pickle
 import zlib
@@ -15,8 +16,12 @@ import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
 
+	MIN_VERSION = '0.21.8'
+
 	def __init__(self):
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
+		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
+
 		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100)
 		self._status_pub = rospy.Publisher("flexbe/status", BEStatus, queue_size=100)
 		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
@@ -119,3 +124,19 @@ class BehaviorLauncher(object):
 			self._mirror_pub.publish(be_structure)
 
 		self._pub.publish(be_selection)
+
+	def _version_callback(self, msg):
+		vui = self._parse_version(msg.data)
+		vex = self._parse_version(BehaviorLauncher.MIN_VERSION)
+		if vui < vex:
+			Logger.logwarn('FlexBE App needs to be updated!\n' \
+				+ 'Require at least version %s, but have %s\n' % (BehaviorLauncher.MIN_VERSION, msg.data) \
+				+ 'You can update the app by dropping the file flexbe_behavior_engine/FlexBE.crx onto the Chrome extension page.')
+
+	def _parse_version(self, v):
+		result = 0
+		offset = 1
+		for n in reversed(v.split('.')):
+			result += int(n) * offset
+			offset *= 100
+		return result
