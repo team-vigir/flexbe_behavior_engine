@@ -37,6 +37,7 @@ class EventState(OperatableState):
         if not self._skipped:
             self.on_pause()
             self._skipped = True
+        super(EventState, self)._notify_skipped()
     
     
     # Events
