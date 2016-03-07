@@ -266,10 +266,14 @@ class VigirBeOnboard(object):
                 
                 if behavior == '' and hasattr(be, key):
                     self._set_typed_attribute(be, key, msg.arg_values[i])
+                    # propagate to contained behaviors
+                    for b in contain_list:
+                        if hasattr(contain_list[b], key):
+                            self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
                     found = True
 
                 for b in contain_list:
-                    if hasattr(contain_list[b], key):
+                    if b == behavior and hasattr(contain_list[b], key):
                         self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
                         found = True
                             
