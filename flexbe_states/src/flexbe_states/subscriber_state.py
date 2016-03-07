@@ -36,14 +36,15 @@ class SubscriberState(EventState):
 		
 		self._topic = topic
 		self._blocking = blocking
+		self._connected = False
 
 		(msg_path, msg_topic, fn) = rostopic.get_topic_type(self._topic)
 
 		if msg_topic == self._topic:
 			msg_type = self._get_msg_from_path(msg_path)
 			self._sub = ProxySubscriberCached({self._topic: msg_type})
+			self._connected = True
 		else:
-			self._sub = None
 			Logger.logwarn('Topic %s for state %s not yet available.\nFound: %s\nWill try again when entering the state...' % (self._topic, self.name, str(msg_topic)))
 		
 		
@@ -51,7 +52,7 @@ class SubscriberState(EventState):
 		'''
 		Execute this state
 		'''
-		if self._sub is None:
+		if not self._connected:
 			return 'unavailable'
 
 		if self._sub.has_msg(self._topic) or not self._blocking:
@@ -61,11 +62,12 @@ class SubscriberState(EventState):
 			
 	
 	def on_enter(self, userdata):
-		if self._sub is None:
+		if not self._connected:
 			(msg_path, msg_topic, fn) = rostopic.get_topic_type(self._topic)
 			if msg_topic == self._topic:
 				msg_type = self._get_msg_from_path(msg_path)
 				self._sub = ProxySubscriberCached({self._topic: msg_type})
+				self._connected = True
 				Logger.loginfo('Successfully subscribed to previously unavailable topic %s' % self._topic)
 			else:
 				Logger.logwarn('Topic %s still not available, giving up.' % self._topic)
