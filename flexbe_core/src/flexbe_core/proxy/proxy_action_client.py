@@ -139,12 +139,21 @@ class ProxyActionClient(object):
     def get_state(self, topic):
         """
         Determines the current actionlib state of the given action topic.
-        A list of possible states is defined in actionlib_msgs/GoalState.
+        A list of possible states is defined in actionlib_msgs/GoalStatus.
         
         @type topic: string
         @param topic: The topic of interest.
         """
         return ProxyActionClient._clients[topic].get_state()
+
+    def is_active(self, topic):
+        """
+        Determines if an action request is already being processed on the given topic.
+        
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        return ProxyActionClient._clients[topic].simple_state != actionlib.SimpleGoalState.DONE
 
     def cancel(self, topic):
         """
