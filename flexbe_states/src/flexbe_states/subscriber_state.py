@@ -56,6 +56,7 @@ class SubscriberState(EventState):
 
 		if self._sub.has_msg(self._topic) or not self._blocking:
 			userdata.message = self._sub.get_last_msg(self._topic)
+			self._sub.remove_last_msg(self._topic)
 			return 'received'
 			
 	
@@ -75,5 +76,5 @@ class SubscriberState(EventState):
 		msg_import = msg_path.split('/')
 		msg_module = '%s.msg' % (msg_import[0])
 		package = __import__(msg_module, fromlist=[msg_module])
-		clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__.endswith('Pose'))
+		clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__.endswith(msg_import[1]))
 		return clsmembers[0][1]
