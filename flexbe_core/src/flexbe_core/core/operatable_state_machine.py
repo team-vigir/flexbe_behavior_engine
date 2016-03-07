@@ -119,12 +119,15 @@ class OperatableStateMachine(PreemptableStateMachine):
             # provide explicit sync as back-up functionality
             # should be used only if there is no other choice
             # since it requires additional 8 byte + header update bandwith and time to restart mirror
-            if self._inner_sync_request:
+            if self._inner_sync_request and self._get_deep_state() is not None:
                 self._inner_sync_request = False
-                msg = BehaviorSync()
-                msg.behavior_id = self.id
-                msg.current_state_checksum = zlib.adler32(self._get_deep_state()._get_path())
-                self._pub.publish('flexbe/mirror/sync', msg)
+                if self.id is None:
+                    self._parent._inner_sync_request = True
+                else:
+                    msg = BehaviorSync()
+                    msg.behavior_id = self.id
+                    msg.current_state_checksum = zlib.adler32(self._get_deep_state()._get_path())
+                    self._pub.publish('flexbe/mirror/sync', msg)
 
             # We're no longer running
             self._is_running = False

@@ -35,7 +35,7 @@ class LockableStateMachine(smach.StateMachine):
 
     def _update_once(self):
         if LockableStateMachine.path_for_switch is not None and LockableStateMachine.path_for_switch.startswith(self._get_path()):
-            path_segments = LockableStateMachine.path_for_switch.replace(self._get_path(), "").split("/")
+            path_segments = LockableStateMachine.path_for_switch.replace(self._get_path(), "", 1).split("/")
             wanted_state = path_segments[1]
             self._set_current_state(wanted_state)
             if len(path_segments) <= 2:
