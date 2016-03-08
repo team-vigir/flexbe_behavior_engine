@@ -71,7 +71,7 @@ class BehaviorLauncher(object):
 		try:
 			for k, v in zip(msg.arg_keys, msg.arg_values):
 				if k.startswith('/YAML:'):
-					key = k.replace(r'^/YAML:', '/')
+					key = k.replace('/YAML:', '/', 1)
 					path = v.split(':')[0]
 					ns = v.split(':')[1]
 					if path.startswith('~') or path.startswith('/'):
