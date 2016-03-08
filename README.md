@@ -38,6 +38,16 @@ You can also create a program shortcut for the FlexBE Chrome App. When just deve
 - Do some of the [tutorials](http://philserver.bplaced.net/fbe/documentation.php).
 - Visit the [FlexBE GitHub Organization](https://github.com/FlexBE) for additional available states.
 
+## Publications
+
+Please use the following publication for reference when using FlexBE:
+
+Philipp Schillinger, Stefan Kohlbrecher, and Oskar von Stryk, "Human-Robot Collaborative High-Level Control with Application to Rescue Robotics", IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016 (to appear).
+
+### Further Publications
+
+Spyros Maniatopoulos, Philipp Schillinger, Vitchyr Pong, David C. Conner, and Hadas Kress-Gazit, "Reactive High-level Behavior Synthesis for an Atlas Humanoid Robot", IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016 (to appear).
+
 ## Maintainer
 
 - Philipp Schillinger ([@pschillinger](https://github.com/pschillinger), schillinger@sim.tu-darmstadt.de, [Contact](http://philserver.bplaced.net/fbe/contact.php))
