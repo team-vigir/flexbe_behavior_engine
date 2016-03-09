@@ -18,6 +18,8 @@ class SubscriberState(EventState):
 
 	-- topic 		string		The topic on which should be listened.
 	-- blocking 	bool 		Blocks until a message is received.
+	-- clear 		bool 		Drops last message on this topic on enter
+								in order to only handle message received since this state is active.
 
 	#> message		object		Latest message on the given topic of the respective type.
 
@@ -27,7 +29,7 @@ class SubscriberState(EventState):
 	'''
 
 
-	def __init__(self, topic, blocking = True):
+	def __init__(self, topic, blocking = True, clear = False):
 		'''
 		Constructor
 		'''
@@ -36,6 +38,7 @@ class SubscriberState(EventState):
 		
 		self._topic = topic
 		self._blocking = blocking
+		self._clear = clear
 		self._connected = False
 
 		(msg_path, msg_topic, fn) = rostopic.get_topic_type(self._topic)
@@ -71,7 +74,9 @@ class SubscriberState(EventState):
 				Logger.loginfo('Successfully subscribed to previously unavailable topic %s' % self._topic)
 			else:
 				Logger.logwarn('Topic %s still not available, giving up.' % self._topic)
-	
+
+		if self._connected and self._clear and self._sub.has_msg(self._topic):
+			self._sub.remove_last_msg(self._topic)
 
 
 	def _get_msg_from_path(self, msg_path):
