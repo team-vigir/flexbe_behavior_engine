@@ -212,6 +212,7 @@ class OperatableStateMachine(PreemptableStateMachine):
 
         self._sub.subscribe('flexbe/command/autonomy', UInt8, self._set_autonomy_level)
         self._sub.subscribe('flexbe/command/sync', Empty, self._sync_callback)
+        self._sub.subscribe('flexbe/command/attach', UInt8, self._attach_callback)
         self._sub.subscribe('flexbe/request_mirror_structure', Int32, self._mirror_structure_callback)
 
         StateLogger.initialize(name)
@@ -245,6 +246,20 @@ class OperatableStateMachine(PreemptableStateMachine):
         rospy.loginfo("<-- Sent synchronization message for mirror.")
 
 
+    def _attach_callback(self, msg):
+        rospy.loginfo("--> Enabling control...")
+        # set autonomy level
+        OperatableStateMachine.autonomy_level = msg.data
+        # enable control of states
+        self._enable_ros_control()
+        self._inner_sync_request = True
+        # send command feedback
+        cfb = CommandFeedback(command="attach")
+        cfb.args.append(self.name)
+        self._pub.publish('flexbe/command_feedback', cfb)
+        rospy.loginfo("<-- Sent attach confirm.")
+
+
     def _mirror_structure_callback(self, msg):
         rospy.loginfo("--> Creating behavior structure for mirror...")
         msg = self._build_msg('')
@@ -273,7 +288,7 @@ class OperatableStateMachine(PreemptableStateMachine):
             children.append(str(state.name))
             
         # set name
-        name = prefix + self.name
+        name = prefix + (self.name if self.id is None else '')
         
         if msg is None:
             # top-level state machine (has no transitions)
