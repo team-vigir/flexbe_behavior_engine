@@ -37,8 +37,8 @@ class EventState(OperatableState):
     def _event_execute(self, *args, **kwargs):
         if self._is_controlled and self._sub.has_msg(self._pause_topic):
             msg = self._sub.get_last_msg(self._pause_topic)
-            self._sub.remove_last_msg(self._pause_topic)
             if msg.data:
+                self._sub.remove_last_msg(self._pause_topic)
                 rospy.loginfo("--> Pausing in state %s", self.name)
                 self._pub.publish(self._feedback_topic, CommandFeedback(command="pause"))
                 self._last_active_container = PriorityContainer.active_container
@@ -78,8 +78,8 @@ class EventState(OperatableState):
             self._skipped = True
         if self._is_controlled and self._sub.has_msg(self._pause_topic):
             msg = self._sub.get_last_msg(self._pause_topic)
-            self._sub.remove_last_msg(self._pause_topic)
             if not msg.data:
+                self._sub.remove_last_msg(self._pause_topic)
                 rospy.loginfo("--> Resuming in state %s", self.name)
                 self._pub.publish(self._feedback_topic, CommandFeedback(command="resume"))
                 PriorityContainer.active_container = self._last_active_container
