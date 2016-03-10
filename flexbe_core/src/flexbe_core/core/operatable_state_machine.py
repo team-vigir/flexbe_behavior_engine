@@ -240,6 +240,8 @@ class OperatableStateMachine(PreemptableStateMachine):
         rospy.loginfo("--> Synchronization requested...")
         msg = BehaviorSync()
         msg.behavior_id = self.id
+        while self._get_deep_state() is None:
+            rospy.sleep(0.1)
         msg.current_state_checksum = zlib.adler32(self._get_deep_state()._get_path())
         self._pub.publish('flexbe/mirror/sync', msg)
         self._pub.publish('flexbe/command_feedback', CommandFeedback(command="sync", args=[]))
