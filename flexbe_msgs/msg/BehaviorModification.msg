@@ -1,3 +1,3 @@
-int16 index_begin
-int16 index_end
+int32 index_begin
+int32 index_end
 string new_content
