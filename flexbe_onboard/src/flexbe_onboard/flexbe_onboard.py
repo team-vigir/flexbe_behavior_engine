@@ -254,6 +254,9 @@ class VigirBeOnboard(object):
             rospy.loginfo('The following parameters will be used:')
         try:
             for i in range(len(msg.arg_keys)):
+                if msg.arg_keys[i] == '':
+                    # action call has empty string as default, not a valid param key
+                    continue 
                 key_splitted = msg.arg_keys[i].rsplit('/', 1)
                 if len(key_splitted) == 1:
                     behavior = ''
