@@ -102,7 +102,7 @@ class Behavior(object):
 
     # Lifecycle
 
-    def prepare_for_execution(self):
+    def prepare_for_execution(self, input_data = {}):
         """
         Prepares this behavior for execution by building its state machine.
         """
@@ -111,6 +111,10 @@ class Behavior(object):
         self._state_machine = self.create()
         self._state_machine._input_keys = {}
         self._state_machine._output_keys = {}
+
+        for k, v in input_data.items():
+           if k in self._state_machine.userdata:
+                self._state_machine.userdata[k] = v
 
 
     def confirm(self):

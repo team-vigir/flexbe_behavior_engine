@@ -69,6 +69,8 @@ class BehaviorActionServer(object):
 		be_selection.autonomy_level = 255
 		be_selection.arg_keys = goal.arg_keys
 		be_selection.arg_values = goal.arg_values
+		be_selection.input_keys = goal.input_keys
+		be_selection.input_values = goal.input_values
 
 		be_structure = ContainerStructure()
 		be_structure.containers = self._create_behavior_structure(goal.behavior_name)

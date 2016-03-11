@@ -288,12 +288,12 @@ class VigirBeOnboard(object):
         # build state machine
         try:
             be.set_up(id=msg.behavior_checksum, autonomy_level=msg.autonomy_level, debug=False)
-            be.prepare_for_execution()
+            be.prepare_for_execution(self._convert_input_data(msg.input_keys, msg.input_values))
             rospy.loginfo('State machine built.')
         except Exception as e:
-            Logger.logerr('Behavior construction failed!\n%s' % str(e))
-            self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
-            return
+           Logger.logerr('Behavior construction failed!\n%s' % str(e))
+           self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+           return
 
         return be
 
@@ -333,6 +333,33 @@ class VigirBeOnboard(object):
         setattr(obj, name, value)
         suffix = ' (' + behavior + ')' if behavior != '' else ''
         rospy.loginfo(name + ' = ' + str(value) + suffix)
+
+
+    def _convert_input_data(self, keys, values):
+        # there is no reliable clean way to check type conversion in Python
+        result = dict()
+        for k,v in zip(keys, values):
+            result[k] = v
+            try:
+                result[k] = int(v)
+                continue
+            except ValueError:
+                pass
+            try:
+                result[k] = float(v)
+                continue
+            except ValueError:
+                pass
+            if v.lower() == 'false':
+                result[k] = False
+                continue
+            if v.lower() == 'true':
+                result[k] = True
+                continue
+            if len(v) >= 2 and v[0] == '[' and v[-1] == ']':
+                result[k] = v[1:-1].split(',')
+        return result
+
         
 
     def _build_contains(self, obj, path):
