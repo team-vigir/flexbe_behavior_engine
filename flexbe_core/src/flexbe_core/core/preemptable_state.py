@@ -43,7 +43,7 @@ class PreemptableState(LoopbackState):
 
     def _preemptable_execute(self, *args, **kwargs):
         preempting = False
-        if (self._is_controlled and self._sub.has_msg(self._preempt_topic)):
+        if self._is_controlled and self._sub.has_msg(self._preempt_topic):
             self._sub.remove_last_msg(self._preempt_topic)
             self._pub.publish(self._feedback_topic, CommandFeedback(command="preempt"))
             preempting = True
@@ -60,6 +60,14 @@ class PreemptableState(LoopbackState):
             return self._preempted_name
 
         return self.__execute(*args, **kwargs)
+
+
+    def _notify_skipped(self):
+        # make sure we dont miss a preempt even if not being executed
+        if self._is_controlled and self._sub.has_msg(self._preempt_topic):
+            self._sub.remove_last_msg(self._preempt_topic)
+            self._pub.publish(self._feedback_topic, CommandFeedback(command="preempt"))
+            PreemptableState.preempt = True
 
 
     def _enable_ros_control(self):

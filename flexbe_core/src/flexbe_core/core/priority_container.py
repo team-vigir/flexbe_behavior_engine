@@ -4,9 +4,7 @@ import smach
 
 from smach.state_machine import StateMachine
 
-from flexbe_core.core.event_state import EventState
 from flexbe_core.core.operatable_state_machine import OperatableStateMachine
-from flexbe_core.core.preemptable_state import PreemptableState
 
 
 class PriorityContainer(OperatableStateMachine):

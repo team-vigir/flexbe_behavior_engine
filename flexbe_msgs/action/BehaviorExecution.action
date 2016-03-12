@@ -7,6 +7,10 @@ string behavior_name
 string[] arg_keys
 string[] arg_values
 
+# optional list of initial userdata
+string[] input_keys
+string[] input_values
+
 ---
 
 # result of the executed behavior

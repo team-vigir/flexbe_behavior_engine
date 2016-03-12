@@ -254,6 +254,9 @@ class VigirBeOnboard(object):
             rospy.loginfo('The following parameters will be used:')
         try:
             for i in range(len(msg.arg_keys)):
+                if msg.arg_keys[i] == '':
+                    # action call has empty string as default, not a valid param key
+                    continue 
                 key_splitted = msg.arg_keys[i].rsplit('/', 1)
                 if len(key_splitted) == 1:
                     behavior = ''
@@ -266,10 +269,14 @@ class VigirBeOnboard(object):
                 
                 if behavior == '' and hasattr(be, key):
                     self._set_typed_attribute(be, key, msg.arg_values[i])
+                    # propagate to contained behaviors
+                    for b in contain_list:
+                        if hasattr(contain_list[b], key):
+                            self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
                     found = True
 
                 for b in contain_list:
-                    if hasattr(contain_list[b], key):
+                    if b == behavior and hasattr(contain_list[b], key):
                         self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
                         found = True
                             
@@ -284,12 +291,12 @@ class VigirBeOnboard(object):
         # build state machine
         try:
             be.set_up(id=msg.behavior_checksum, autonomy_level=msg.autonomy_level, debug=False)
-            be.prepare_for_execution()
+            be.prepare_for_execution(self._convert_input_data(msg.input_keys, msg.input_values))
             rospy.loginfo('State machine built.')
         except Exception as e:
-            Logger.logerr('Behavior construction failed!\n%s' % str(e))
-            self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
-            return
+           Logger.logerr('Behavior construction failed!\n%s' % str(e))
+           self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+           return
 
         return be
 
@@ -329,6 +336,33 @@ class VigirBeOnboard(object):
         setattr(obj, name, value)
         suffix = ' (' + behavior + ')' if behavior != '' else ''
         rospy.loginfo(name + ' = ' + str(value) + suffix)
+
+
+    def _convert_input_data(self, keys, values):
+        # there is no reliable clean way to check type conversion in Python
+        result = dict()
+        for k,v in zip(keys, values):
+            result[k] = v
+            try:
+                result[k] = int(v)
+                continue
+            except ValueError:
+                pass
+            try:
+                result[k] = float(v)
+                continue
+            except ValueError:
+                pass
+            if v.lower() == 'false':
+                result[k] = False
+                continue
+            if v.lower() == 'true':
+                result[k] = True
+                continue
+            if len(v) >= 2 and v[0] == '[' and v[-1] == ']':
+                result[k] = v[1:-1].split(',')
+        return result
+
         
 
     def _build_contains(self, obj, path):

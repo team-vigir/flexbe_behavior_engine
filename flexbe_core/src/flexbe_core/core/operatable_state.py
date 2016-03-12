@@ -99,6 +99,9 @@ class OperatableState(PreemptableState):
         
         return outcome
 
+    def _notify_skipped(self):
+        super(OperatableState, self)._notify_skipped()
+
 
     def _enable_ros_control(self):
         super(OperatableState, self)._enable_ros_control()

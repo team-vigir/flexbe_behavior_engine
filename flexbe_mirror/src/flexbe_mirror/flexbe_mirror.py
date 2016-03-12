@@ -186,9 +186,10 @@ class VigirBehaviorMirror(object):
             while self._running:
                 rate.sleep()
             self._sm = None
-        current_state_path = self._state_checksums[msg.current_state_checksum]
-        self._starting_path = "/" + current_state_path[1:].replace("/", "_mirror/") + "_mirror"
-        rospy.loginfo('Current state: %s' % current_state_path)
+        if msg.current_state_checksum in self._state_checksums:
+            current_state_path = self._state_checksums[msg.current_state_checksum]
+            self._starting_path = "/" + current_state_path[1:].replace("/", "_mirror/") + "_mirror"
+            rospy.loginfo('Current state: %s' % current_state_path)
         self._mirror_state_machine(self._current_struct)
         rospy.loginfo('Mirror built.')
         self._execute_mirror()
@@ -203,7 +204,12 @@ class VigirBehaviorMirror(object):
             rospy.loginfo("Starting mirror in state " + self._starting_path)
             self._starting_path = None
 
-        result = self._sm.execute()
+        result = 'preempted'
+        try:
+            result = self._sm.execute()
+        except Exception as e:
+            rospy.loginfo('Catched exception on preempt:\n%s' % str(e))
+
         if self._sm is not None:
             self._sm.destroy()
         self._running = False
