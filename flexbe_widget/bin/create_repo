@@ -9,7 +9,7 @@ echo -e "Will initialize new behaviors repo \e[1m${name}_behaviors\033[0m ..."
 
 echo ""
 echo -e "\e[96m(1/4) Checking package dependencies...\033[0m"
-sudo apt-get install ros-indigo-rosbridge-server
+sudo apt-get install ros-${ROS_DISTRO}-rosbridge-server
 
 echo ""
 echo -e "\e[96m(2/4) Fetching project structure...\033[0m"
