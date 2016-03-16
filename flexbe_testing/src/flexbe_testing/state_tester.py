@@ -97,7 +97,7 @@ class StateTester(object):
 			clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__ == package.__name__)
 			StateClass = next(c for n,c in clsmembers if n == config['class'])
 		except Exception as e:
-			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, self.config['class'], self.config['path'], str(e))
+			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
 			return 0
 		if self._print_debug_positive: print '\033[1m  +\033[0m state imported'
 
