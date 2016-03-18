@@ -4,6 +4,7 @@
 
 <arg name="port" default="9090" />
 <arg name="ns" default="" />
+<arg name="behaviors_package" default="flexbe_behaviors" />
 
 <node name="behavior_mirror" pkg="flexbe_mirror" type="behavior_mirror_sm" output="screen" />
 
@@ -16,6 +17,8 @@
 	<param name="namespace" value="$(arg ns)" />
 </node>
 <node name="behavior_flexbe" pkg="flexbe_widget" type="flexbe_app" output="screen"  />
-<node name="behavior_launcher" pkg="flexbe_widget" type="be_launcher" output="screen" />
+<node name="behavior_launcher" pkg="flexbe_widget" type="be_launcher" output="screen" >
+	<param name="behaviors_package" value="$(arg behaviors_package)"/>
+</node>
 
 </launch>

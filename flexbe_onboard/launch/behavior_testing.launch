@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 
 <launch>
+<arg name="behaviors_package" default="flexbe_behaviors" />
 
-<include file="$(find flexbe_widget)/launch/behavior_ocs.launch" />
-<include file="$(find flexbe_onboard)/launch/behavior_onboard.launch" />
+<include file="$(find flexbe_widget)/launch/behavior_ocs.launch" >
+    <arg name="behaviors_package" value="$(arg behaviors_package)"/>
+</include>
+<include file="$(find flexbe_onboard)/launch/behavior_onboard.launch" >
+    <arg name="behaviors_package" value="$(arg behaviors_package)"/>
+</include>
 
 </launch>
