@@ -4,13 +4,20 @@ import roslib; roslib.load_manifest('flexbe_widget')
 import rospy
 import os
 import sys
+import socket
 from rospkg import RosPack
 import xml.etree.ElementTree as ET
 
 if __name__ == '__main__':
 
+	try:
+		behaviors_package = rospy.get_param("behaviors_package", "flexbe_behaviors")
+	except socket.error:
+		# core is not running, so there is no param to read
+		behaviors_package = "flexbe_behaviors"
+
 	rp = RosPack()
-	manifest_folder = os.path.join(rp.get_path('flexbe_behaviors'), 'behaviors/')
+	manifest_folder = os.path.join(rp.get_path(behaviors_package), 'behaviors/')
 	file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
 	manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
 	for manifest in manifests:
