@@ -90,6 +90,7 @@ class MonitoringState(smach.State):
         self._sub.enable_buffer(self._diagnostics_topic)
 
     def _disable_ros_control(self):
+        self._is_controlled = False
         self._sub.unsubscribe_topic(self._diagnostics_topic)
 
 
