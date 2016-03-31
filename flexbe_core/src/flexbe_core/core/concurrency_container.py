@@ -53,7 +53,9 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         for state in self._ordered_states:
             if state.name in self._returned_outcomes.keys() and self._returned_outcomes[state.name] != self._loopback_name:
                 continue
-            if PriorityContainer.active_container is not None and not PriorityContainer.active_container.startswith(state._get_path()):
+            if PriorityContainer.active_container is not None \
+            and not PriorityContainer.active_container.startswith(state._get_path()) \
+            and not state._get_path().startswith(PriorityContainer.active_container):
                 if isinstance(state, EventState):
                     state._notify_skipped()
                 elif state._get_deep_state() is not None:
