@@ -84,6 +84,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             # right now, going out of a cc may break sync
             # thus, as a quick fix, explicitly sync again
             self._parent._inner_sync_request = True
+            self._current_state = None
 
             return outcome
         else:
