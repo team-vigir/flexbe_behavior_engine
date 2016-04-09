@@ -334,6 +334,7 @@ class OperatableStateMachine(PreemptableStateMachine):
                 state._notify_start()
 
     def _enable_ros_control(self):
+        self._is_controlled = True
         for state in self._ordered_states:
             if isinstance(state, LoopbackState):
                 state._enable_ros_control()
@@ -349,6 +350,7 @@ class OperatableStateMachine(PreemptableStateMachine):
                 state._notify_stop()
 
     def _disable_ros_control(self):
+        self._is_controlled = False
         for state in self._ordered_states:
             if isinstance(state, LoopbackState):
                 state._disable_ros_control()
