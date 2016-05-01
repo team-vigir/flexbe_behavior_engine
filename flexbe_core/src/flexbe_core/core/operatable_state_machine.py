@@ -360,3 +360,4 @@ class OperatableStateMachine(PreemptableStateMachine):
     def on_exit(self, userdata):
         if self._current_state is not None:
             self._current_state.on_exit(userdata)
+            self._current_state = None
