@@ -190,9 +190,12 @@ class VigirBehaviorMirror(object):
             current_state_path = self._state_checksums[msg.current_state_checksum]
             self._starting_path = "/" + current_state_path[1:].replace("/", "_mirror/") + "_mirror"
             rospy.loginfo('Current state: %s' % current_state_path)
-        self._mirror_state_machine(self._current_struct)
-        rospy.loginfo('Mirror built.')
-        self._execute_mirror()
+        try:
+            self._mirror_state_machine(self._current_struct)
+            rospy.loginfo('Mirror built.')
+            self._execute_mirror()
+        except (AttributeError, smach.InvalidStateError):
+            rospy.loginfo('Stopping synchronization because behavior has stopped.')
         
 
     def _execute_mirror(self):
