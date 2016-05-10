@@ -9,7 +9,10 @@ echo -e "Will initialize new behaviors repo \e[1m${name}_behaviors\033[0m ..."
 
 echo ""
 echo -e "\e[96m(1/4) Checking package dependencies...\033[0m"
-sudo apt-get install ros-${ROS_DISTRO}-rosbridge-server
+PACKAGES_TO_INSTALL="ros-${ROS_DISTRO}-rosbridge-server"
+echo "Require: $PACKAGES_TO_INSTALL" | sed -e "s/ /\n - /g"
+dpkg -s $PACKAGES_TO_INSTALL 2>/dev/null >/dev/null || sudo apt-get -y install $PACKAGES_TO_INSTALL
+echo "Done"
 
 echo ""
 echo -e "\e[96m(2/4) Fetching project structure...\033[0m"

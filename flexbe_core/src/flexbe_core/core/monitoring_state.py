@@ -34,7 +34,7 @@ class MonitoringState(smach.State):
         self.__execute = self.execute
         self.execute = self._monitoring_execute
 
-        self._diagnostics_topic = 'diagnostics'
+        self._diagnostics_topic = 'diagnostics_agg'
         self._sub = ProxySubscriberCached()
 
 
@@ -90,6 +90,7 @@ class MonitoringState(smach.State):
         self._sub.enable_buffer(self._diagnostics_topic)
 
     def _disable_ros_control(self):
+        self._is_controlled = False
         self._sub.unsubscribe_topic(self._diagnostics_topic)
 
 

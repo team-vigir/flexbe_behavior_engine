@@ -18,7 +18,9 @@ class LockableStateMachine(smach.StateMachine):
         self._locked = False
         self._parent = None
         self.transitions = None
+        
         self.name = None
+        self._is_controlled = False
     
 
     def _get_deep_state(self):
