@@ -5,7 +5,7 @@ import actionlib
 from flexbe_msgs.msg import *
 from rospkg import RosPack
 
-from std_msgs.msg import String
+from std_msgs.msg import String, Empty
 
 import pickle
 import zlib
@@ -18,6 +18,7 @@ class BehaviorActionServer(object):
 
 	def __init__(self):
 		self._pub = rospy.Publisher('flexbe/start_behavior', BehaviorSelection, queue_size=100)
+		self._preempt_pub = rospy.Publisher('flexbe/command/preempt', Empty, queue_size=100)
 		self._status_sub = rospy.Subscriber('flexbe/status', BEStatus, self._status_cb)
 		self._state_sub = rospy.Subscriber('flexbe/behavior_update', String, self._state_cb)
 
@@ -122,6 +123,11 @@ class BehaviorActionServer(object):
 			if self._engine_status.code == BEStatus.FAILED:
 				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
 				self._as.set_aborted('')
+				break
+			if self._as.is_preempt_requested():
+				rospy.loginfo('Preempt Requested!')
+				self._preempt_pub.publish()
+				self._as.set_preempted('')
 				break
 
 			rate.sleep()
