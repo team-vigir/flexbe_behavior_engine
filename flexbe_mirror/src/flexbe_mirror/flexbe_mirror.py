@@ -211,7 +211,8 @@ class VigirBehaviorMirror(object):
         try:
             result = self._sm.execute()
         except Exception as e:
-            rospy.loginfo('Catched exception on preempt:\n%s' % str(e))
+            rospy.loginfo('Caught exception on preempt:\n%s' % str(e))
+            result = 'preempted'
 
         if self._sm is not None:
             self._sm.destroy()
