@@ -51,8 +51,9 @@ class VigirBeOnboard(object):
         #ProxySubscriberCached._simulate_delay = True
 
         behaviors_package = "flexbe_behaviors"
-        if rospy.has_param("behaviors_package"):
-            behaviors_package = rospy.get_param("behaviors_package")
+        if rospy.has_param("~behaviors_package"):
+            behaviors_package = rospy.get_param("~behaviors_package")
+            rospy.loginfo("Using custom behaviors package: %s" % behaviors_package)
         else:
             rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
 

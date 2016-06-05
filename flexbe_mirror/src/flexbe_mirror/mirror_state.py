@@ -2,6 +2,7 @@
 
 import roslib; roslib.load_manifest('flexbe_mirror')
 import rospy
+from rospy.exceptions import ROSInterruptException
 from flexbe_core import EventState, JumpableStateMachine
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
