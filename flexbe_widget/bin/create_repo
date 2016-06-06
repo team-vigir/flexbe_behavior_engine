@@ -48,3 +48,10 @@ echo -e "  rosed ${name}_flexbe_states example_state.py"
 echo -e "  rosed ${name}_flexbe_states example_action_state.py"
 echo ""
 
+cd ..
+if [[ ":$ROS_PACKAGE_PATH:" != *":$PWD:"* ]]; then
+	echo -e "\e[93mThe repository is not on the ROS_PACKAGE_PATH.\e[0m"
+	echo -e "Run the following command if this was not on purpose:"
+	echo -e "  roscd && cd ../src && mv $PWD/${name}_behaviors ${name}_behaviors"
+	echo ""
+fi
