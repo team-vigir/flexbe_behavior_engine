@@ -359,5 +359,11 @@ class OperatableStateMachine(PreemptableStateMachine):
 
     def on_exit(self, userdata):
         if self._current_state is not None:
-            self._current_state.on_exit(userdata)
+            ud = smach.Remapper(
+                self.userdata,
+                self._current_state.get_registered_input_keys(),
+                self._current_state.get_registered_output_keys(),
+                self._remappings[self._current_state.name]
+            )
+            self._current_state.on_exit(ud)
             self._current_state = None
