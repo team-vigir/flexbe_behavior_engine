@@ -161,6 +161,7 @@ class VigirBeOnboard(object):
             if self._switching:
                 self._pub.publish(self.status_topic, BEStatus(behavior_id=self.be.id, code=BEStatus.SWITCHING))
             else:
+                self._pub.publish(self.feedback_topic, CommandFeedback(command="finish", args=[result]))
                 self._pub.publish(self.status_topic, BEStatus(behavior_id=self.be.id, code=BEStatus.FINISHED))
         except Exception as e:
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.FAILED))
