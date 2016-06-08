@@ -21,10 +21,12 @@ class BehaviorActionServer(object):
 		self._preempt_pub = rospy.Publisher('flexbe/command/preempt', Empty, queue_size=100)
 		self._status_sub = rospy.Subscriber('flexbe/status', BEStatus, self._status_cb)
 		self._state_sub = rospy.Subscriber('flexbe/behavior_update', String, self._state_cb)
+		self._feedback_sub = rospy.Subscriber('flexbe/command_feedback', CommandFeedback, self._feedback_cb)
 
 		self._behavior_running = False
 		self._current_state = None
 		self._engine_status = None
+		self._feedback = None
 
 		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
 		self._as.start()
@@ -118,7 +120,9 @@ class BehaviorActionServer(object):
 
 			if self._engine_status.code == BEStatus.FINISHED:
 				rospy.loginfo('Finished behavior execution!')
-				self._as.set_succeeded(self._current_state if self._current_state is not None else '')
+				out = BehaviorExecutionResult()
+				out.outcome = self._feedback
+				self._as.set_succeeded(out if self._feedback is not None else '')
 				break
 			if self._engine_status.code == BEStatus.FAILED:
 				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
@@ -138,7 +142,6 @@ class BehaviorActionServer(object):
 	def _status_cb(self, msg):
 		self._engine_status = msg
 
-
 	def _state_cb(self, msg):
 		self._current_state = msg.data
 		rospy.loginfo('Current state: %s' % self._current_state)
@@ -146,3 +149,7 @@ class BehaviorActionServer(object):
 
 	def _create_behavior_structure(self, behavior_name):
 		return list()
+
+	def _feedback_cb(self, msg):
+		self._feedback = msg.args[0]
+		
