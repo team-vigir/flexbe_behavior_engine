@@ -117,8 +117,10 @@ class BehaviorActionServer(object):
 				continue
 
 			if self._engine_status.code == BEStatus.FINISHED:
-				rospy.loginfo('Finished behavior execution!')
-				self._as.set_succeeded(self._current_state if self._current_state is not None else '')
+				result = self._engine_status.args[0] \
+					if len(self._engine_status.args) >= 1 else ''
+				rospy.loginfo('Finished behavior execution with result "%s"!' % result)
+				self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
 				break
 			if self._engine_status.code == BEStatus.FAILED:
 				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
