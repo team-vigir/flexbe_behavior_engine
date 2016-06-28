@@ -9,6 +9,7 @@ import smach
 import roslaunch
 import unittest
 import rosunit
+import traceback
 
 from flexbe_core.core.loopback_state import LoopbackState
 
@@ -74,7 +75,21 @@ class StateTester(object):
 
 			#print '\033[35m'
 			run = launchrunner.launch()
+			launchrunner.spin_once()
 			if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m launchfile running'
+
+			if config.has_key('wait_cond'):
+				try:
+					check_running_rate = rospy.Rate(10)
+					is_running = False
+					while not is_running:
+						is_running = eval(config['wait_cond'])
+						check_running_rate.sleep()
+					if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m waiting condition satisfied'
+				except Exception as e:
+					print '\033[31;1m%s\033[0m\033[31m unable to check waiting condition:\n\t%s\033[0m' % (prefix, str(e))
+					return 0
+
 
 		# prepare rosbag if available
 		bag = None
@@ -98,6 +113,7 @@ class StateTester(object):
 			StateClass = next(c for n,c in clsmembers if n == config['class'])
 		except Exception as e:
 			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
+			traceback.print_exc()
 			return 0
 		if self._print_debug_positive: print '\033[1m  +\033[0m state imported'
 
@@ -122,6 +138,7 @@ class StateTester(object):
 					state = StateClass(**params)
 			except Exception as e:
 				print '\033[31;1m%s\033[0m\033[31m unable to instantiate state %s (%s) with params:\n\t%s\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(params), str(e))
+				traceback.print_exc()
 				return 0
 			if self._print_debug_positive: print '\033[1m  +\033[0m state instantiated'
 
@@ -148,6 +165,7 @@ class StateTester(object):
 				state.on_stop()
 			except Exception as e:
 				print '\033[31;1m%s\033[0m\033[31m failed to execute state %s (%s)\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
+				traceback.print_exc()
 				return 0
 
 			if config.has_key('launch'):
