@@ -36,17 +36,8 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
 
 
     def _update_once(self):
-        #print 'update'
         # Check if a preempt was requested before or while the last state was running
         if self.preempt_requested() or PreemptableState.preempt:
-            #if self._preempted_state is not None:
-            #    if self._preempted_state.preempt_requested():
-            #        self._preempt_current_state()
-            #    else:
-            #        self._preempt_requested = False
-            #        self._preempted_state = None
-            #else:
-            #    self._preempt_current_state()
             return self._preempted_name
 
         #self._state_transitioning_lock.release()
@@ -79,8 +70,8 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         if outcome in self.get_registered_outcomes():
             # Call termination callbacks
             self.call_termination_cbs([s.name for s in self._ordered_states],outcome)
+            self.on_exit(self.userdata, states = filter(lambda s: s.name not in self._returned_outcomes.keys() or self._returned_outcomes[s.name] == self._loopback_name, self._ordered_states))
             self._returned_outcomes = dict()
-            self.on_exit(self.userdata)
             # right now, going out of a cc may break sync
             # thus, as a quick fix, explicitly sync again
             self._parent._inner_sync_request = True
@@ -143,6 +134,6 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         if isinstance(state, OperatableStateMachine):
             state._disable_ros_control()
 
-    def on_exit(self, userdata):
-        for state in self._ordered_states:
+    def on_exit(self, userdata, states = None):
+        for state in self._ordered_states if states is None else states:
             self._execute_state(state, force_exit=True)
