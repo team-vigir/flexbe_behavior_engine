@@ -42,11 +42,21 @@ You can also create a program shortcut for the FlexBE Chrome App. When just deve
 
 Please use the following publication for reference when using FlexBE:
 
-Philipp Schillinger, Stefan Kohlbrecher, and Oskar von Stryk, "Human-Robot Collaborative High-Level Control with Application to Rescue Robotics", IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016 (to appear).
+Philipp Schillinger, Stefan Kohlbrecher, and Oskar von Stryk, ["Human-Robot Collaborative High-Level Control with Application to Rescue Robotics"](http://dx.doi.org/10.1109/ICRA.2016.7487442), IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016.
+
+    @INPROCEEDINGS{2016:ICRA_Schillinger-etal,
+        author = {Philipp Schillinger and Stefan Kohlbrecher and Oskar von Stryk},
+        title = {Human-Robot Collaborative High-Level Control with Application to Rescue Robotics},
+        year = {2016},
+        pages = {2796-2802},
+        booktitle = {Proc. IEEE Int. Conf. on Robotics and Automation (ICRA)},
+    }
 
 ### Further Publications
 
-Spyros Maniatopoulos, Philipp Schillinger, Vitchyr Pong, David C. Conner, and Hadas Kress-Gazit, "Reactive High-level Behavior Synthesis for an Atlas Humanoid Robot", IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016 (to appear).
+Stefan Kohlbrecher et al. ["A Comprehensive Software Framework for Complex Locomotion and Manipulation Tasks Applicable to Different Types of Humanoid Robots."](http://dx.doi.org/10.3389/frobt.2016.00031) Frontiers in Robotics and AI 3 (2016): 31.
+
+Spyros Maniatopoulos, Philipp Schillinger, Vitchyr Pong, David C. Conner, and Hadas Kress-Gazit, ["Reactive High-level Behavior Synthesis for an Atlas Humanoid Robot"](http://dx.doi.org/10.1109/ICRA.2016.7487613), IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016.
 
 ## Maintainer
 
