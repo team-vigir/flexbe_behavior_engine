@@ -91,6 +91,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
                         state.get_registered_output_keys(),
                         self._remappings[state.name])
             if force_exit:
+                state._entering = True
                 state.on_exit(ud)
             else:
                 result = state.execute(ud)
@@ -106,11 +107,11 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
 
 
     def _notify_start(self):
-        state = self._ordered_states[0]
-        if isinstance(state, EventState):
-            state.on_start()
-        if isinstance(state, OperatableStateMachine):
-            state._notify_start()
+        for state in self._ordered_states:
+            if isinstance(state, EventState):
+                state.on_start()
+            if isinstance(state, OperatableStateMachine):
+                state._notify_start()
 
     def _enable_ros_control(self):
         state = self._ordered_states[0]
@@ -120,12 +121,13 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             state._enable_ros_control()
 
     def _notify_stop(self):
-        state = self._ordered_states[0]
-        if isinstance(state, EventState):
-            state.on_stop()
-            state._disable_ros_control()
-        if isinstance(state, OperatableStateMachine):
-            state._notify_stop()
+        for state in self._ordered_states:
+            if isinstance(state, EventState):
+                state.on_stop()
+            if isinstance(state, OperatableStateMachine):
+                state._notify_stop()
+            if state._is_controlled:
+                state._disable_ros_control()
 
     def _disable_ros_control(self):
         state = self._ordered_states[0]

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<launch>
+
+<arg name="ns" />
+<arg name="port" default="9090" />
+
+<group ns="$(arg ns)">
+	<include file="$(find flexbe_widget)/launch/behavior_ocs.launch">
+		<arg name="ns" value="$(arg ns)" />
+		<arg name="port" value="$(arg port)" />
+	</include>
+
+	<include file="$(find flexbe_onboard)/launch/behavior_onboard.launch" />
+</group>
+
+</launch>

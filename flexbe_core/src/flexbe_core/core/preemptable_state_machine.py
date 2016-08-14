@@ -36,4 +36,3 @@ class PreemptableStateMachine(LoopbackStateMachine):
     def _preempt_cb(self, msg):
         if not self._is_controlled:
             PreemptableState.preempt = True
-            rospy.loginfo("--> Preempted requested while unsupervised")
