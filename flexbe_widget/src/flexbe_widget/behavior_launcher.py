@@ -2,7 +2,7 @@
 
 import rospy
 from flexbe_msgs.msg import *
-from rospkg import RosPack
+from rospkg import RosPack, ResourceNotFound
 
 from flexbe_core import Logger
 from std_msgs.msg import String
@@ -96,7 +96,13 @@ class BehaviorLauncher(object):
 		be_structure = ContainerStructure()
 		be_structure.containers = msg.structure
 
-		be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+		try:
+			be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+		except ResourceNotFound:
+			rospy.logerr("Could not find behavior package '%s'" % (behavior["package"]))
+			rospy.loginfo("Have you updated your ROS_PACKAGE_PATH after creating the behavior?")
+			return
+
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
