@@ -166,6 +166,8 @@ class VigirBeOnboard(object):
         except Exception as e:
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.FAILED))
             Logger.logerr('Behavior execution failed!\n%s' % str(e))
+            import traceback
+            Logger.loginfo(traceback.format_exc())
             result = "failed"
 
         try:
