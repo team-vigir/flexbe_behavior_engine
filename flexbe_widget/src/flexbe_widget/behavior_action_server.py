@@ -104,6 +104,11 @@ class BehaviorActionServer(object):
 				self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
 				self._current_state = None
 
+			if self._engine_status is None:
+				rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+				rate.sleep()
+				continue
+
 			if self._engine_status.code == BEStatus.ERROR:
 				rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
 				self._as.set_aborted('')
