@@ -183,6 +183,9 @@ class StateTester(object):
 					if not equals:
 						if self._print_debug_negative: print '\033[1m  -\033[0m wrong result for %s: %s != %s' % (expected_key, userdata[expected_key], expected_value)
 						output_ok = False
+				else:
+					if self._print_debug_negative: print '\033[1m  -\033[0m no result for %s' % expected_key
+					output_ok = False
 			if len(expected) > 0 and output_ok:
 				if self._print_debug_positive: print '\033[1m  +\033[0m all result outputs match expected'
 
