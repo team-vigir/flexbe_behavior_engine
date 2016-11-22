@@ -14,6 +14,13 @@ from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import ContainerStructure, BehaviorSync, BEStatus
 from std_msgs.msg import Empty, String, Int32, UInt8
 
+
+import inspect # FIXME remove
+
+def lineno():  # FIXME remove
+    """Returns the current line number in our program."""
+    return inspect.currentframe().f_back.f_lineno
+
 '''
 Created on 08.05.2013
 
@@ -65,26 +72,36 @@ class VigirBehaviorMirror(object):
     
     
     def _mirror_callback(self, msg):
+        #print(lineno())
         rate = rospy.Rate(10)
         while self._stopping:
             rate.sleep()
-            
+        
+        print(lineno())
         if self._running:
             rospy.logwarn('Received a new mirror structure while mirror is already running, adding to buffer (ID: %s).' % str(msg.behavior_id))
+            #print(lineno())
         elif self._active_id != 0 and msg.behavior_id != self._active_id:
             rospy.logwarn('ID of received mirror structure (%s) does not match expected ID (%s), will ignore.' % (str(msg.behavior_id), str(self._active_id)))
+            #print(lineno())
             return
         else:
             rospy.loginfo('Received a new mirror structure for ID %s' % str(msg.behavior_id))
+            #print(lineno())
 
         self._struct_buffer.append(msg)
-
-        if self._active_id == msg.behavior_id:
+        
+        #print("self._active_id = " + str(self._active_id) + ", msg.behavior_id = " + str(msg.behavior_id));
+        # FIXME: recognise if this is a callback from own request or from UI
+        if False and self._active_id == msg.behavior_id:
+            print(lineno())
             self._struct_buffer = list()
             self._mirror_state_machine(msg)
             rospy.loginfo('Mirror built.')
 
             self._execute_mirror()
+        #else:
+        #    print(lineno())
 
 
     def _status_callback(self, msg):
@@ -118,6 +135,10 @@ class VigirBehaviorMirror(object):
             if struct.behavior_id == self._active_id:
                 self._mirror_state_machine(struct)
                 rospy.loginfo('Mirror built.')
+                #print("self._running = " + str(self._running))
+                #print("self._stopping = " + str(self._stopping))
+                #print("self._active_id = " + str(self._active_id))
+                #print("self._starting_path = " + str(self._starting_path))
             else:
                 rospy.logwarn('Discarded mismatching buffered structure for ID %s' % str(struct.behavior_id))
 
@@ -127,6 +148,8 @@ class VigirBehaviorMirror(object):
             self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
             self._active_id = msg.behavior_id
             return
+        #else:
+        #    rospy.loginfo('Correct mirror structure given')
 
         self._execute_mirror()
 

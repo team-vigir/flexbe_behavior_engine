@@ -15,6 +15,7 @@ import zlib
 import xml.etree.ElementTree as ET
 
 from flexbe_core import Logger
+from flexbe_core.reload_importer import ReloadImporter
 
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, ContainerStructure, CommandFeedback
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
@@ -63,7 +64,7 @@ class VigirBeOnboard(object):
         if not os.path.exists(self._tmp_folder):
             os.makedirs(self._tmp_folder)
         sys.path.append(self._tmp_folder)
-
+        
         # prepare manifest folder access
         manifest_folder = os.path.join(rp.get_path(behaviors_package), 'behaviors/')
         rospy.loginfo("Parsing available behaviors...")
@@ -75,7 +76,12 @@ class VigirBeOnboard(object):
             e = m.find("executable")
             self._behavior_lib[i] = {"name": m.get("name"), "package": e.get("package_path").split(".")[0], "file": e.get("package_path").split(".")[1], "class": e.get("class")}
 #            rospy.loginfo("+++ " + self._behavior_lib[i]["name"])
-
+        
+        # enable automatic reloading of all subsequent modules on reload
+        _reload_importer = ReloadImporter()
+        _reload_importer.add_reload_path(manifest_folder)
+        _reload_importer.enable()
+        
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
 
@@ -97,13 +103,11 @@ class VigirBeOnboard(object):
         rospy.sleep(0.5) # wait for publishers etc to really be set up
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
         rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
-
         
     def _behavior_callback(self, msg):
         thread = threading.Thread(target=self._behavior_execution, args=[msg])
         thread.daemon = True
         thread.start()
-
 
     def _behavior_execution(self, msg):
         if self._running:
