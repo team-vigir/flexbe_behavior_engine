@@ -60,6 +60,8 @@ class VigirBehaviorMirror(object):
 
         self._struct_buffer = list()
         
+        self._is_requesting_mirror = False
+        
         # listen for mirror message
         self._sub = ProxySubscriberCached()
         self._sub.subscribe(self._outcome_topic, UInt8)
@@ -77,7 +79,7 @@ class VigirBehaviorMirror(object):
         while self._stopping:
             rate.sleep()
         
-        print(lineno())
+        #print(lineno())
         if self._running:
             rospy.logwarn('Received a new mirror structure while mirror is already running, adding to buffer (ID: %s).' % str(msg.behavior_id))
             #print(lineno())
@@ -91,10 +93,11 @@ class VigirBehaviorMirror(object):
 
         self._struct_buffer.append(msg)
         
-        #print("self._active_id = " + str(self._active_id) + ", msg.behavior_id = " + str(msg.behavior_id));
-        # FIXME: recognise if this is a callback from own request or from UI
-        if False and self._active_id == msg.behavior_id:
-            print(lineno())
+        # this message might either come from outside or from an internal request inside self._start_mirror()
+        # _is_requesting_mirror is set if from internal request
+        if self._is_requesting_mirror and self._active_id == msg.behavior_id:
+            self._is_requesting_mirror = False
+            # print(lineno())
             self._struct_buffer = list()
             self._mirror_state_machine(msg)
             rospy.loginfo('Mirror built.')
@@ -116,6 +119,7 @@ class VigirBehaviorMirror(object):
 
 
     def _start_mirror(self, msg):
+        self._is_requesting_mirror = False
         rate = rospy.Rate(10)
         while self._stopping:
             rate.sleep()
@@ -147,6 +151,7 @@ class VigirBehaviorMirror(object):
             rospy.sleep(0.2) # no clean way to wait for publisher to be ready...
             self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
             self._active_id = msg.behavior_id
+            self._is_requesting_mirror = True
             return
         #else:
         #    rospy.loginfo('Correct mirror structure given')
@@ -222,6 +227,7 @@ class VigirBehaviorMirror(object):
         
 
     def _execute_mirror(self):
+        self._is_requesting_mirror = False
         self._running = True
 
         rospy.loginfo("Executing mirror...")
