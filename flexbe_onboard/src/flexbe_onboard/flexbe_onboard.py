@@ -212,7 +212,8 @@ class VigirBeOnboard(object):
             if zlib.adler32(file_content) != msg.behavior_checksum:
                 mismatch_msg = ("Checksum mismatch of behavior versions! \n"
                                 "Attempted to load behavior: %s\n"
-                                "Make sure that all computers are on the same version."  % str(be_filepath))
+                                "Make sure that all computers are on the same version a.\n"
+                                "Also try: rosrun flexbe_widget clear_cache" % str(be_filepath))
                 raise Exception(mismatch_msg)
             else:
                 rospy.loginfo("Successfully applied %d modifications." % len(msg.modifications))
