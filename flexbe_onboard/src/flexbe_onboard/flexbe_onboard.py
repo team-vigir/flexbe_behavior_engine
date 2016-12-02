@@ -71,10 +71,14 @@ class VigirBeOnboard(object):
         manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
         self._behavior_lib = dict()
         for i in range(len(manifests)):
-            m = ET.parse(manifests[i]).getroot()
-            e = m.find("executable")
-            self._behavior_lib[i] = {"name": m.get("name"), "package": e.get("package_path").split(".")[0], "file": e.get("package_path").split(".")[1], "class": e.get("class")}
-#            rospy.loginfo("+++ " + self._behavior_lib[i]["name"])
+            try:
+                m = ET.parse(manifests[i]).getroot()
+            except ET.ParseError:
+                rospy.logerr('Failed to parse behavior description xml file: "%s"' % manifests[i])
+            else:
+                e = m.find("executable")
+                self._behavior_lib[i] = {"name": m.get("name"), "package": e.get("package_path").split(".")[0], "file": e.get("package_path").split(".")[1], "class": e.get("class")}
+                # rospy.loginfo("+++ " + self._behavior_lib[i]["name"])
 
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
