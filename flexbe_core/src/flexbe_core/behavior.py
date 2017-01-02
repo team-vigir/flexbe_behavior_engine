@@ -63,26 +63,7 @@ class Behavior(object):
         @param default: The default value of this parameter. Be sure to set it to the right type.
         """
         setattr(self, name, default)
-        
-    def reload_class(self, class_obj):
-        """
-        reloads the module of a class
-        necessary since the class definition might have changed during execution
-        see http://stackoverflow.com/questions/9645388/dynamically-reload-a-class-definition-in-python
-        
-        @type class_obj: class
-        @param class_obj: The class whose module is to be reloaded
-        """
-        
-        module_name = class_obj.__module__
-        module = sys.modules[module_name]
-        pycfile = module.__file__
-        modulepath = string.replace(pycfile, ".pyc", ".py")
-        code=open(modulepath, 'rU').read()
-        compile(code, module_name, "exec")
-        module = reload(module)
-        return getattr(module,class_obj.__name__)
-        
+
     def add_behavior(self, behavior_class, behavior_id):
         """
         Adds another behavior as part of this behavior.
@@ -96,9 +77,7 @@ class Behavior(object):
         """
         if not hasattr(self, 'contains'):
             rospy.logerr('Behavior was not initialized! Please call superclass constructor.')
-        
-        behavior_class = self.reload_class(behavior_class)
-        
+
         instance = behavior_class()
         self.contains[behavior_id] = instance
     
