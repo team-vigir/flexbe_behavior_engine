@@ -188,6 +188,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         self._disable_ros_control()
         self._sub.unsubscribe_topic('flexbe/command/autonomy')
         self._sub.unsubscribe_topic('flexbe/command/sync')
+        self._sub.unsubscribe_topic('flexbe/command/attach')
         self._sub.unsubscribe_topic('flexbe/request_mirror_structure')
         StateLogger.shutdown()
         
