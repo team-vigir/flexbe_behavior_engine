@@ -55,6 +55,7 @@ class VigirBehaviorMirror(object):
         self._active_id = 0
         self._starting_path = None
         self._current_struct = None
+        self._state_checksums = dict()
 
         self._outcome_topic = 'flexbe/mirror/outcome'
 
