@@ -70,8 +70,8 @@ class LockableState(ManuallyTransitionableState):
 
 
     def _execute_lock(self, target):
-        found_target = False
-        if target == self._get_path():
+        if target == self._get_path() or target == '':
+            target = self._get_path()
             found_target = True
             self._locked = True
         else:
@@ -85,8 +85,8 @@ class LockableState(ManuallyTransitionableState):
 
 
     def _execute_unlock(self, target):
-        found_target = False
-        if target == self._get_path():
+        if target == self._get_path() or (self._locked and target == ''):
+            target = self._get_path()
             found_target = True
             self._locked = False
         else:
