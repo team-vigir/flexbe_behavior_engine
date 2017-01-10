@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ -z ${FLEXBE_ID} ]; then
   # use official flexbe app id
-  FLEXBE_ID=bainobklghincdjccndeffjmkgfkcgah
+  FLEXBE_ID=ofahdhifmkhpmlkhcpbhjkagkkoofeco
 else
   echo "Starting FLexBE App with local app id from environment FLEXBE_ID=${FLEXBE_ID}"
 fi
