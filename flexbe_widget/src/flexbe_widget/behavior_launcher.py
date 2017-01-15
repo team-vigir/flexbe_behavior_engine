@@ -16,9 +16,11 @@ import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
 
-	MIN_VERSION = '0.21.8'
+	MIN_VERSION = '2.0.0'
 
 	def __init__(self):
+		Logger.initialize()
+
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
 
@@ -28,8 +30,6 @@ class BehaviorLauncher(object):
 
 		self._rp = RosPack()
 		self._behavior_lib = BehaviorLibrary()
-
-		Logger.initialize()
 
 		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
@@ -115,7 +115,7 @@ class BehaviorLauncher(object):
 		if vui < vex:
 			Logger.logwarn('FlexBE App needs to be updated!\n' \
 				+ 'Require at least version %s, but have %s\n' % (BehaviorLauncher.MIN_VERSION, msg.data) \
-				+ 'You can update the app by dropping the file flexbe_behavior_engine/FlexBE.crx onto the Chrome extension page.')
+				+ 'Please run a "git pull" in "roscd flexbe_app".')
 
 	def _parse_version(self, v):
 		result = 0
