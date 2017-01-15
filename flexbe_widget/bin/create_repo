@@ -9,15 +9,18 @@ echo -e "Will initialize new behaviors repo \e[1m${name}_behaviors\033[0m ..."
 
 echo ""
 echo -e "\e[96m(1/4) Checking package dependencies...\033[0m"
-PACKAGES_TO_INSTALL="ros-${ROS_DISTRO}-rosbridge-server"
-echo "Require: $PACKAGES_TO_INSTALL" | sed -e "s/ /\n - /g"
-dpkg -s $PACKAGES_TO_INSTALL 2>/dev/null >/dev/null || sudo apt-get -y install $PACKAGES_TO_INSTALL
+#PACKAGES_TO_INSTALL="ros-${ROS_DISTRO}-rosbridge-server"
+#echo "Require: $PACKAGES_TO_INSTALL" | sed -e "s/ /\n - /g"
+#dpkg -s $PACKAGES_TO_INSTALL 2>/dev/null >/dev/null || sudo apt-get -y install $PACKAGES_TO_INSTALL
 echo "Done"
 
 echo ""
 echo -e "\e[96m(2/4) Fetching project structure...\033[0m"
 git clone https://github.com/pschillinger/flexbe_project_behaviors.git ${name}_behaviors
 cd ${name}_behaviors
+ # use new flexbe_app workspace layout, remove when merged into master
+git fetch
+git checkout feature/flexbe_app
 
 echo ""
 echo -e "\e[96m(3/4) Configuring project template...\033[0m"
@@ -41,11 +44,14 @@ echo -e "Please run the following commands to push it:"
 echo -e "  git remote add origin [your_repo_url]"
 echo -e "  git push origin master"
 echo ""
-echo -e "Make sure to install and configure the FlexBE Chrome App."
-echo ""
 echo -e "Your new repository already contains an example behavior and examples for writing own states:"
 echo -e "  rosed ${name}_flexbe_states example_state.py"
 echo -e "  rosed ${name}_flexbe_states example_action_state.py"
+echo ""
+echo -e "Clone the following repository for a user interface (editor + runtime control) for FlexBE:"
+echo -e "  roscd && cd ../src && git clone https://github.com/FlexBE/flexbe_app.git"
+echo ""
+echo -e "\e[96mMake sure to build your workspace.\033[0m"
 echo ""
 
 cd ..
