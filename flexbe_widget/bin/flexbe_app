@@ -1,8 +1,6 @@
-#!/bin/bash
-#if [ -z ${FLEXBE_ID} ]; then
-#  echo -e "\e[1;33mPlease install the FlexBE Chrome App and set the environment variable FLEXBE_ID.\e[0m"
-#  exit 2
-#fi
+
+# DEPRECATED
+# Chrome app will be removed soon, please switch to https://github.com/flexbe/flexbe_app
 
 if command -v google-chrome 2> /dev/null; then
   echo "Using google-chrome for FlexBE ..."
