@@ -1,4 +1,4 @@
-uint8 behavior_id
+int32 behavior_id
 int32 behavior_checksum
 
 uint8 autonomy_level

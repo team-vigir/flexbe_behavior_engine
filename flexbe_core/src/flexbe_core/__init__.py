@@ -13,6 +13,8 @@ from .core import OperatableStateMachine, JumpableStateMachine, SilentStateMachi
 
 from .behavior import Behavior
 
+from .behavior_library import BehaviorLibrary
+
 from .logger import Logger
 
 

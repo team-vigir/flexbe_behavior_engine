@@ -14,7 +14,7 @@ import yaml
 import zlib
 import xml.etree.ElementTree as ET
 
-from flexbe_core import Logger
+from flexbe_core import Logger, BehaviorLibrary
 
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, ContainerStructure, CommandFeedback
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
@@ -50,13 +50,6 @@ class VigirBeOnboard(object):
         #ProxyPublisher._simulate_delay = True
         #ProxySubscriberCached._simulate_delay = True
 
-        behaviors_package = "flexbe_behaviors"
-        if rospy.has_param("~behaviors_package"):
-            behaviors_package = rospy.get_param("~behaviors_package")
-            rospy.loginfo("Using custom behaviors package: %s" % behaviors_package)
-        else:
-            rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
-
         # prepare temp folder
         rp = rospkg.RosPack()
         self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
@@ -65,16 +58,7 @@ class VigirBeOnboard(object):
         sys.path.append(self._tmp_folder)
 
         # prepare manifest folder access
-        manifest_folder = os.path.join(rp.get_path(behaviors_package), 'behaviors/')
-        rospy.loginfo("Parsing available behaviors...")
-        file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
-        manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
-        self._behavior_lib = dict()
-        for i in range(len(manifests)):
-            m = ET.parse(manifests[i]).getroot()
-            e = m.find("executable")
-            self._behavior_lib[i] = {"name": m.get("name"), "package": e.get("package_path").split(".")[0], "file": e.get("package_path").split(".")[1], "class": e.get("class")}
-#            rospy.loginfo("+++ " + self._behavior_lib[i]["name"])
+        self._behavior_lib = BehaviorLibrary()
 
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
@@ -186,7 +170,9 @@ class VigirBeOnboard(object):
         # get sourcecode from ros package
         try:
             rp = rospkg.RosPack()
-            behavior = self._behavior_lib[msg.behavior_id]
+            behavior = self._behavior_lib.get_behavior(msg.behavior_id)
+            if behavior is None:
+                raise ValueError(msg.behavior_id)
             be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")

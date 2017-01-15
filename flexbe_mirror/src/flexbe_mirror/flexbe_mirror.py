@@ -70,12 +70,12 @@ class VigirBehaviorMirror(object):
             rate.sleep()
             
         if self._running:
-            rospy.logwarn('Received a new mirror structure while mirror is already running, adding to buffer (ID: %s).' % str(msg.behavior_id))
+            rospy.logwarn('Received a new mirror structure while mirror is already running, adding to buffer (checksum: %s).' % str(msg.behavior_id))
         elif self._active_id != 0 and msg.behavior_id != self._active_id:
-            rospy.logwarn('ID of received mirror structure (%s) does not match expected ID (%s), will ignore.' % (str(msg.behavior_id), str(self._active_id)))
+            rospy.logwarn('checksum of received mirror structure (%s) does not match expected checksum (%s), will ignore.' % (str(msg.behavior_id), str(self._active_id)))
             return
         else:
-            rospy.loginfo('Received a new mirror structure for ID %s' % str(msg.behavior_id))
+            rospy.loginfo('Received a new mirror structure for checksum %s' % str(msg.behavior_id))
 
         self._struct_buffer.append(msg)
 
@@ -119,7 +119,7 @@ class VigirBehaviorMirror(object):
                 self._mirror_state_machine(struct)
                 rospy.loginfo('Mirror built.')
             else:
-                rospy.logwarn('Discarded mismatching buffered structure for ID %s' % str(struct.behavior_id))
+                rospy.logwarn('Discarded mismatching buffered structure for checksum %s' % str(struct.behavior_id))
 
         if self._sm is None:
             rospy.logwarn('Missing correct mirror structure, requesting...')
