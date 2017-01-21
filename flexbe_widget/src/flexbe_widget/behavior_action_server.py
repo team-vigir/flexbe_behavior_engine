@@ -98,48 +98,52 @@ class BehaviorActionServer(object):
 		self._pub.publish(be_selection)
 		self._behavior_running = False
 
-		rate = rospy.Rate(10)
-		while not rospy.is_shutdown():
-			if self._current_state is not None:
-				self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
-				self._current_state = None
+		try:
+			rate = rospy.Rate(10)
+			while not rospy.is_shutdown():
+				if self._current_state is not None:
+					self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
+					self._current_state = None
 
-			if self._engine_status is None:
-				rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+				if self._engine_status is None:
+					rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+					rate.sleep()
+					continue
+
+				if self._engine_status.code == BEStatus.ERROR:
+					rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+					self._as.set_aborted('')
+					break
+
+				if not self._behavior_running:
+					if self._engine_status.code == BEStatus.STARTED:
+						self._behavior_running = True
+						rospy.loginfo('Behavior execution has started!')
+					rate.sleep()
+					continue
+
+				if self._engine_status.code == BEStatus.FINISHED:
+					result = self._engine_status.args[0] \
+						if len(self._engine_status.args) >= 1 else ''
+					rospy.loginfo('Finished behavior execution with result "%s"!' % result)
+					self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
+					break
+				if self._engine_status.code == BEStatus.FAILED:
+					rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
+					self._as.set_aborted('')
+					break
+				if self._as.is_preempt_requested():
+					rospy.loginfo('Preempt Requested!')
+					self._preempt_pub.publish()
+					self._as.set_preempted('')
+					break
+
 				rate.sleep()
-				continue
 
-			if self._engine_status.code == BEStatus.ERROR:
-				rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
-				self._as.set_aborted('')
-				break
+			rospy.loginfo('Ready for next start request.')
 
-			if not self._behavior_running:
-				if self._engine_status.code == BEStatus.STARTED:
-					self._behavior_running = True
-					rospy.loginfo('Behavior execution has started!')
-				rate.sleep()
-				continue
-
-			if self._engine_status.code == BEStatus.FINISHED:
-				result = self._engine_status.args[0] \
-					if len(self._engine_status.args) >= 1 else ''
-				rospy.loginfo('Finished behavior execution with result "%s"!' % result)
-				self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
-				break
-			if self._engine_status.code == BEStatus.FAILED:
-				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
-				self._as.set_aborted('')
-				break
-			if self._as.is_preempt_requested():
-				rospy.loginfo('Preempt Requested!')
-				self._preempt_pub.publish()
-				self._as.set_preempted('')
-				break
-
-			rate.sleep()
-			
-		rospy.loginfo('Ready for next start request.')
+		except rospy.ROSInterruptException:
+			pass # allow clean exit on ROS shutdown
 
 
 	def _status_cb(self, msg):
