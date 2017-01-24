@@ -14,6 +14,7 @@ import yaml
 import zlib
 import xml.etree.ElementTree as ET
 import json
+from addict import Dict
 
 from flexbe_core import Logger
 
@@ -346,9 +347,8 @@ class VigirBeOnboard(object):
         result = dict()
 
         for k, v in zip(keys, values):
-            result[k] = json.loads(v)
+            result[k] = _convert_dict(json.loads(v))
         return result
-
 
 
     def _build_contains(self, obj, path):
@@ -369,3 +369,11 @@ class VigirBeOnboard(object):
         while True:
             self._pub.publish('flexbe/heartbeat', Empty())
             time.sleep(1) # sec
+
+def _convert_dict(o):
+    if isinstance(o, list):
+        return [_convert_dict(e) for e in o]
+    elif isinstance(o, dict):
+        return Dict({k: _convert_dict(v) for k, v in o.items()})
+    else:
+        return o
