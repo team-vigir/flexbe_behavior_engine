@@ -13,8 +13,7 @@ import random
 import yaml
 import zlib
 import xml.etree.ElementTree as ET
-import json
-from addict import Dict
+from ast import literal_eval as cast
 
 from flexbe_core import Logger
 
@@ -347,7 +346,15 @@ class VigirBeOnboard(object):
         result = dict()
 
         for k, v in zip(keys, values):
-            result[k] = _convert_dict(json.loads(v))
+            try:
+                result[k] = self._convert_dict(cast(v))
+            except ValueError:
+                # unquoted strings will raise a ValueError, so leave it as string in this case
+                result[k] = str(v)
+            except SyntaxError as se:
+                Logger.logwarn('Unable to parse input value for key "%s", assuming string:\n%s\%s', k, str(v), str(se))
+                result[k] = str(v)
+
         return result
 
 
@@ -370,10 +377,11 @@ class VigirBeOnboard(object):
             self._pub.publish('flexbe/heartbeat', Empty())
             time.sleep(1) # sec
 
-def _convert_dict(o):
-    if isinstance(o, list):
-        return [_convert_dict(e) for e in o]
-    elif isinstance(o, dict):
-        return Dict({k: _convert_dict(v) for k, v in o.items()})
-    else:
-        return o
+    class _attr_dict(dict): __getattr__ = dict.__getitem__
+    def _convert_dict(self, o):
+        if isinstance(o, list):
+            return [self._convert_dict(e) for e in o]
+        elif isinstance(o, dict):
+            return self._attr_dict(o)
+        else:
+            return o
