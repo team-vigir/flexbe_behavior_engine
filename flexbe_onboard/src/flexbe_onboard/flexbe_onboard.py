@@ -382,6 +382,6 @@ class VigirBeOnboard(object):
         if isinstance(o, list):
             return [self._convert_dict(e) for e in o]
         elif isinstance(o, dict):
-            return self._attr_dict(o)
+            return self._attr_dict((k, self._convert_dict(v)) for k, v in o.items())
         else:
             return o
