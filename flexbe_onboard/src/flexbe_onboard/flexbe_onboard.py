@@ -13,6 +13,7 @@ import random
 import yaml
 import zlib
 import xml.etree.ElementTree as ET
+from ast import literal_eval as cast
 
 from flexbe_core import Logger
 
@@ -98,7 +99,7 @@ class VigirBeOnboard(object):
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
         rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
 
-        
+
     def _behavior_callback(self, msg):
         thread = threading.Thread(target=self._behavior_execution, args=[msg])
         thread.daemon = True
@@ -243,7 +244,7 @@ class VigirBeOnboard(object):
             Logger.logerr('Exception caught in behavior definition:\n%s' % str(e))
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
             return
-        
+
         # import contained behaviors
         contain_list = {}
         try:
@@ -251,7 +252,7 @@ class VigirBeOnboard(object):
         except Exception as e:
             Logger.logerr('Failed to load contained behaviors:\n%s' % str(e))
             return
-            
+
         # initialize behavior parameters
         if len(msg.arg_keys) > 0:
             rospy.loginfo('The following parameters will be used:')
@@ -259,7 +260,7 @@ class VigirBeOnboard(object):
             for i in range(len(msg.arg_keys)):
                 if msg.arg_keys[i] == '':
                     # action call has empty string as default, not a valid param key
-                    continue 
+                    continue
                 key_splitted = msg.arg_keys[i].rsplit('/', 1)
                 if len(key_splitted) == 1:
                     behavior = ''
@@ -269,7 +270,7 @@ class VigirBeOnboard(object):
                     behavior = key_splitted[0]
                     key = key_splitted[1]
                 found = False
-                
+
                 if behavior == '' and hasattr(be, key):
                     self._set_typed_attribute(be, key, msg.arg_values[i])
                     # propagate to contained behaviors
@@ -282,8 +283,8 @@ class VigirBeOnboard(object):
                     if b == behavior and hasattr(contain_list[b], key):
                         self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
                         found = True
-                            
-                if not found:   
+
+                if not found:
                     rospy.logwarn('Parameter ' + msg.arg_keys[i] + ' (set to ' + msg.arg_values[i] + ') not implemented')
 
         except Exception as e:
@@ -303,7 +304,7 @@ class VigirBeOnboard(object):
 
         return be
 
-     
+
     def _is_switchable(self, be):
         if self.be.name != be.name:
             Logger.logerr('Unable to switch behavior, names do not match:\ncurrent: %s <--> new: %s' % (self.be.name, be.name))
@@ -322,8 +323,8 @@ class VigirBeOnboard(object):
         del(sys.modules["tmp_%d" % behavior_checksum])
         file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
         os.remove(file_path)
-        
-        
+
+
     def _set_typed_attribute(self, obj, name, value, behavior=''):
         attr = getattr(obj, name)
         if type(attr) is int:
@@ -342,31 +343,20 @@ class VigirBeOnboard(object):
 
 
     def _convert_input_data(self, keys, values):
-        # there is no reliable clean way to check type conversion in Python
         result = dict()
-        for k,v in zip(keys, values):
-            result[k] = v
+
+        for k, v in zip(keys, values):
             try:
-                result[k] = int(v)
-                continue
+                result[k] = self._convert_dict(cast(v))
             except ValueError:
-                pass
-            try:
-                result[k] = float(v)
-                continue
-            except ValueError:
-                pass
-            if v.lower() == 'false':
-                result[k] = False
-                continue
-            if v.lower() == 'true':
-                result[k] = True
-                continue
-            if len(v) >= 2 and v[0] == '[' and v[-1] == ']':
-                result[k] = v[1:-1].split(',')
+                # unquoted strings will raise a ValueError, so leave it as string in this case
+                result[k] = str(v)
+            except SyntaxError as se:
+                Logger.logwarn('Unable to parse input value for key "%s", assuming string:\n%s\%s', k, str(v), str(se))
+                result[k] = str(v)
+
         return result
 
-        
 
     def _build_contains(self, obj, path):
         contain_list = dict((path+"/"+key,value) for (key,value) in getattr(obj, 'contains', {}).items())
@@ -387,13 +377,11 @@ class VigirBeOnboard(object):
             self._pub.publish('flexbe/heartbeat', Empty())
             time.sleep(1) # sec
 
-
-
-
-
-
-
-
-
-
-        
+    class _attr_dict(dict): __getattr__ = dict.__getitem__
+    def _convert_dict(self, o):
+        if isinstance(o, list):
+            return [self._convert_dict(e) for e in o]
+        elif isinstance(o, dict):
+            return self._attr_dict((k, self._convert_dict(v)) for k, v in o.items())
+        else:
+            return o
