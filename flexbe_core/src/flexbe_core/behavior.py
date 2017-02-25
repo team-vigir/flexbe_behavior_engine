@@ -2,6 +2,9 @@
 import rospy
 import smach_ros
 import smach
+import importlib
+import sys
+import string
 
 from flexbe_core import OperatableStateMachine, LockableStateMachine
 from flexbe_core.core import PreemptableState
@@ -60,8 +63,7 @@ class Behavior(object):
         @param default: The default value of this parameter. Be sure to set it to the right type.
         """
         setattr(self, name, default)
-        
-        
+
     def add_behavior(self, behavior_class, behavior_id):
         """
         Adds another behavior as part of this behavior.
@@ -75,11 +77,10 @@ class Behavior(object):
         """
         if not hasattr(self, 'contains'):
             rospy.logerr('Behavior was not initialized! Please call superclass constructor.')
-            
+
         instance = behavior_class()
         self.contains[behavior_id] = instance
-        
-        
+    
     def use_behavior(self, behavior_class, behavior_id):
         """
         Creates a state machine implementing the given behavior to use it in the behavior state machine.
