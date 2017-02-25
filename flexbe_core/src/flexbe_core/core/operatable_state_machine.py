@@ -366,5 +366,6 @@ class OperatableStateMachine(PreemptableStateMachine):
                 self._current_state.get_registered_output_keys(),
                 self._remappings[self._current_state.name]
             )
+            self._current_state._entering = True
             self._current_state.on_exit(ud)
             self._current_state = None
