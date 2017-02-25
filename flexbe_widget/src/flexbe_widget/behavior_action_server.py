@@ -4,6 +4,7 @@ import actionlib
 
 from flexbe_msgs.msg import *
 from rospkg import RosPack
+from flexbe_core import BehaviorLibrary
 
 from std_msgs.msg import String, Empty
 
@@ -30,39 +31,16 @@ class BehaviorActionServer(object):
 		self._as.start()
 
 		self._rp = RosPack()
-		self._behavior_lib = dict()
+		self._behavior_lib = BehaviorLibrary()
 
-		behaviors_package = "flexbe_behaviors"
-		if rospy.has_param("behaviors_package"):
-			behaviors_package = rospy.get_param("behaviors_package")
-		else:
-			rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
-
-		manifest_folder = os.path.join(self._rp.get_path(behaviors_package), 'behaviors/')
-
-		file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
-		manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
-
-		for i in range(len(manifests)):
-			m = ET.parse(manifests[i]).getroot()
-			e = m.find("executable")
-			self._behavior_lib[i] = {
-				"name": m.get("name"),
-				"package": e.get("package_path").split(".")[0],
-				"file": e.get("package_path").split(".")[1],
-				"class": e.get("class")
-			}
-
-		rospy.loginfo("%d behaviors available, ready for start request." % len(self._behavior_lib.items()))
+		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
 
 	def _execute_cb(self, goal):
 		rospy.loginfo('Received a new request to start behavior: %s' % goal.behavior_name)
-		try:
-			be_id, behavior = next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == goal.behavior_name)
-		except Exception as e:
-			rospy.logwarn("Did not find behavior with requested name: %s" % goal.behavior_name)
-			self._as.set_preempted()
+		be_id, behavior = self._behavior_lib.find_behavior(goal.behavior_name)
+		if be_id is None:
+			Logger.logerr("Did not find behavior with requested name: %s" % goal.behavior_name)
 			return
 
 		be_selection = BehaviorSelection()
