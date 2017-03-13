@@ -18,26 +18,25 @@ class PublisherBoolState(EventState):
 
 	-- topic	string		The topic on which should be published.
 
-	-- value 					Value of bool.
+	>= value 					Value of bool.
 
 	<= done 					Done publishing.
 
 	'''
 
-    def __init__(self, topic, value = False):
+    def __init__(self, topic):
         '''
 		Constructor
 		'''
-        super(PublisherBoolState, self).__init__(outcomes=['done'])
+        super(PublisherBoolState, self).__init__(outcomes=['done'], input_keys=['value'])
 
         self._topic = topic
         self._pub = ProxyPublisher({self._topic: Bool})
-        self._value = value
 
     def execute(self, userdata):
         return 'done'
 
     def on_enter(self, userdata):
         val = Bool()
-        val.data = self._value
+        val.data = userdata.value
         self._pub.publish(self._topic, val)
