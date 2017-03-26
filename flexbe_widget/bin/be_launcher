@@ -38,6 +38,11 @@ if __name__ == '__main__':
 		request = BehaviorRequest()
 		request.behavior_name = behavior
 		request.autonomy_level = autonomy
+		for arg in args:
+			if not ':=' in arg: continue
+			k, v = arg.split(':=', 1)
+			request.arg_keys.append('/'+k)
+			request.arg_values.append(v)
 		rospy.sleep(0.2) # wait for publishers...
 		launcher._callback(request)
 
