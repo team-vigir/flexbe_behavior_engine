@@ -7,7 +7,6 @@ from rospkg import RosPack
 
 from std_msgs.msg import String, Empty
 
-import pickle
 import zlib
 import difflib
 import os
@@ -17,17 +16,16 @@ import xml.etree.ElementTree as ET
 class BehaviorActionServer(object):
 
 	def __init__(self):
+		self._behavior_started = False
+		self._current_state = None
+		self._engine_status = None
+
 		self._pub = rospy.Publisher('flexbe/start_behavior', BehaviorSelection, queue_size=100)
 		self._preempt_pub = rospy.Publisher('flexbe/command/preempt', Empty, queue_size=100)
 		self._status_sub = rospy.Subscriber('flexbe/status', BEStatus, self._status_cb)
 		self._state_sub = rospy.Subscriber('flexbe/behavior_update', String, self._state_cb)
 
-		self._behavior_running = False
-		self._current_state = None
-		self._engine_status = None
-
 		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
-		self._as.start()
 
 		self._rp = RosPack()
 		self._behavior_lib = dict()
@@ -53,6 +51,9 @@ class BehaviorActionServer(object):
 				"class": e.get("class")
 			}
 
+		# start action server after all member variables have been initialized
+		self._as.start()
+
 		rospy.loginfo("%d behaviors available, ready for start request." % len(self._behavior_lib.items()))
 
 
@@ -73,9 +74,7 @@ class BehaviorActionServer(object):
 		be_selection.input_keys = goal.input_keys
 		be_selection.input_values = goal.input_values
 
-		be_structure = ContainerStructure()
-		be_structure.containers = self._create_behavior_structure(goal.behavior_name)
-
+		# check for local modifications of the behavior to send them to the onboard behavior
 		be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
@@ -95,61 +94,71 @@ class BehaviorActionServer(object):
 
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 
+		# reset state before starting new behavior
+		self._current_state = None
+		self._behavior_started = False
+
+		# start new behavior
 		self._pub.publish(be_selection)
-		self._behavior_running = False
 
-		rate = rospy.Rate(10)
-		while not rospy.is_shutdown():
-			if self._current_state is not None:
-				self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
-				self._current_state = None
+		try:
+			rate = rospy.Rate(10)
+			while not rospy.is_shutdown():
+				if self._current_state is not None:
+					self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
+					self._current_state = None
 
-			if self._engine_status is None:
-				rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+				# check if goal has been preempted first
+				if self._as.is_preempt_requested():
+					rospy.loginfo('Behavior execution preempt requested!')
+					self._preempt_pub.publish()
+					self._as.set_preempted('')
+					break
+
+				if self._engine_status is None:
+					rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+					rate.sleep()
+					continue
+
+				if self._engine_status.code == BEStatus.ERROR:
+					rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+					self._as.set_aborted('')
+					break
+
+				if not self._behavior_started:
+					rospy.logdebug('Behavior execution has not yet started. Waiting for it...')
+					rate.sleep()
+					continue
+
+				if self._engine_status.code == BEStatus.FINISHED:
+					result = self._engine_status.args[0] \
+						if len(self._engine_status.args) >= 1 else ''
+					rospy.loginfo('Finished behavior execution with result "%s"!' % result)
+					self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
+					break
+
+				if self._engine_status.code == BEStatus.FAILED:
+					rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
+					self._as.set_aborted('')
+					break
+
 				rate.sleep()
-				continue
 
-			if self._engine_status.code == BEStatus.ERROR:
-				rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
-				self._as.set_aborted('')
-				break
+			rospy.loginfo('Ready for next behavior start request.')
 
-			if not self._behavior_running:
-				if self._engine_status.code == BEStatus.STARTED:
-					self._behavior_running = True
-					rospy.loginfo('Behavior execution has started!')
-				rate.sleep()
-				continue
-
-			if self._engine_status.code == BEStatus.FINISHED:
-				result = self._engine_status.args[0] \
-					if len(self._engine_status.args) >= 1 else ''
-				rospy.loginfo('Finished behavior execution with result "%s"!' % result)
-				self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
-				break
-			if self._engine_status.code == BEStatus.FAILED:
-				rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
-				self._as.set_aborted('')
-				break
-			if self._as.is_preempt_requested():
-				rospy.loginfo('Preempt Requested!')
-				self._preempt_pub.publish()
-				self._as.set_preempted('')
-				break
-
-			rate.sleep()
-			
-		rospy.loginfo('Ready for next start request.')
+		except rospy.ROSInterruptException:
+			pass # allow clean exit on ROS shutdown
 
 
 	def _status_cb(self, msg):
 		self._engine_status = msg
 
+		# check for behavior start here, to avoid race condition between execute_cb and status_cb threads
+		if not self._behavior_started and self._engine_status.code == BEStatus.STARTED:
+			self._behavior_started = True
+			rospy.loginfo('Behavior execution has started!')
+
 
 	def _state_cb(self, msg):
 		self._current_state = msg.data
 		rospy.loginfo('Current state: %s' % self._current_state)
-
-
-	def _create_behavior_structure(self, behavior_name):
-		return list()
