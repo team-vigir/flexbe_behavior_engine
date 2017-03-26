@@ -52,6 +52,7 @@ class VigirBehaviorMirror(object):
         self._outcome_topic = 'flexbe/mirror/outcome'
 
         self._struct_buffer = list()
+        self._last_update = None
         
         # listen for mirror message
         self._sub = ProxySubscriberCached()
@@ -62,6 +63,7 @@ class VigirBehaviorMirror(object):
         self._sub.subscribe('flexbe/status', BEStatus, self._status_callback)
         self._sub.subscribe('flexbe/mirror/sync', BehaviorSync, self._sync_callback)
         self._sub.subscribe('flexbe/mirror/preempt', Empty, self._preempt_callback)
+        self._sub.subscribe('flexbe/mirror/state_update', Int32, self._state_update_callback)
     
     
     def _mirror_callback(self, msg):
@@ -234,6 +236,10 @@ class VigirBehaviorMirror(object):
         for con_msg in msg.containers:
             if con_msg.path.find('/') != -1:
                 self._state_checksums[zlib.adler32(con_msg.path)] = con_msg.path
+        # try to send a cached update if is known now
+        if self._last_update is not None and self._last_update in self._state_checksums:
+            current_state_path = self._state_checksums[self._last_update]
+            self._pub.publish('flexbe/behavior_update', current_state_path)
         
     
     def _add_node(self, msg, path):
@@ -290,7 +296,16 @@ class VigirBehaviorMirror(object):
             rospy.logwarn('Explicit preempting is currently ignored, mirror should be preempted by onboard behavior.')
         else:
             rospy.logwarn('Could not preempt mirror because it seems not to be running!')
+            
 
+    def _state_update_callback(self, msg):
+        self._last_update = msg.data
+        if msg.data not in self._state_checksums:
+            return # will try to apply last update when receiving new structure
+
+        current_state_path = self._state_checksums[self._last_update]
+        self._pub.publish('flexbe/behavior_update', current_state_path)
+        self._last_update = None # already sent update successfully
 
 
 
