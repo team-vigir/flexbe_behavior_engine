@@ -78,7 +78,12 @@ class BehaviorLibrary(object):
 
 		@return Corresponding library entry or None if not found.
 		"""
-		return self._behavior_lib.get(be_id, None)
+		try:
+			return self._behavior_lib[be_id]
+		except KeyError:
+			rospy.logwarn("Did not find ID %d in libary, updating..." % be_id)
+			self.parse_packages()
+			return self._behavior_lib.get(be_id, None)
 
 
 	def find_behavior(self, be_name):
@@ -90,10 +95,13 @@ class BehaviorLibrary(object):
 
 		@return Tuple (be_id, be_entry) corresponding to the name or (None, None) if not found.
 		"""
+		find = lambda: next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == be_name)
 		try:
-			return next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == be_name)
-		except Exception as e:
-			return
+			return find() 
+		except StopIteration:
+			rospy.logwarn("Did not find behavior '%s' in libary, updating..." % be_name)
+			self.parse_packages()
+			return find()
 
 
 	def count_behaviors(self):
