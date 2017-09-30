@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('flexbe_core')
 
 #
 #    Please use EventState as parent class for new states because it extends all other parent classes.

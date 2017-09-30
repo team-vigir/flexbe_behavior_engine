@@ -81,7 +81,7 @@ class Behavior(object):
         instance = behavior_class()
         self.contains[behavior_id] = instance
     
-    def use_behavior(self, behavior_class, behavior_id):
+    def use_behavior(self, behavior_class, behavior_id, default_keys=None):
         """
         Creates a state machine implementing the given behavior to use it in the behavior state machine.
         Behavior has to be added first.
@@ -91,12 +91,18 @@ class Behavior(object):
         
         @type behavior_id: string
         @param behavior_id: Same identifier as used for adding.
+        
+        @type default_keys: list
+        @param default_keys: List of input keys of the behavior which should be ignored and instead use the default values as given by the behavior.
         """
         if not self.contains.has_key(behavior_id):
             rospy.logerr('Tried to use not added behavior!')
             return None
         
         state_machine = self.contains[behavior_id]._get_state_machine()
+
+        if default_keys is not None:
+            state_machine._input_keys = list(set(state_machine._input_keys) - set(default_keys))
         
         return state_machine
 
