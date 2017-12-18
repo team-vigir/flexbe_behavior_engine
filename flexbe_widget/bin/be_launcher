@@ -31,6 +31,7 @@ if __name__ == '__main__':
 			behavior = arg
 		elif opt in ("-a", "--autonomy"):
 			autonomy = int(arg)
+	ignore_args = ['__name', '__log'] # auto-set by roslaunch
 	
 	launcher = BehaviorLauncher()
 
@@ -41,6 +42,7 @@ if __name__ == '__main__':
 		for arg in args:
 			if not ':=' in arg: continue
 			k, v = arg.split(':=', 1)
+			if k in ignore_args: continue
 			request.arg_keys.append('/'+k)
 			request.arg_values.append(v)
 		rospy.sleep(0.2) # wait for publishers...
