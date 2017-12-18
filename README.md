@@ -8,6 +8,15 @@ The user interface features a runtime control interface as well as a graphical e
 
 Please refer to the FlexBE Homepage ([flexbe.github.io](http://flexbe.github.io)) for further information, tutorials, application examples, and much more.
 
+---
+
+**Deprecated**
+
+*Please note that Google ended their support for Chrome Apps, the framework upon which the old user interface is built. We still provide this legacy version of FlexBE, however, the user interface is expected to stop working in the near future. To avoid any problems, please consider switching to the current version of FlexBE and the new FlexBE App.*
+
+---
+
+
 ## Installation
 
 Execute the following commands to install FlexBE:
