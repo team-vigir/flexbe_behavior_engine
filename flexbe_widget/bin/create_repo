@@ -18,6 +18,8 @@ echo ""
 echo -e "\e[96m(2/4) Fetching project structure...\033[0m"
 git clone https://github.com/pschillinger/flexbe_project_behaviors.git ${name}_behaviors
 cd ${name}_behaviors
+git fetch
+git checkout deprecated/chrome_app
 
 echo ""
 echo -e "\e[96m(3/4) Configuring project template...\033[0m"
