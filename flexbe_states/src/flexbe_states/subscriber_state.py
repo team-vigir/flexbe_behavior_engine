@@ -56,6 +56,7 @@ class SubscriberState(EventState):
 		Execute this state
 		'''
 		if not self._connected:
+			userdata.message = None
 			return 'unavailable'
 
 		if self._sub.has_msg(self._topic) or not self._blocking:
