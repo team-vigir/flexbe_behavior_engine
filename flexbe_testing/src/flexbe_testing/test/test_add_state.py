@@ -8,11 +8,11 @@ class TestAddState(EventState):
 		'''Constructor'''
 		super(TestAddState, self).__init__(outcomes=['done'],
 										input_keys=['second_arg'],
-										output_keys=['result'])
+										output_keys=['output_value'])
 		self._first_arg = first_arg
 
 		
 	def execute(self, userdata):
-		userdata.result = userdata.second_arg.data + self._first_arg
+		userdata.output_value = userdata.second_arg.data + self._first_arg
 		return 'done'
 
