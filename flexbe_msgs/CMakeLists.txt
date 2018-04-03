@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(flexbe_msgs)
 
-find_package(catkin REQUIRED COMPONENTS message_generation genmsg actionlib_msgs actionlib)
+find_package(catkin REQUIRED COMPONENTS message_generation actionlib_msgs actionlib)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -44,7 +44,7 @@ generate_messages(DEPENDENCIES actionlib_msgs)
 catkin_package(
 #    INCLUDE_DIRS src
 #    LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS message_runtime)
+    CATKIN_DEPENDS message_runtime actionlib_msgs)
 
 # use add_library() or add_executable() as required
 #add_library(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
