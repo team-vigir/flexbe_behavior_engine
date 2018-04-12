@@ -34,6 +34,8 @@ class VigirBeOnboard(object):
     Implements an idle state where the robot waits for a behavior to be started.
     '''
 
+    TEMP_MODULE_NAME_TEMPLATE = 'tmp_%d'
+
     def __init__(self):
         '''
         Constructor
@@ -208,8 +210,9 @@ class VigirBeOnboard(object):
             return
 
         # create temp file for behavior class
+        temp_module_name = self.TEMP_MODULE_NAME_TEMPLATE % msg.behavior_checksum
         try:
-            file_path = os.path.join(self._tmp_folder, 'tmp_%d.py' % msg.behavior_checksum)
+            file_path = os.path.join(self._tmp_folder, temp_module_name + '.py')
             sc_file = open(file_path, "w")
             sc_file.write(file_content)
             sc_file.close()
@@ -220,7 +223,7 @@ class VigirBeOnboard(object):
 
         # import temp class file and initialize behavior
         try:
-            package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
+            package = __import__(temp_module_name, fromlist=[temp_module_name])
             clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__ == package.__name__)
             beclass = clsmembers[0][1]
             be = beclass()
@@ -305,8 +308,10 @@ class VigirBeOnboard(object):
 
 
     def _cleanup_behavior(self, behavior_checksum):
-        del(sys.modules["tmp_%d" % behavior_checksum])
-        file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
+        temp_module_name = self.TEMP_MODULE_NAME_TEMPLATE % behavior_checksum
+        if temp_module_name in sys.modules:
+            del(sys.modules[temp_module_name])
+        file_path = os.path.join(self._tmp_folder, '%s.py' % temp_module_name)
         try:
             os.remove(file_path)
         except OSError:
