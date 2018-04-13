@@ -20,6 +20,7 @@ class BehaviorLibrary(object):
 	def __init__(self):
 		self._rp = RosPack()
 		self._behavior_lib = dict()
+		self.behavior_packages = []
 		self.parse_packages()
 
 
@@ -28,9 +29,11 @@ class BehaviorLibrary(object):
 		Parses all ROS packages to update the internal behavior library.
 		"""
 		self._behavior_lib = dict()
+		self.behavior_packages = []
 		for pkg in self._rp.list():
 			for export in self._rp._load_manifest(pkg).exports:
 				if export.tag == "flexbe_behaviors":
+					self.behavior_packages.append(pkg)
 					self._add_behavior_manifests(self._rp.get_path(pkg), pkg)
 
 
@@ -111,25 +114,3 @@ class BehaviorLibrary(object):
 		@return Number of behaviors.
 		"""
 		return len(self._behavior_lib)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
