@@ -9,3 +9,5 @@ string[] input_keys
 string[] input_values
 
 flexbe_msgs/BehaviorModification[] modifications
+
+int32 BEHAVIOR_ID_CURRENT=-1
