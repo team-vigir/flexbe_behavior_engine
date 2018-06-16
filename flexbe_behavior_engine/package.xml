@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>flexbe_behavior_engine</name>
+  <version>1.0.0</version>
+  <description>
+    A meta-package to aggregate all the Flexbe packages
+  </description>
+
+  <maintainer email="alireza.mixedreality@gmail.com">Alireza Hosseini</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>flexbe_core</exec_depend>
+  <exec_depend>flexbe_input</exec_depend>
+  <exec_depend>flexbe_mirror</exec_depend>
+  <exec_depend>flexbe_msgs</exec_depend>
+  <exec_depend>flexbe_onboard</exec_depend>
+  <exec_depend>flexbe_states</exec_depend>
+  <exec_depend>flexbe_testing</exec_depend>
+  <exec_depend>flexbe_widget</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
