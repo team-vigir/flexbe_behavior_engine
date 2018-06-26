@@ -3,7 +3,6 @@ import rospy
 import actionlib
 
 from flexbe_msgs.msg import *
-from rospkg import RosPack
 from flexbe_core import BehaviorLibrary
 
 from std_msgs.msg import String, Empty
@@ -11,7 +10,7 @@ from std_msgs.msg import String, Empty
 import zlib
 import difflib
 import os
-import xml.etree.ElementTree as ET
+import imp
 
 
 class BehaviorActionServer(object):
@@ -28,7 +27,6 @@ class BehaviorActionServer(object):
 
 		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
 
-		self._rp = RosPack()
 		self._behavior_lib = BehaviorLibrary()
 
 		# start action server after all member variables have been initialized
@@ -54,11 +52,11 @@ class BehaviorActionServer(object):
 		be_selection.input_values = goal.input_values
 
 		# check for local modifications of the behavior to send them to the onboard behavior
-		be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+		be_filepath_new = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+		be_filepath_old = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 		else:

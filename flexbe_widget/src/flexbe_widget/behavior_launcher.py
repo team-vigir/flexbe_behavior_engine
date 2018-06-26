@@ -2,17 +2,16 @@
 
 import rospy
 from flexbe_msgs.msg import *
-from rospkg import RosPack, ResourceNotFound
+from rospkg import RosPack
 
 from flexbe_core import Logger, BehaviorLibrary
 from std_msgs.msg import String
 
-import pickle
+import imp
 import zlib
 import difflib
 import os
 import yaml
-import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
 
@@ -74,8 +73,8 @@ class BehaviorLauncher(object):
 		be_structure.containers = msg.structure
 
 		try:
-			be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
-		except ResourceNotFound:
+			be_filepath_new = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
+		except ImportError:
 			rospy.logerr("Could not find behavior package '%s'" % (behavior["package"]))
 			rospy.loginfo("Have you updated your ROS_PACKAGE_PATH after creating the behavior?")
 			return
@@ -83,7 +82,7 @@ class BehaviorLauncher(object):
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+		be_filepath_old = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 			if msg.autonomy_level != 255:
