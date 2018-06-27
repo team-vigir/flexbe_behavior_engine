@@ -4,7 +4,7 @@ import roslib; roslib.load_manifest('flexbe_onboard')
 import rospy
 import os
 import sys
-import imp
+import importlib
 import inspect
 import threading
 import time
@@ -65,7 +65,7 @@ class VigirBeOnboard(object):
         reload_importer = ReloadImporter()
         reload_importer.add_reload_path(self._tmp_folder)
         for pkg in self._behavior_lib.behavior_packages:
-            reload_importer.add_reload_path(imp.find_module(pkg)[1])
+            reload_importer.add_reload_path(importlib.import_module(pkg).__path__[-1])
         reload_importer.enable()
 
         self._pub = ProxyPublisher()
@@ -183,12 +183,12 @@ class VigirBeOnboard(object):
                 behavior = self._behavior_lib.get_behavior(msg.behavior_id)
                 if behavior is None:
                     raise ValueError(msg.behavior_id)
-            be_filepath = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
+            be_filepath = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '_tmp.py')
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
                 rospy.logwarn("Found a tmp version of the referred behavior! Assuming local test run.")
             else:
-                be_filepath = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
+                be_filepath = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '.py')
                 be_file = open(be_filepath, "r")
             be_content = be_file.read()
             be_file.close()
