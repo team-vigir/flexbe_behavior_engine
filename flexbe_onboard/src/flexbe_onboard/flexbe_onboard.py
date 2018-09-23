@@ -52,7 +52,7 @@ class VigirBeOnboard(object):
 
         # prepare temp folder
         rp = rospkg.RosPack()
-        self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
+        self._tmp_folder = "/tmp/flexbe_onboard"
         if not os.path.exists(self._tmp_folder):
             os.makedirs(self._tmp_folder)
         sys.path.append(self._tmp_folder)
