@@ -1,16 +1,22 @@
 path: flexbe_states.subscriber_state
 class: SubscriberState
 
-# need to start the following command before testing (on same master):
-# rostopic pub /test geometry_msgs/Pose "{position: {x: 6.4}}"
+launch: '<launch>
+    <node name="pub" pkg="rostopic" type="rostopic" args="pub /test geometry_msgs/Pose &quot;{position: {x: 6.4}}&quot;" />
+</launch>'
 
-data: flexbe_states/tests/bags/pose3d.bag
+wait_cond: rospy.wait_for_message('/test', __import__('geometry_msgs').msg.Pose)
 
 params:
     topic: //test
     blocking: True
 
 output:
-    message: /calc_input
+    message: !!python/object/new:geometry_msgs.msg.Pose
+        state:
+        - !!python/object/new:geometry_msgs.msg.Point
+            state: [6.4, 0.0, 0.0]
+        - !!python/object/new:geometry_msgs.msg.Quaternion
+            state: [0.0, 0.0, 0.0, 0.0]
 
 outcome: received

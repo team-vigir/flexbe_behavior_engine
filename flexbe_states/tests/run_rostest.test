@@ -22,6 +22,7 @@
 		$(arg path)/log_state_msg.test
 		$(arg path)/operator_decision_state_suggested.test
 		$(arg path)/subscriber_state_unavailable.test
+		$(arg path)/subscriber_state_pose.test
 		$(arg path)/wait_state_short.test
 
 	" />
