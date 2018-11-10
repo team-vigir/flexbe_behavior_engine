@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 
 <launch>
-<arg name="behaviors_package" default="flexbe_behaviors" />
+<arg name="log_enabled" default="False" />
+<arg name="log_folder" default="~/.flexbe_logs" />
 
 <node name="behavior" pkg="flexbe_onboard" type="start_behavior" output="screen" respawn="true">
-    <param name="behaviors_package" value="$(arg behaviors_package)"/>
+    <param name="~log_enabled" value="$(arg log_enabled)"/>
+    <param name="~log_folder" value="$(arg log_folder)"/>
 </node>
 
 </launch>
