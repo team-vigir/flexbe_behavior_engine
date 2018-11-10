@@ -4,7 +4,7 @@
   <description>
      flexbe_widget implements some smaller scripts for the behavior engine.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_widget</url>

@@ -3,11 +3,14 @@
   <name>flexbe_behavior_engine</name>
   <version>1.0.0</version>
   <description>
-    A meta-package to aggregate all the Flexbe packages
+    A meta-package to aggregate all the FlexBE packages
   </description>
 
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <maintainer email="alireza.mixedreality@gmail.com">Alireza Hosseini</maintainer>
   <license>BSD</license>
+
+  <url>http://ros.org/wiki/flexbe</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -23,4 +26,5 @@
   <export>
     <metapackage/>
   </export>
+
 </package>

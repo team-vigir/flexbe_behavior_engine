@@ -4,7 +4,7 @@
   <description>
      flexbe_onboard implements the robot-side of the behavior engine from where all behaviors are started.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_onboard</url>
