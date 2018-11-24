@@ -1,0 +1,17 @@
+sudo: required
+dist: trusty
+language: generic
+
+before_install:
+  - git clone https://github.com/FlexBE/flexbe_ci.git ~/flexbe_ci
+  - source ~/flexbe_ci/setup.bash
+  - ~/flexbe_ci/ci_scripts/before_install.bash
+  
+install:
+  - ~/flexbe_ci/ci_scripts/install.bash
+  
+before_script:
+  - ~/flexbe_ci/ci_scripts/before_script.bash
+  
+script:
+  - ~/flexbe_ci/ci_scripts/script.bash
