@@ -53,8 +53,6 @@ class StateTester(object):
 		print '\033[34;1m#%2d %s \033[0m\033[34m(%s%s)\033[0m' % (self._counter, name, config['class'], ' > %s' % config['outcome'] if not import_only else '')
 		prefix = '>>>' if not self._compact_format else '  >'
 
-		self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
-
 		# load and start launch file
 		if not import_only and config.has_key('launch'):
 			launchpath = None
@@ -204,6 +202,7 @@ class StateTester(object):
 			return 1
 		else:
 			print '\033[31;1m%s\033[0m\033[31m %s failed!\033[0m' % (prefix, name)
+			self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 			return 0
 
 	def perform_rostest(self, test_pkg):
