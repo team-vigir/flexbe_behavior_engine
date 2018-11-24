@@ -4,7 +4,7 @@ import rospy
 from flexbe_msgs.msg import *
 from rospkg import RosPack, ResourceNotFound
 
-from flexbe_core import Logger
+from flexbe_core import Logger, BehaviorLibrary
 from std_msgs.msg import String
 
 import pickle
@@ -16,9 +16,11 @@ import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
 
-	MIN_VERSION = '0.21.8'
+	MIN_VERSION = '2.0.0'
 
 	def __init__(self):
+		Logger.initialize()
+
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
 
@@ -27,39 +29,14 @@ class BehaviorLauncher(object):
 		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
 
 		self._rp = RosPack()
-		self._behavior_lib = dict()
+		self._behavior_lib = BehaviorLibrary()
 
-		Logger.initialize()
-
-		behaviors_package = "flexbe_behaviors"
-		if rospy.has_param("~behaviors_package"):
-			behaviors_package = rospy.get_param("~behaviors_package")
-			rospy.loginfo("Using custom behaviors package: %s" % behaviors_package)
-		else:
-			rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
-
-		manifest_folder = os.path.join(self._rp.get_path(behaviors_package), 'behaviors/')
-
-		file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
-		manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
-
-		for i in range(len(manifests)):
-			m = ET.parse(manifests[i]).getroot()
-			e = m.find("executable")
-			self._behavior_lib[i] = {
-				"name": m.get("name"),
-				"package": e.get("package_path").split(".")[0],
-				"file": e.get("package_path").split(".")[1],
-				"class": e.get("class")
-			}
-
-		rospy.loginfo("%d behaviors available, ready for start request." % len(self._behavior_lib.items()))
+		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
 
 	def _callback(self, msg):
-		try:
-			be_id, behavior = next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == msg.behavior_name)
-		except Exception as e:
+		be_id, behavior = self._behavior_lib.find_behavior(msg.behavior_name)
+		if be_id is None:
 			Logger.logerr("Did not find behavior with requested name: %s" % msg.behavior_name)
 			self._status_pub.publish(BEStatus(code=BEStatus.ERROR))
 			return
@@ -138,7 +115,7 @@ class BehaviorLauncher(object):
 		if vui < vex:
 			Logger.logwarn('FlexBE App needs to be updated!\n' \
 				+ 'Require at least version %s, but have %s\n' % (BehaviorLauncher.MIN_VERSION, msg.data) \
-				+ 'You can update the app by dropping the file flexbe_behavior_engine/FlexBE.crx onto the Chrome extension page.')
+				+ 'Please run a "git pull" in "roscd flexbe_app".')
 
 	def _parse_version(self, v):
 		result = 0

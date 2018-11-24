@@ -34,7 +34,7 @@ if __name__ == '__main__':
 		result = {}		# fully processed
 
 		# read file
-		logfolder = os.chdir(os.path.expanduser("~/logs"))
+		logfolder = os.chdir(os.path.expanduser("~/.flexbe_logs"))
 		file_path = max(os.listdir('.'), key = os.path.getctime) if filename == "" else filename
 		with open(file_path) as f:
 			log_lines = [line.rstrip('\n') for line in f]

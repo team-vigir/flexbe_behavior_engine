@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('flexbe_core')
 
 #
 #    Please use EventState as parent class for new states because it extends all other parent classes.
@@ -12,6 +11,8 @@ from .core import EventState
 from .core import OperatableStateMachine, JumpableStateMachine, SilentStateMachine, LockableStateMachine, ConcurrencyContainer, PriorityContainer
 
 from .behavior import Behavior
+
+from .behavior_library import BehaviorLibrary
 
 from .logger import Logger
 

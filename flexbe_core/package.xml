@@ -4,7 +4,7 @@
   <description>
      flexbe_core provides the core smach extension for the FlexBE behavior engine.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_core</url>

@@ -22,7 +22,6 @@ class BehaviorInput(object):
 		'''
 		#onboard connection
 		self._as = ComplexActionServer('flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
-		#self._as = actionlib.SimpleActionServer('flexbe/behavior_input', BehaviorInputAction, execute_cb=self.execute_cb, auto_start = False)
 		self._as.start()
 
 		rospy.loginfo("Ready for data requests...")			
@@ -55,12 +54,10 @@ class BehaviorInput(object):
 
 		elif(result.result_code == BehaviorInputResult.RESULT_FAILED):
 			# remove
-			#data_str = "Request %d not yet implemented." % (goal.request_type)
 			self._as.set_succeeded(BehaviorInputResult(result_code=BehaviorInputResult.RESULT_FAILED, data=data_str),"failed",goal_handle)
 			rospy.loginfo("<-- Replied with FAILED")
 
 		elif(result.result_code == BehaviorInputResult.RESULT_ABORTED ):
-			#data_str = "ABORT" % (goal.request_type)
 			self._as.set_succeeded(BehaviorInputResult(result_code=BehaviorInputResult.RESULT_ABORTED, data=data_str),"Aborted",goal_handle)
 			rospy.loginfo("<-- Replied with ABORT")
 
