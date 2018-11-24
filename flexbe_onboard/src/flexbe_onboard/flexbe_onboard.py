@@ -15,8 +15,7 @@ import zlib
 import xml.etree.ElementTree as ET
 from ast import literal_eval as cast
 
-from flexbe_core import Logger
-from flexbe_core.reload_importer import ReloadImporter
+from flexbe_core import Logger, BehaviorLibrary
 
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, ContainerStructure, CommandFeedback
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
@@ -35,14 +34,11 @@ class VigirBeOnboard(object):
     Implements an idle state where the robot waits for a behavior to be started.
     '''
 
-    TEMP_MODULE_NAME_TEMPLATE = 'tmp_%d'
-
     def __init__(self):
         '''
         Constructor
         '''
         self.be = None
-        self._current_behavior = None
         Logger.initialize()
         smach.set_loggers (
             rospy.logdebug, # hide SMACH transition log spamming
@@ -54,43 +50,15 @@ class VigirBeOnboard(object):
         #ProxyPublisher._simulate_delay = True
         #ProxySubscriberCached._simulate_delay = True
 
-        behaviors_package = "flexbe_behaviors"
-        if rospy.has_param("~behaviors_package"):
-            behaviors_package = rospy.get_param("~behaviors_package")
-            rospy.loginfo("Using custom behaviors package: %s" % behaviors_package)
-        else:
-            rospy.loginfo("Using default behaviors package: %s" % behaviors_package)
-
         # prepare temp folder
         rp = rospkg.RosPack()
-        self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
+        self._tmp_folder = "/tmp/flexbe_onboard"
         if not os.path.exists(self._tmp_folder):
             os.makedirs(self._tmp_folder)
         sys.path.append(self._tmp_folder)
         
         # prepare manifest folder access
-        manifest_folder = os.path.join(rp.get_path(behaviors_package), 'behaviors/')
-        rospy.loginfo("Parsing available behaviors...")
-        file_entries = [os.path.join(manifest_folder, filename) for filename in os.listdir(manifest_folder) if not filename.startswith('#')]
-        manifests = sorted([xmlpath for xmlpath in file_entries if not os.path.isdir(xmlpath)])
-        self._behavior_lib = dict()
-        for i in range(len(manifests)):
-            try:
-                m = ET.parse(manifests[i]).getroot()
-            except ET.ParseError:
-                rospy.logerr('Failed to parse behavior description xml file: "%s"' % manifests[i])
-            else:
-                e = m.find("executable")
-                self._behavior_lib[i] = {"name": m.get("name"), "package": e.get("package_path").split(".")[0], "file": e.get("package_path").split(".")[1], "class": e.get("class")}
-                # rospy.loginfo("+++ " + self._behavior_lib[i]["name"])
-
-        
-        # enable automatic reloading of all subsequent modules on reload
-        _reload_importer = ReloadImporter()
-        _reload_importer.add_reload_path(self._tmp_folder)
-        behaviors_folder = os.path.abspath(os.path.join(rp.get_path(self._behavior_lib[0]['package']), '..'))
-        _reload_importer.add_reload_path(behaviors_folder)
-        _reload_importer.enable()
+        self._behavior_lib = BehaviorLibrary()
         
         self._pub = ProxyPublisher()
         self._sub = ProxySubscriberCached()
@@ -188,7 +156,7 @@ class VigirBeOnboard(object):
         try:
             self._cleanup_behavior(msg.behavior_checksum)
         except Exception as e:
-            rospy.logerr('Failed to clean up behavior:\n%s' % e)
+            rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
 
         self.be = None
         if not self._switching:
@@ -201,11 +169,9 @@ class VigirBeOnboard(object):
         # get sourcecode from ros package
         try:
             rp = rospkg.RosPack()
-            # use id 255 for updating current behavior
-            if self._current_behavior is not None and msg.behavior_id == 255:
-                behavior = self._current_behavior
-            else:
-                behavior = self._behavior_lib[msg.behavior_id]
+            behavior = self._behavior_lib.get_behavior(msg.behavior_id)
+            if behavior is None:
+                raise ValueError(msg.behavior_id)
             be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
@@ -220,8 +186,6 @@ class VigirBeOnboard(object):
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
             return
 
-        self._current_behavior = behavior
-
         # apply modifications if any
         try:
             file_content = ""
@@ -230,11 +194,7 @@ class VigirBeOnboard(object):
                 file_content += be_content[last_index:mod.index_begin] + mod.new_content
                 last_index = mod.index_end
             file_content += be_content[last_index:]
-            checksum = zlib.adler32(file_content)
-            # make checksum check pass when updating current behavior
-            if msg.behavior_id == 255:
-                msg.behavior_checksum = checksum
-            if msg.behavior_checksum != checksum:
+            if zlib.adler32(file_content) != msg.behavior_checksum:
                 mismatch_msg = ("Checksum mismatch of behavior versions! \n"
                                 "Attempted to load behavior: %s\n"
                                 "Make sure that all computers are on the same version a.\n"
@@ -248,9 +208,8 @@ class VigirBeOnboard(object):
             return
 
         # create temp file for behavior class
-        temp_module_name = self.TEMP_MODULE_NAME_TEMPLATE % msg.behavior_checksum
         try:
-            file_path = os.path.join(self._tmp_folder, temp_module_name + '.py')
+            file_path = os.path.join(self._tmp_folder, 'tmp_%d.py' % msg.behavior_checksum)
             sc_file = open(file_path, "w")
             sc_file.write(file_content)
             sc_file.close()
@@ -261,7 +220,7 @@ class VigirBeOnboard(object):
 
         # import temp class file and initialize behavior
         try:
-            package = __import__(temp_module_name, fromlist=[temp_module_name])
+            package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
             clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__ == package.__name__)
             beclass = clsmembers[0][1]
             be = beclass()
@@ -346,10 +305,8 @@ class VigirBeOnboard(object):
 
 
     def _cleanup_behavior(self, behavior_checksum):
-        temp_module_name = self.TEMP_MODULE_NAME_TEMPLATE % behavior_checksum
-        if temp_module_name in sys.modules:
-            del(sys.modules[temp_module_name])
-        file_path = os.path.join(self._tmp_folder, '%s.py' % temp_module_name)
+        del(sys.modules["tmp_%d" % behavior_checksum])
+        file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
         try:
             os.remove(file_path)
         except OSError:

@@ -86,6 +86,7 @@ class StateTester(object):
 					if self._print_debug_positive: print '\033[0m\033[1m  +\033[0m waiting condition satisfied'
 				except Exception as e:
 					print '\033[31;1m%s\033[0m\033[31m unable to check waiting condition:\n\t%s\033[0m' % (prefix, str(e))
+					self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 					return 0
 
 
@@ -100,6 +101,7 @@ class StateTester(object):
 					bagpath = os.path.join(self._rp.get_path(config['data'].split('/')[0]), '/'.join(config['data'].split('/')[1:]))
 				except Exception as e:
 					print '\033[31;1m%s\033[0m\033[31m unable to get input bagfile %s:\n\t%s\033[0m' % (prefix, config['data'], str(e))
+					self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 					return 0
 			bag = rosbag.Bag(bagpath)
 			if self._print_debug_positive: print '\033[1m  +\033[0m using data source: %s' % bagpath
@@ -112,6 +114,7 @@ class StateTester(object):
 		except Exception as e:
 			print '\033[31;1m%s\033[0m\033[31m unable to import state %s (%s):\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
 			traceback.print_exc()
+			self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 			return 0
 		if self._print_debug_positive: print '\033[1m  +\033[0m state imported'
 
@@ -137,6 +140,7 @@ class StateTester(object):
 			except Exception as e:
 				print '\033[31;1m%s\033[0m\033[31m unable to instantiate state %s (%s) with params:\n\t%s\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(params), str(e))
 				traceback.print_exc()
+				self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 				return 0
 			if self._print_debug_positive: print '\033[1m  +\033[0m state instantiated'
 
@@ -164,6 +168,7 @@ class StateTester(object):
 			except Exception as e:
 				print '\033[31;1m%s\033[0m\033[31m failed to execute state %s (%s)\n\t%s\033[0m' % (prefix, config['class'], config['path'], str(e))
 				traceback.print_exc()
+				self._evaluation_tests['test_%s_pass' % name.split('.')[0]] = self._test_pass(False)
 				return 0
 
 			if config.has_key('launch'):

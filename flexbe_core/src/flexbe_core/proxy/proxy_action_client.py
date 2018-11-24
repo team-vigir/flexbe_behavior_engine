@@ -18,17 +18,21 @@ class ProxyActionClient(object):
     _result = {}
     _feedback = {}
 
-    def __init__(self, topics = {}):
+    def __init__(self, topics={}, wait_duration=10):
         """
         Initializes the proxy with optionally a given set of clients.
         
         @type topics: dictionary string - message class
         @param topics: A dictionay containing a collection of topic - message type pairs.
+
+        @type wait_duration: int
+        @param wait_duration: Defines how long to wait for each client in the
+            given set to become available (if it is not already available).
         """
 
         for topic, msg_type in topics.iteritems():
-            self.setupClient(topic, msg_type)
-    
+            self.setupClient(topic, msg_type, wait_duration)
+
 
     def setupClient(self, topic, msg_type, wait_duration=10):
         """

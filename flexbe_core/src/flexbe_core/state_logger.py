@@ -14,12 +14,20 @@ class StateLogger(object):
 	Realizes logging of active states.
 	'''
 
-	LOG_FOLDER = "~/logs/"
-
+	LOG_FOLDER = "~/.flexbe_logs"
+	enabled = True
 
 	@staticmethod
 	def initialize(be_name = None):
-		log_folder = os.path.expanduser(StateLogger.LOG_FOLDER)
+		if rospy.has_param("~log_folder"):
+			log_folder = os.path.expanduser(rospy.get_param("~log_folder"))
+		else:
+			log_folder = os.path.expanduser(StateLogger.LOG_FOLDER)
+		
+		if log_folder == "" or not rospy.get_param("~log_enabled", False):
+			StateLogger.enabled = False
+			return
+		
 		if not os.path.exists(log_folder):
 			os.makedirs(log_folder)
 
@@ -48,6 +56,7 @@ class StateLogger(object):
 		Logs the execution of a state.
 		Should be called once when the state returns an outcome.
 		"""
+		if not StateLogger.enabled: return
 		StateLogger._logger.info(
 			str(rospy.get_time()) + ","					# timestamp in ros time
 			+ statepath + ","							# path of the executed state
@@ -60,8 +69,6 @@ class StateLogger(object):
 
 	@staticmethod
 	def shutdown():
+		if not StateLogger.enabled: return
 		StateLogger._handler.close()
 		StateLogger._logger.removeHandler(StateLogger._handler)
-
-
-
