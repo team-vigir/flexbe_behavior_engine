@@ -25,6 +25,14 @@ catkin_package(
 #install(PROGRAMS bin/hello
 #        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+install(CODE "
+  file(MAKE_DIRECTORY \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/src\")
+  execute_process(COMMAND
+    \"${CMAKE_COMMAND}\" -E create_symlink \"../../../${CATKIN_PACKAGE_PYTHON_DESTINATION}\"
+                                           \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/src/${PROJECT_NAME}\"
+  )
+")
+
 # run tests
 if(CATKIN_ENABLE_TESTING)
 	find_package(rostest REQUIRED)
