@@ -2,8 +2,8 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2018-12-01)
+------------------
 * Merge branch 'develop'
 * Merge branch 'feature/flexbe_app' into develop
 * Update maintainer information

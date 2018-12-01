@@ -2,8 +2,8 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2018-12-01)
+------------------
 * Merge branch 'develop'
 * Merge branch 'feature/flexbe_app' into develop
 * [flexbe_widget] Fix: Remove launch install rule
