@@ -48,6 +48,7 @@ class VigirBehaviorMirror(object):
         self._active_id = 0
         self._starting_path = None
         self._current_struct = None
+        self._sync_lock = threading.Lock()
 
         self._outcome_topic = 'flexbe/mirror/outcome'
 
@@ -99,6 +100,7 @@ class VigirBehaviorMirror(object):
 
 
     def _start_mirror(self, msg):
+        self._sync_lock.acquire()
         rate = rospy.Rate(10)
         while self._stopping:
             rate.sleep()
@@ -123,15 +125,17 @@ class VigirBehaviorMirror(object):
 
         if self._sm is None:
             rospy.logwarn('Missing correct mirror structure, requesting...')
-            rospy.sleep(0.2) # no clean way to wait for publisher to be ready...
+            rospy.sleep(0.2) # no clean wayacquire to wait for publisher to be ready...
             self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
             self._active_id = msg.behavior_id
             return
+        self._sync_lock.release()
 
         self._execute_mirror()
 
 
     def _stop_mirror(self, msg):
+        self._sync_lock.acquire()
         self._stopping = True
         if self._sm is not None and self._running:
             if msg is not None and msg.code == BEStatus.FINISHED:
@@ -163,6 +167,7 @@ class VigirBehaviorMirror(object):
             rospy.loginfo('\033[92m--- Behavior Mirror ready! ---\033[0m')
 
         self._stopping = False
+        self._sync_lock.release()
 
 
     def _sync_callback(self, msg):
@@ -178,6 +183,7 @@ class VigirBehaviorMirror(object):
 
 
     def _restart_mirror(self, msg):
+        self._sync_lock.acquire()
         rospy.loginfo('Restarting mirror for synchronization...')
         self._sub.remove_last_msg(self._outcome_topic, clear_buffer=True)
         if self._sm is not None and self._running:
@@ -193,9 +199,11 @@ class VigirBehaviorMirror(object):
         try:
             self._mirror_state_machine(self._current_struct)
             rospy.loginfo('Mirror built.')
-            self._execute_mirror()
         except (AttributeError, smach.InvalidStateError):
             rospy.loginfo('Stopping synchronization because behavior has stopped.')
+        self._sync_lock.release()
+
+        self._execute_mirror()
         
 
     def _execute_mirror(self):
