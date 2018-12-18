@@ -13,7 +13,6 @@
 		$(arg path)/calculation_state_none.test
 		$(arg path)/check_condition_state_true.test
 		$(arg path)/check_condition_state_invalid.test
-		$(arg path)/concurrent_state_import.test
 		$(arg path)/decision_state_simple.test
 		$(arg path)/flexible_calculation_state_simple.test
 		$(arg path)/input_state_import.test
