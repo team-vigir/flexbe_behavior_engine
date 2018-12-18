@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2018-12-18)
+------------------
 * Merge remote-tracking branch 'origin/develop'
 * Revise run dependencies
 * Merge remote-tracking branch 'origin/master' into develop

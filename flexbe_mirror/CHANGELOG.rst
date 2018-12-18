@@ -2,8 +2,8 @@
 Changelog for package flexbe_mirror
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2018-12-18)
+------------------
 * Merge remote-tracking branch 'origin/develop'
 * Merge remote-tracking branch 'origin/master' into develop
 * [flexbe_mirror] Fix race condition in mirror restarts
