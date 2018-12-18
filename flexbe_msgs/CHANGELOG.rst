@@ -2,6 +2,11 @@
 Changelog for package flexbe_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Philipp Schillinger
+
 1.1.0 (2018-12-01)
 ------------------
 * Merge branch 'develop'
