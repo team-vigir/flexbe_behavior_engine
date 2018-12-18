@@ -2,6 +2,14 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2018-12-18)
+------------------
+* Merge remote-tracking branch 'origin/develop'
+* Revise run dependencies
+* [flexbe_states] Remove deprecated concurrent_state - use Concurrency container instead
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Philipp Schillinger
+
 1.1.0 (2018-12-01)
 ------------------
 * Merge branch 'develop'

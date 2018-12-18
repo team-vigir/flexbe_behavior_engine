@@ -2,6 +2,13 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2018-12-18)
+------------------
+* Merge remote-tracking branch 'origin/develop'
+* Revise run dependencies
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Philipp Schillinger
+
 1.1.0 (2018-12-01)
 ------------------
 * Merge branch 'develop'
