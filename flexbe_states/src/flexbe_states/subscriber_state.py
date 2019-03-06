@@ -29,7 +29,7 @@ class SubscriberState(EventState):
 	'''
 
 
-	def __init__(self, topic, blocking = True, clear = False):
+	def __init__(self, topic, blocking = True, clear = False, latched = False):
 		'''
 		Constructor
 		'''
@@ -40,6 +40,7 @@ class SubscriberState(EventState):
 		self._blocking = blocking
 		self._clear = clear
 		self._connected = False
+		self._latched = latched
 
 		(msg_path, msg_topic, fn) = rostopic.get_topic_type(self._topic)
 
@@ -61,7 +62,8 @@ class SubscriberState(EventState):
 
 		if self._sub.has_msg(self._topic) or not self._blocking:
 			userdata.message = self._sub.get_last_msg(self._topic)
-			self._sub.remove_last_msg(self._topic)
+			if not self._latched:
+				self._sub.remove_last_msg(self._topic)
 			return 'received'
 			
 	
