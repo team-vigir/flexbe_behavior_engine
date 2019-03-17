@@ -17,6 +17,7 @@ class PublisherBoolState(EventState):
 	Publishes an empty (std_msgs/Bool) message on a given topic name.
 
 	-- topic	string		The topic on which should be published.
+	-- latched	bool		Defines if messages on the given topics should be latched.
 
 	>= value 					Value of bool.
 
@@ -24,14 +25,15 @@ class PublisherBoolState(EventState):
 
 	'''
 
-    def __init__(self, topic):
+    def __init__(self, topic, latched=False):
         '''
 		Constructor
 		'''
         super(PublisherBoolState, self).__init__(outcomes=['done'], input_keys=['value'])
 
         self._topic = topic
-        self._pub = ProxyPublisher({self._topic: Bool})
+        self._latched = latched
+        self._pub = ProxyPublisher({self._topic: Bool}, self._latched)
 
     def execute(self, userdata):
         return 'done'
