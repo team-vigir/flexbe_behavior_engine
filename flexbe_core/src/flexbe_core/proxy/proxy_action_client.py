@@ -122,6 +122,15 @@ class ProxyActionClient(object):
         """
         return ProxyActionClient._result[topic]
 
+    def remove_result(self, topic):
+        """
+        Removes the latest result message of the given action call.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+        ProxyActionClient._result[topic] = None
+
     def has_feedback(self, topic):
         """
         Checks if the given action call has any feedback.
