@@ -344,7 +344,7 @@ class VigirBeOnboard(object):
                 # unquoted strings will raise a ValueError, so leave it as string in this case
                 result[k] = str(v)
             except SyntaxError as se:
-                Logger.logwarn('Unable to parse input value for key "%s", assuming string:\n%s\n%s' % (k, str(v), str(se)))
+                Logger.logdebug('Unable to parse input value for key "%s", assuming string:\n%s\n%s' % (k, str(v), str(se)))
                 result[k] = str(v)
 
         return result
