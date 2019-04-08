@@ -74,6 +74,7 @@ class BehaviorActionServer(object):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 
 		# reset state before starting new behavior
+		self._engine_status = None
 		self._current_state = None
 		self._behavior_started = False
 
@@ -91,21 +92,23 @@ class BehaviorActionServer(object):
 				if self._as.is_preempt_requested():
 					rospy.loginfo('Behavior execution preempt requested!')
 					self._preempt_pub.publish()
+					rate.sleep()
 					self._as.set_preempted('')
 					break
 
 				if self._engine_status is None:
-					rospy.loginfo('No behavior engine status received yet. Waiting for it...')
+					rospy.logdebug_throttle(1, 'No behavior engine status received yet. Waiting for it...')
 					rate.sleep()
 					continue
 
 				if self._engine_status.code == BEStatus.ERROR:
 					rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+					rate.sleep()
 					self._as.set_aborted('')
 					break
 
 				if not self._behavior_started:
-					rospy.logdebug('Behavior execution has not yet started. Waiting for it...')
+					rospy.logdebug_throttle(1, 'Behavior execution has not yet started. Waiting for it...')
 					rate.sleep()
 					continue
 
@@ -118,6 +121,7 @@ class BehaviorActionServer(object):
 
 				if self._engine_status.code == BEStatus.FAILED:
 					rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
+					rate.sleep()
 					self._as.set_aborted('')
 					break
 
