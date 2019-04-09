@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_states</name>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <description>
      flexbe_states provides a collection of predefined states.
      Feel free to add new states.
