@@ -2,6 +2,11 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Philipp Schillinger
+
 1.1.1 (2018-12-18)
 ------------------
 * Merge remote-tracking branch 'origin/develop'
