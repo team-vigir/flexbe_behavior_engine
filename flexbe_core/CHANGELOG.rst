@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2019-04-09)
+------------------
 * Merge remote-tracking branch 'origin/develop'
 * Merge pull request `#66 <https://github.com/team-vigir/flexbe_behavior_engine/issues/66>`_ from ksm0709/add_remove_result
   add remove_result function to proxy action client

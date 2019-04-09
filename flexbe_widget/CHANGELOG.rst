@@ -2,8 +2,8 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2019-04-09)
+------------------
 * Merge remote-tracking branch 'origin/develop'
 * [flexbe_widget] Robustify action server when spammed with failing behaviors
 * Merge remote-tracking branch 'origin/master' into develop

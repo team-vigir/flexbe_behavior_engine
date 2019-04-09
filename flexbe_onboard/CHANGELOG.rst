@@ -2,8 +2,8 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2019-04-09)
+------------------
 * Merge remote-tracking branch 'origin/develop'
 * [flexbe_onboard] Change input parsing warning to debug level
 * Merge pull request `#70 <https://github.com/team-vigir/flexbe_behavior_engine/issues/70>`_ from henroth/bugfix/fix_incorrect_warning_format
