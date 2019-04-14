@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 
 class BehaviorLauncher(object):
 
-	MIN_VERSION = '2.0.0'
+	MIN_VERSION = '2.2.0'
 
 	def __init__(self):
 		Logger.initialize()
