@@ -162,6 +162,7 @@ class StateTester(object):
 				outcome = LoopbackState._loopback_name
 				while outcome == LoopbackState._loopback_name and not rospy.is_shutdown():
 					outcome = state.execute(userdata)
+					state._rate.sleep()
 					if config.has_key('launch'):
 						launchrunner.spin_once()
 				state.on_stop()
