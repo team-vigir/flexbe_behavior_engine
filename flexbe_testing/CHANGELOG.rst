@@ -2,6 +2,14 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_testing] Respect state rate in tests (fix `FlexBE/flexbe_app#36 <https://github.com/FlexBE/flexbe_app/issues/36>`_)
+* Merge remote-tracking branch 'origin/feature/sub_parameters' into develop
+* Bump required flexbe_app version
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Philipp Schillinger
+
 1.1.2 (2019-04-09)
 ------------------
 * Merge remote-tracking branch 'origin/master' into develop

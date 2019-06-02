@@ -2,6 +2,16 @@
 Changelog for package flexbe_mirror
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#72 <https://github.com/team-vigir/flexbe_behavior_engine/issues/72>`_ from mgruhler/fix/filemodes
+  fix filemodes: those files should not be executable
+* fix filemodes: those files should not be executable
+* Merge remote-tracking branch 'origin/feature/sub_parameters' into develop
+* Bump required flexbe_app version
+* Merge remote-tracking branch 'origin/master' into develop
+* Contributors: Matthias Gruhler, Philipp Schillinger
+
 1.1.2 (2019-04-09)
 ------------------
 * Merge remote-tracking branch 'origin/master' into develop
