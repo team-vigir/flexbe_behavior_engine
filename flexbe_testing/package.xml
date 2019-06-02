@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_testing</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <description>
      flexbe_testing provides a framework for unit testing states.
   </description>

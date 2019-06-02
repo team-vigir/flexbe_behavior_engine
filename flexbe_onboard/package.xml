@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_onboard</name>
-  <version>1.2.0</version>
+  <version>1.2.1</version>
   <description>
      flexbe_onboard implements the robot-side of the behavior engine from where all behaviors are started.
   </description>

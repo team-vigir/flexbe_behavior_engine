@@ -2,8 +2,8 @@
 Changelog for package flexbe_behavior_engine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2019-06-02)
+------------------
 * Merge remote-tracking branch 'origin/feature/sub_parameters' into develop
 * Bump required flexbe_app version
 * Merge remote-tracking branch 'origin/master' into develop

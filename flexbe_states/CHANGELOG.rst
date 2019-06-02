@@ -2,8 +2,8 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2019-06-02)
+------------------
 * Merge pull request `#72 <https://github.com/team-vigir/flexbe_behavior_engine/issues/72>`_ from mgruhler/fix/filemodes
   fix filemodes: those files should not be executable
 * fix filemodes: those files should not be executable
