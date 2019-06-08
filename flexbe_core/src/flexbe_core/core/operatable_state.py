@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import rospy
+import zlib
 
 from flexbe_core.core.preemptable_state import PreemptableState
 from flexbe_core.core.operatable_state_machine import OperatableStateMachine
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import Container, OutcomeRequest
-from std_msgs.msg import UInt8, String
+from std_msgs.msg import UInt8, String, Int32
 
 from flexbe_core.state_logger import StateLogger
 
@@ -26,8 +27,10 @@ class OperatableState(PreemptableState):
         
         self._mute = False  # is set to true when used in silent state machine (don't report transitions)
         self._sent_outcome_requests = []  # contains those outcomes that already requested a transition
+        self._sent_update = False
         
         self._outcome_topic = 'flexbe/mirror/outcome'
+        self._update_topic = 'flexbe/mirror/state_update'
         self._request_topic = 'flexbe/outcome_request'
         self._debug_topic = 'flexbe/debug/current_state'
         self._pub = ProxyPublisher()
@@ -73,6 +76,10 @@ class OperatableState(PreemptableState):
         
 
     def _operatable_execute(self, *args, **kwargs):
+        if self._is_controlled and not self._sent_update:
+            self._pub.publish(self._update_topic, Int32(zlib.adler32(self._get_path())))
+            self._sent_update = True
+
         outcome = self.__execute(*args, **kwargs)
         
         if self._is_controlled:
@@ -90,6 +97,7 @@ class OperatableState(PreemptableState):
             # autonomy level is high enough, report the executed transition
             elif outcome != OperatableState._loopback_name:
                 self._sent_outcome_requests = []
+                self._sent_update = False
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
                 self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
                 self._pub.publish(self._debug_topic, String("%s > %s" % (self._get_path(), outcome)))
@@ -106,6 +114,7 @@ class OperatableState(PreemptableState):
     def _enable_ros_control(self):
         super(OperatableState, self)._enable_ros_control()
         self._pub.createPublisher(self._outcome_topic, UInt8)
+        self._pub.createPublisher(self._update_topic, Int32)
         self._pub.createPublisher(self._debug_topic, String)
         self._pub.createPublisher(self._request_topic, OutcomeRequest)
     
