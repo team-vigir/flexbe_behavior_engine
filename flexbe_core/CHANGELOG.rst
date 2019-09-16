@@ -2,6 +2,13 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] Add method to set a custom execute rate for states
+* [flexbe_core] Remove unnecessary sleep call in logger (see `#79 <https://github.com/team-vigir/flexbe_behavior_engine/issues/79>`_)
+* [flexbe_core] Fix custom rate issues with nested and concurrent states
+* Contributors: Philipp Schillinger
+
 1.2.1 (2019-06-02)
 ------------------
 * Merge pull request `#72 <https://github.com/team-vigir/flexbe_behavior_engine/issues/72>`_ from mgruhler/fix/filemodes

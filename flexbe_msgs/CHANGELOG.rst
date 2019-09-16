@@ -2,6 +2,9 @@
 Changelog for package flexbe_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.1 (2019-06-02)
 ------------------
 * Merge remote-tracking branch 'origin/feature/sub_parameters' into develop
