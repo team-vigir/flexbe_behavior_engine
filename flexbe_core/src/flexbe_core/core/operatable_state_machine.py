@@ -104,9 +104,11 @@ class OperatableStateMachine(PreemptableStateMachine):
             if self._is_running and not smach.is_shutdown():
                 # Update the state machine
                 container_outcome = self._update_once()
-                if self._current_state is not None:
+                if self._current_state is not None and not isinstance(self._current_state, OperatableStateMachine):
                     try:
-                        self._current_state._rate.sleep()
+                        # sleep with the rate of the state and update container rate accordingly
+                        self._rate = self._current_state._rate
+                        self._rate.sleep()
                     except ROSInterruptException:
                         rospy.logwarn('Interrupted rate sleep.')
 

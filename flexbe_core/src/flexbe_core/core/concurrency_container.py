@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import traceback
 import smach
+import rospy
 
 from smach.state_machine import StateMachine
 
@@ -41,6 +42,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             return self._preempted_name
 
         #self._state_transitioning_lock.release()
+        sleep_dur = None
         for state in self._ordered_states:
             if state.name in self._returned_outcomes.keys() and self._returned_outcomes[state.name] != self._loopback_name:
                 continue
@@ -52,7 +54,14 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
                 elif state._get_deep_state() is not None:
                     state._get_deep_state()._notify_skipped()
                 continue
-            self._returned_outcomes[state.name] = self._execute_state(state)
+            state_sleep_dur = state._rate.remaining().to_sec()
+            if state_sleep_dur <= 0:
+                sleep_dur = 0
+                self._returned_outcomes[state.name] = self._execute_state(state)
+            else:
+                sleep_dur = min(sleep_dur, state_sleep_dur)
+        if sleep_dur > 0:
+            rospy.sleep(sleep_dur)
         #self._state_transitioning_lock.acquire()
 
         # Determine outcome
