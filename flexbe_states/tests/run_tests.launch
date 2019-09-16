@@ -6,7 +6,7 @@
 <arg name="path" value="$(find flexbe_states)/tests" />
 
 <include file="$(find flexbe_testing)/launch/flexbe_testing.launch">
-	<arg name="compact_format" value="true" />
+	<arg name="compact_format" value="false" />
 	<arg name="package" value="$(arg pkg)" />
 	<arg name="testcases" value="
 
