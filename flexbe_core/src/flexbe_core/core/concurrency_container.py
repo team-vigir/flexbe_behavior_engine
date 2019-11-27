@@ -16,11 +16,12 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
     A state machine that can be operated.
     It synchronizes its current state with the mirror and supports some control mechanisms.
     """
-    
+
     def __init__(self, conditions=dict(), *args, **kwargs):
         super(ConcurrencyContainer, self).__init__(*args, **kwargs)
         self._conditions = conditions
         self._returned_outcomes = dict()
+        self._do_rate_sleep = False
 
         self.__execute = self.execute
         self.execute = self._concurrency_execute
@@ -58,8 +59,14 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             if state_sleep_dur <= 0:
                 sleep_dur = 0
                 self._returned_outcomes[state.name] = self._execute_state(state)
+                # this sleep returns immediately since sleep duration is negative,
+                # but is required here to reset the sleep time after executing
+                state._rate.sleep()
             else:
-                sleep_dur = min(sleep_dur, state_sleep_dur)
+                if sleep_dur is None:
+                    sleep_dur = state_sleep_dur
+                else:
+                    sleep_dur = min(sleep_dur, state_sleep_dur)
         if sleep_dur > 0:
             rospy.sleep(sleep_dur)
         #self._state_transitioning_lock.acquire()
@@ -71,7 +78,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             if all(self._returned_outcomes.has_key(sn) and self._returned_outcomes[sn] == o for sn,o in cond):
                 outcome = oc
                 break
-        
+
         # preempt (?)
         if outcome == self._loopback_name:
             return None
