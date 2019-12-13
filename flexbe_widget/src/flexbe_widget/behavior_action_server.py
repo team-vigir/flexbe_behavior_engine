@@ -11,6 +11,7 @@ from std_msgs.msg import String, Empty
 import zlib
 import difflib
 import os
+import yaml
 import xml.etree.ElementTree as ET
 
 
@@ -48,8 +49,35 @@ class BehaviorActionServer(object):
 		be_selection = BehaviorSelection()
 		be_selection.behavior_id = be_id
 		be_selection.autonomy_level = 255
-		be_selection.arg_keys = goal.arg_keys
-		be_selection.arg_values = goal.arg_values
+		try:
+			for k, v in zip(goal.arg_keys, goal.arg_values):
+				if v.startswith('file://'):
+					v = v.replace('file://', '', 1)
+					path = v.split(':')[0]
+					if len(v.split(':')) > 1:
+						ns = v.split(':')[1]
+					else:
+						ns = ''
+					if path.startswith('~') or path.startswith('/'):
+						filepath = os.path.expanduser(path)
+					else:
+						filepath = os.path.join(self._rp.get_path(path.split('/')[0]), '/'.join(path.split('/')[1:]))
+					with open(filepath, 'r') as f:
+						content = f.read()
+					if ns != '':
+						content = yaml.load(content)
+						if ns in content:
+							content = content[ns]
+						content = yaml.dump(content)
+					be_selection.arg_keys.append(k)
+					be_selection.arg_values.append(content)
+				else:
+					be_selection.arg_keys.append(k)
+					be_selection.arg_values.append(v)
+		except Exception as e:
+			rospy.logwarn('Failed to parse and substitute behavior arguments, will use direct input.\n%s' % str(e))
+			be_selection.arg_keys = goal.arg_keys
+			be_selection.arg_values = goal.arg_values
 		be_selection.input_keys = goal.input_keys
 		be_selection.input_values = goal.input_values
 
