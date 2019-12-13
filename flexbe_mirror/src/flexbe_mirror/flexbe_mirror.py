@@ -100,74 +100,72 @@ class VigirBehaviorMirror(object):
 
 
     def _start_mirror(self, msg):
-        self._sync_lock.acquire()
-        rate = rospy.Rate(10)
-        while self._stopping:
-            rate.sleep()
+        with self._sync_lock:
+            rate = rospy.Rate(10)
+            while self._stopping:
+                rate.sleep()
 
-        if self._running:
-            rospy.logwarn('Tried to start mirror while it is already running, will ignore.')
-            return
+            if self._running:
+                rospy.logwarn('Tried to start mirror while it is already running, will ignore.')
+                return
 
-        if len(msg.args) > 0:
-            self._starting_path = "/" + msg.args[0][1:].replace("/", "_mirror/") + "_mirror"
+            if len(msg.args) > 0:
+                self._starting_path = "/" + msg.args[0][1:].replace("/", "_mirror/") + "_mirror"
 
-        self._active_id = msg.behavior_id
-
-        while self._sm is None and len(self._struct_buffer) > 0:
-            struct = self._struct_buffer[0]
-            self._struct_buffer = self._struct_buffer[1:]
-            if struct.behavior_id == self._active_id:
-                self._mirror_state_machine(struct)
-                rospy.loginfo('Mirror built.')
-            else:
-                rospy.logwarn('Discarded mismatching buffered structure for checksum %s' % str(struct.behavior_id))
-
-        if self._sm is None:
-            rospy.logwarn('Missing correct mirror structure, requesting...')
-            rospy.sleep(0.2) # no clean wayacquire to wait for publisher to be ready...
-            self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
             self._active_id = msg.behavior_id
-            return
-        self._sync_lock.release()
+
+            while self._sm is None and len(self._struct_buffer) > 0:
+                struct = self._struct_buffer[0]
+                self._struct_buffer = self._struct_buffer[1:]
+                if struct.behavior_id == self._active_id:
+                    self._mirror_state_machine(struct)
+                    rospy.loginfo('Mirror built.')
+                else:
+                    rospy.logwarn('Discarded mismatching buffered structure for checksum %s' % str(struct.behavior_id))
+
+            if self._sm is None:
+                rospy.logwarn('Missing correct mirror structure, requesting...')
+                rospy.sleep(0.2) # no clean wayacquire to wait for publisher to be ready...
+                self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
+                self._active_id = msg.behavior_id
+                return
 
         self._execute_mirror()
 
 
     def _stop_mirror(self, msg):
-        self._sync_lock.acquire()
-        self._stopping = True
-        if self._sm is not None and self._running:
-            if msg is not None and msg.code == BEStatus.FINISHED:
-                rospy.loginfo('Onboard behavior finished successfully.')
-                self._pub.publish('flexbe/behavior_update', String())
-            elif msg is not None and msg.code == BEStatus.SWITCHING:
-                self._starting_path = None
-                rospy.loginfo('Onboard performing behavior switch.')
-            elif msg is not None and msg.code == BEStatus.READY:
-                rospy.loginfo('Onboard engine just started, stopping currently running mirror.')
-                self._pub.publish('flexbe/behavior_update', String())
-            elif msg is not None:
-                rospy.logwarn('Onboard behavior failed!')
-                self._pub.publish('flexbe/behavior_update', String())
+        with self._sync_lock:
+            self._stopping = True
+            if self._sm is not None and self._running:
+                if msg is not None and msg.code == BEStatus.FINISHED:
+                    rospy.loginfo('Onboard behavior finished successfully.')
+                    self._pub.publish('flexbe/behavior_update', String())
+                elif msg is not None and msg.code == BEStatus.SWITCHING:
+                    self._starting_path = None
+                    rospy.loginfo('Onboard performing behavior switch.')
+                elif msg is not None and msg.code == BEStatus.READY:
+                    rospy.loginfo('Onboard engine just started, stopping currently running mirror.')
+                    self._pub.publish('flexbe/behavior_update', String())
+                elif msg is not None:
+                    rospy.logwarn('Onboard behavior failed!')
+                    self._pub.publish('flexbe/behavior_update', String())
 
-            PreemptableState.preempt = True
-            rate = rospy.Rate(10)
-            while self._running:
-                rate.sleep()
-        else:
-            rospy.loginfo('No onboard behavior is active.')
+                PreemptableState.preempt = True
+                rate = rospy.Rate(10)
+                while self._running:
+                    rate.sleep()
+            else:
+                rospy.loginfo('No onboard behavior is active.')
 
-        self._active_id = 0
-        self._sm = None
-        self._current_struct = None
-        self._sub.remove_last_msg(self._outcome_topic, clear_buffer=True)
+            self._active_id = 0
+            self._sm = None
+            self._current_struct = None
+            self._sub.remove_last_msg(self._outcome_topic, clear_buffer=True)
 
-        if msg is not None and msg.code != BEStatus.SWITCHING:
-            rospy.loginfo('\033[92m--- Behavior Mirror ready! ---\033[0m')
+            if msg is not None and msg.code != BEStatus.SWITCHING:
+                rospy.loginfo('\033[92m--- Behavior Mirror ready! ---\033[0m')
 
-        self._stopping = False
-        self._sync_lock.release()
+            self._stopping = False
 
 
     def _sync_callback(self, msg):
@@ -183,25 +181,24 @@ class VigirBehaviorMirror(object):
 
 
     def _restart_mirror(self, msg):
-        self._sync_lock.acquire()
-        rospy.loginfo('Restarting mirror for synchronization...')
-        self._sub.remove_last_msg(self._outcome_topic, clear_buffer=True)
-        if self._sm is not None and self._running:
-            PreemptableState.preempt = True
-            rate = rospy.Rate(10)
-            while self._running:
-                rate.sleep()
-            self._sm = None
-        if msg.current_state_checksum in self._state_checksums:
-            current_state_path = self._state_checksums[msg.current_state_checksum]
-            self._starting_path = "/" + current_state_path[1:].replace("/", "_mirror/") + "_mirror"
-            rospy.loginfo('Current state: %s' % current_state_path)
-        try:
-            self._mirror_state_machine(self._current_struct)
-            rospy.loginfo('Mirror built.')
-        except (AttributeError, smach.InvalidStateError):
-            rospy.loginfo('Stopping synchronization because behavior has stopped.')
-        self._sync_lock.release()
+        with self._sync_lock:
+            rospy.loginfo('Restarting mirror for synchronization...')
+            self._sub.remove_last_msg(self._outcome_topic, clear_buffer=True)
+            if self._sm is not None and self._running:
+                PreemptableState.preempt = True
+                rate = rospy.Rate(10)
+                while self._running:
+                    rate.sleep()
+                self._sm = None
+            if msg.current_state_checksum in self._state_checksums:
+                current_state_path = self._state_checksums[msg.current_state_checksum]
+                self._starting_path = "/" + current_state_path[1:].replace("/", "_mirror/") + "_mirror"
+                rospy.loginfo('Current state: %s' % current_state_path)
+            try:
+                self._mirror_state_machine(self._current_struct)
+                rospy.loginfo('Mirror built.')
+            except (AttributeError, smach.InvalidStateError):
+                rospy.loginfo('Stopping synchronization because behavior has stopped.')
 
         self._execute_mirror()
         
