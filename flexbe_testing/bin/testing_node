@@ -20,18 +20,17 @@ if __name__ == '__main__':
 		for arg in sys.argv[1:]:
 			if not arg.startswith('-') and not arg.startswith('_'):
 				testfile_path = os.path.expanduser(arg)
-				if os.path.isfile(testfile_path):
-					filenames.append(testfile_path)
-				else:
-					rospy.logerr("No such file: {}".format(testfile_path))
-					exit(1)
+				filenames.append(testfile_path)
 
 	tester = StateTester()
 
 	test_cases = dict()
 	for filename in filenames:
-		name, config = tester.configure_test(filename)
-		test_cases[name] = config
+		try:
+			name, config = tester.configure_test(filename)
+			test_cases[name] = config
+		except IOError as io_error:
+			rospy.logerr(io_error)
 
 	perform_rostest = rospy.get_param('~perform_rostest', False)
 	test_package = rospy.get_param('~package')
