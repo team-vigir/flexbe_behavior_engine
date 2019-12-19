@@ -10,6 +10,7 @@ import roslaunch
 import unittest
 import rosunit
 import traceback
+import yaml
 
 from flexbe_core.core.loopback_state import LoopbackState
 
@@ -37,6 +38,14 @@ class StateTester(object):
 			self._mute_warn = True
 			self._mute_error = False
 
+	def configure_test(self, filename):
+		folder, name = os.path.split(filename)
+		try:
+			with open(filename, 'r') as f:
+				config = yaml.load(f)
+			return name, config
+		except IOError:
+			self._evaluation_tests['test_%s_config' % name.split('.')[0]] = self._test_pass(False)
 
 	def run_test(self, name, config):
 		if self._mute_info:

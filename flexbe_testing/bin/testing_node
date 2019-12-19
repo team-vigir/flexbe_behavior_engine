@@ -26,11 +26,11 @@ if __name__ == '__main__':
 					rospy.logerr("No such file: {}".format(testfile_path))
 					exit(1)
 
+	tester = StateTester()
+
 	test_cases = dict()
 	for filename in filenames:
-		with open(filename, 'r') as f:
-			config = yaml.load(f)
-		(folder, name) = os.path.split(filename)
+		name, config = tester.configure_test(filename)
 		test_cases[name] = config
 
 	perform_rostest = rospy.get_param('~perform_rostest', False)
@@ -40,7 +40,6 @@ if __name__ == '__main__':
 		rospy.logerr('Need to pass the name of the package under testing as arg "package" to the flexbe_testing launch file!')
 
 	print 'Ready for testing! (%d tests)' % len(test_cases)
-	tester = StateTester()
 
 	success_cases = 0
 	for test_name, test_config in test_cases.iteritems():
