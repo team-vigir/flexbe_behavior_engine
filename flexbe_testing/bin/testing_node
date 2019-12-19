@@ -18,8 +18,13 @@ if __name__ == '__main__':
 	if len(sys.argv) > 1:
 		print 'Loading provided test cases...'
 		for arg in sys.argv[1:]:
-			if os.path.isfile(os.path.expanduser(arg)):
-				filenames.append(os.path.expanduser(arg))
+			if not arg.startswith('-') and not arg.startswith('_'):
+				testfile_path = os.path.expanduser(arg)
+				if os.path.isfile(testfile_path):
+					filenames.append(testfile_path)
+				else:
+					rospy.logerr("No such file: {}".format(testfile_path))
+					exit(1)
 
 	test_cases = dict()
 	for filename in filenames:
