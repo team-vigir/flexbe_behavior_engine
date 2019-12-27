@@ -6,6 +6,7 @@ import rospkg
 import os
 import sys
 import inspect
+import tempfile
 import threading
 import time
 import smach
@@ -52,10 +53,9 @@ class VigirBeOnboard(object):
 
         # prepare temp folder
         rp = rospkg.RosPack()
-        self._tmp_folder = "/tmp/flexbe_onboard"
-        if not os.path.exists(self._tmp_folder):
-            os.makedirs(self._tmp_folder)
+        self._tmp_folder = tempfile.mkdtemp()
         sys.path.append(self._tmp_folder)
+        rospy.on_shutdown(self._cleanup_tempdir)
         
         # prepare manifest folder access
         self._behavior_lib = BehaviorLibrary()
@@ -313,6 +313,13 @@ class VigirBeOnboard(object):
             pass
         try:
             os.remove(file_path + 'c')
+        except OSError:
+            pass
+
+
+    def _cleanup_tempdir(self):
+        try:
+            os.remove(self._tmp_folder)
         except OSError:
             pass
 
