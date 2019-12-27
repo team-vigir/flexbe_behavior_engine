@@ -18,15 +18,19 @@ if __name__ == '__main__':
 	if len(sys.argv) > 1:
 		print 'Loading provided test cases...'
 		for arg in sys.argv[1:]:
-			if os.path.isfile(os.path.expanduser(arg)):
-				filenames.append(os.path.expanduser(arg))
+			if not arg.startswith('-') and not arg.startswith('_'):
+				testfile_path = os.path.expanduser(arg)
+				filenames.append(testfile_path)
+
+	tester = StateTester()
 
 	test_cases = dict()
 	for filename in filenames:
-		with open(filename, 'r') as f:
-			config = yaml.load(f)
-		(folder, name) = os.path.split(filename)
-		test_cases[name] = config
+		try:
+			name, config = tester.configure_test(filename)
+			test_cases[name] = config
+		except IOError as io_error:
+			rospy.logerr(io_error)
 
 	perform_rostest = rospy.get_param('~perform_rostest', False)
 	test_package = rospy.get_param('~package')
@@ -35,7 +39,6 @@ if __name__ == '__main__':
 		rospy.logerr('Need to pass the name of the package under testing as arg "package" to the flexbe_testing launch file!')
 
 	print 'Ready for testing! (%d tests)' % len(test_cases)
-	tester = StateTester()
 
 	success_cases = 0
 	for test_name, test_config in test_cases.iteritems():
