@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_input</name>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <description>
      flexbe_input enables to send data to onboard behavior when required.
   </description>

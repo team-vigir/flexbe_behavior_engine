@@ -31,3 +31,16 @@ class LoopbackState(LockableState):
         if result is None or result == 'None':
             result = self._loopback_name
         return result
+
+    def set_rate(self, rate):
+        """
+        Set the execution rate of this state,
+        i.e., the rate with which the execute method is being called.
+
+        Note: The rate is best-effort,
+              a rospy.Rate does not guarantee real-time properties.
+        
+        @type label: float
+        @param label: The desired rate in Hz.
+        """
+        self._rate = rospy.Rate(rate)

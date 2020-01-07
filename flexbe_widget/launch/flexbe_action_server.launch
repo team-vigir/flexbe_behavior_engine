@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<launch>
+<arg name="no_onboard" default="False" />
+<arg name="log_enabled" default="False" />
+<arg name="log_folder" default="~/.flexbe_logs" />
+
+<include file="$(find flexbe_onboard)/launch/behavior_onboard.launch" unless="$(arg no_onboard)">
+    <arg name="log_enabled" value="$(arg log_enabled)"/>
+    <arg name="log_folder" value="$(arg log_folder)"/>
+</include>
+
+<node name="behavior_mirror" pkg="flexbe_mirror" type="behavior_mirror_sm" />
+
+<node name="behavior_action_server" pkg="flexbe_widget" type="be_action_server" output="screen" />
+
+</launch>

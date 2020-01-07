@@ -2,6 +2,9 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.2 (2019-09-16)
+------------------
+
 1.2.1 (2019-06-02)
 ------------------
 * Merge pull request `#72 <https://github.com/team-vigir/flexbe_behavior_engine/issues/72>`_ from mgruhler/fix/filemodes

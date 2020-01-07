@@ -10,6 +10,7 @@ import roslaunch
 import unittest
 import rosunit
 import traceback
+import yaml
 
 from flexbe_core.core.loopback_state import LoopbackState
 
@@ -251,4 +252,9 @@ class StateTester(object):
     def _test_pass(self, passed):
         def _test_call(test_self):
             test_self.assertTrue(passed, "State did not pass flexbe tests.")
+        return _test_call
+
+    def _test_file_missing(self, path):
+        def _test_call(test_self):
+            test_self.fail("Test file {} does not exist".format(path))
         return _test_call

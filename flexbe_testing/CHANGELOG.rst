@@ -2,6 +2,9 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.2 (2019-09-16)
+------------------
+
 1.2.1 (2019-06-02)
 ------------------
 * [flexbe_testing] Respect state rate in tests (fix `FlexBE/flexbe_app#36 <https://github.com/FlexBE/flexbe_app/issues/36>`_)

@@ -18,8 +18,10 @@ class Tester(object):
         try:
             self._verify_config(config)
         except Exception as e:
-            Logger.print_failure('invalid test specification:\n\t%s' % str(e))
-            self._tests['test_%s_pass' % name] = self._test_pass(False)
+            Logger.print_title(name, 'Invalid', None)
+            Logger.print_error('invalid test specification:\n\t%s' % str(e))
+            Logger.print_result(name, False)
+            self._tests['test_%s_pass' % name] = self._test_config_invalid(str(e))
             return 0
 
         import_only = config.get('import_only', False)
@@ -64,7 +66,7 @@ class Tester(object):
                     test_interface.instantiate(params)
                 except Exception as e:
                     Logger.print_failure('unable to instantiate %s (%s) with params:\n\t%s\n\t%s' %
-                                        (config['class'], config['path'], str(params), str(e)))
+                                         (config['class'], config['path'], str(params), str(e)))
                     self._tests['test_%s_pass' % name] = self._test_pass(False)
                     return 0
 
@@ -115,6 +117,8 @@ class Tester(object):
         return 1 if success else 0
 
     def _verify_config(self, config):
+        if not isinstance(config, dict):
+            raise AssertionError('config needs to be a dictionary but is:\n\t%s' % str(config))
         assert 'path' in config
         assert 'class' in config
         assert 'outcome' in config or config.get('import_only', False)
@@ -138,4 +142,9 @@ class Tester(object):
     def _test_pass(self, passed):
         def _test_call(test_self):
             test_self.assertTrue(passed, "Did not pass configured tests.")
+        return _test_call
+
+    def _test_config_invalid(self, config):
+        def _test_call(test_self):
+            test_self.fail("Test config is invalid: %s" % config)
         return _test_call
