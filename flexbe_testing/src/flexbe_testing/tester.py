@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-import smach
+import rospy
 import rosunit
 import unittest
+import re
 
 from .logger import Logger
 from .test_interface import TestInterface
 from .test_context import TestContext, LaunchContext
 from .data_provider import DataProvider
+
+import smach
+# hide SMACH transition log spamming
+smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
 
 class Tester(object):
@@ -19,10 +24,15 @@ class Tester(object):
             self._verify_config(config)
         except Exception as e:
             Logger.print_title(name, 'Invalid', None)
-            Logger.print_error('invalid test specification:\n\t%s' % str(e))
+            Logger.print_error('invalid test specification!\n\t%s' % str(e))
             Logger.print_result(name, False)
             self._tests['test_%s_pass' % name] = self._test_config_invalid(str(e))
             return 0
+
+        # allow to specify behavior name instead of generated module and class
+        if 'name' in config:
+            config['path'] += '.%s_sm' % re.sub(r'[^\w]', '_', config['name'].lower())
+            config['class'] = '%sSM' % re.sub(r'[^\w]', '', config['name'])
 
         import_only = config.get('import_only', False)
         Logger.print_title(name, config['class'], config['outcome'] if not import_only else None)
@@ -120,7 +130,7 @@ class Tester(object):
         if not isinstance(config, dict):
             raise AssertionError('config needs to be a dictionary but is:\n\t%s' % str(config))
         assert 'path' in config
-        assert 'class' in config
+        assert 'class' in config or 'name' in config
         assert 'outcome' in config or config.get('import_only', False)
 
     # ROSUNIT interface
