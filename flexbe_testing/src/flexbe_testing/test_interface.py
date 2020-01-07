@@ -40,7 +40,12 @@ class TestInterface(object):
             return self._class(**params)
 
     def _instantiate_behavior(self, params=None):
-        raise NotImplementedError("Behaviors are not yet supported as test subjects")
+        be = self._class()
+        if params is not None:
+            for name, value in params.items():
+                be.set_parameter(name, value)
+        be.set_up(id=0, autonomy_level=255, debug=False)
+        return be
 
     # execute
 
@@ -64,4 +69,16 @@ class TestInterface(object):
         return outcome
 
     def _execute_behavior(self, userdata, spin_cb):
-        raise NotImplementedError("Behaviors are not yet supported as test subjects")
+        self._instance.prepare_for_execution(userdata._data)
+        self._instance.confirm()
+        # do not execute behavior directly, instead explicitly spin its state machine
+        # this is required here for spinning ROS and processing roslaunch context callbacks
+        outcome = EventState._loopback_name
+        sm = self._instance._state_machine
+        sm._set_current_state(sm._initial_state_label)
+        while outcome == EventState._loopback_name and not rospy.is_shutdown():
+            outcome = sm._async_execute(userdata)
+            sm._rate.sleep()
+            spin_cb()
+        userdata.update(sm.userdata)
+        return outcome
