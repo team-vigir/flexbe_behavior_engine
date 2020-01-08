@@ -16,5 +16,7 @@
   <run_depend>rospy</run_depend>
   <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
+  <run_depend>flexbe_mirror</run_depend>
+  <run_depend>flexbe_onboard</run_depend>
 
 </package>

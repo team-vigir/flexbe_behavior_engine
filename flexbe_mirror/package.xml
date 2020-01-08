@@ -15,7 +15,6 @@
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>flexbe_core</run_depend>
-  <run_depend>flexbe_widget</run_depend>
   <run_depend>flexbe_msgs</run_depend>
 
 </package>
