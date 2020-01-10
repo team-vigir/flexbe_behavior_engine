@@ -2,6 +2,21 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
+  flexbe_testing support for behaviors
+* [flexbe_core] [flexbe_onboard] Move behavior parametrization to core
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* [flexbe_onboard] Use proper tempdir to avoid access right issues for multi-user setups
+* Merge pull request `#82 <https://github.com/team-vigir/flexbe_behavior_engine/issues/82>`_ from grejj/fix/loglevel
+  Changed loglevel from logdebug to loginfo because logdebug doesn't exist in Logger
+* Changed loglevel from logdebug to loginfo because logdebug doesn't exist in Logger
+* Contributors: Philipp Schillinger, grejj
+
 1.2.2 (2019-09-16)
 ------------------
 

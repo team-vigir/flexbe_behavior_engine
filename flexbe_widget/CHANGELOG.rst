@@ -2,6 +2,21 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revise internal dependencies
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* [flexbe_core] [flexbe_widget] Add simple breakpoint feature (see `#93 <https://github.com/team-vigir/flexbe_behavior_engine/issues/93>`_)
+* [flexbe_widget] Support loading files as behavior args for the action server
+* Merge pull request `#90 <https://github.com/team-vigir/flexbe_behavior_engine/issues/90>`_ from cjue/patch-1
+  Fix evaluate_logs usage string: default log path now "~/.flexbe_logs"
+* Fix evaluate_logs usage string: default log path now "~/.flexbe_logs"
+  Also correct usage string whitespace, remove "," from value list
+* Contributors: Christian Jülg, Philipp Schillinger
+
 1.2.2 (2019-09-16)
 ------------------
 

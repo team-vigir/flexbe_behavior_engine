@@ -2,6 +2,22 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
+  flexbe_testing support for behaviors
+* [flexbe_core] Clear previous outcome requests on state loopback (see `#93 <https://github.com/team-vigir/flexbe_behavior_engine/issues/93>`_)
+* [flexbe_core] [flexbe_onboard] Move behavior parametrization to core
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* [flexbe_core] [flexbe_widget] Add simple breakpoint feature (see `#93 <https://github.com/team-vigir/flexbe_behavior_engine/issues/93>`_)
+* Merge pull request `#88 <https://github.com/team-vigir/flexbe_behavior_engine/issues/88>`_ from team-vigir/fix/concurrency_sleep
+  Fix rate sleep of concurrency container
+* Fix rate sleep of concurrency container (see `#87 <https://github.com/team-vigir/flexbe_behavior_engine/issues/87>`_)
+* Contributors: Philipp Schillinger
+
 1.2.2 (2019-09-16)
 ------------------
 * [flexbe_core] Add method to set a custom execute rate for states

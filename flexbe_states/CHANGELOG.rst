@@ -2,6 +2,18 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
+  flexbe_testing support for behaviors
+* Revise internal dependencies
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* [flexbe_testing] Refactor testing framework as basis for new feature
+* Contributors: Philipp Schillinger
+
 1.2.2 (2019-09-16)
 ------------------
 

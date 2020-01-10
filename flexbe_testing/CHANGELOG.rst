@@ -2,6 +2,26 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
+  flexbe_testing support for behaviors
+* [flexbe_testing] Remove deprecated state tester
+* [flexbe_testing] Allow specification of behavior name in test config
+* [flexbe_testing] Add support for behavior tests
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* Merge pull request `#94 <https://github.com/team-vigir/flexbe_behavior_engine/issues/94>`_ from LoyVanBeek/feature/check_missing_testfile
+  Fail test if provided test-yaml-file does not exist
+* Generate test results also when test file is missing
+* Move test configuration files to StateTester so failing to configure can also be included in the test results
+* Fail test if provided test-file does not exist
+  There is no way to know which arguments are intended to be filenames, so best we can do is guess?
+* [flexbe_testing] Refactor testing framework as basis for new feature
+* Contributors: Loy van Beek, Philipp Schillinger
+
 1.2.2 (2019-09-16)
 ------------------
 

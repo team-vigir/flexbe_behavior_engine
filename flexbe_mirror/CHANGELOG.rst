@@ -2,6 +2,16 @@
 Changelog for package flexbe_mirror
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Revise internal dependencies
+* Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
+  # Conflicts:
+  #	flexbe_testing/bin/testing_node
+  #	flexbe_testing/src/flexbe_testing/state_tester.py
+* [flexbe_mirror] Fix mirror sync lock (see `FlexBE/flexbe_app#47 <https://github.com/FlexBE/flexbe_app/issues/47>`_)
+* Contributors: Philipp Schillinger
+
 1.2.2 (2019-09-16)
 ------------------
 
