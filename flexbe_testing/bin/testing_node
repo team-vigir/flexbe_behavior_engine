@@ -3,55 +3,59 @@ import rospy
 import sys
 import os
 import yaml
-import smach
 
-from flexbe_core import Logger
+from flexbe_core import Logger as FlexbeLogger
+from flexbe_testing.logger import Logger
 
-from flexbe_testing.state_tester import StateTester
+from flexbe_testing import Tester
 
 if __name__ == '__main__':
-	rospy.init_node('flexbe_testing')
+    rospy.init_node('flexbe_testing')
 
-	Logger.initialize()
+    perform_rostest = rospy.get_param('~perform_rostest', False)
+    test_package = rospy.get_param('~package')
 
-	filenames = list()
-	if len(sys.argv) > 1:
-		print 'Loading provided test cases...'
-		for arg in sys.argv[1:]:
-			if not arg.startswith('-') and not arg.startswith('_'):
-				testfile_path = os.path.expanduser(arg)
-				filenames.append(testfile_path)
+    if perform_rostest and test_package == '':
+        rospy.logerr('Need to pass the name of the package under testing'
+                     'as arg "package" to the flexbe_testing launch file!')
 
-	tester = StateTester()
+    FlexbeLogger.initialize()
+    Logger.mute_rospy()
 
-	test_cases = dict()
-	for filename in filenames:
-		try:
-			name, config = tester.configure_test(filename)
-			test_cases[name] = config
-		except IOError as io_error:
-			rospy.logerr(io_error)
+    filenames = list()
+    if len(sys.argv) > 1:
+        print('Loading provided test cases...')
+        for arg in sys.argv[1:]:
+            if not arg.startswith('-') and not arg.startswith('_'):
+                testfile_path = os.path.expanduser(arg)
+                filenames.append(testfile_path)
 
-	perform_rostest = rospy.get_param('~perform_rostest', False)
-	test_package = rospy.get_param('~package')
+    test_cases = dict()
+    for filename in filenames:
+        _, name = os.path.split(filename)
+        test_name, _ = os.path.splitext(name)
+        try:
+            with open(filename, 'r') as f:
+                config = yaml.load(f)
+            test_cases[test_name] = config
+        except IOError as io_error:
+            rospy.logerr(io_error)
+            test_cases[test_name] = io_error  # not a valid config, caught during config verification
 
-	if perform_rostest and test_package == '':
-		rospy.logerr('Need to pass the name of the package under testing as arg "package" to the flexbe_testing launch file!')
+    print('Ready for testing! (%d tests)' % len(test_cases))
+    tester = Tester()
 
-	print 'Ready for testing! (%d tests)' % len(test_cases)
+    success_cases = 0
+    for test_name, test_config in test_cases.iteritems():
+        if rospy.is_shutdown():
+            break
+        success_cases += tester.run_test(test_name, test_config)
 
-	success_cases = 0
-	for test_name, test_config in test_cases.iteritems():
-		if rospy.is_shutdown():
-			break
-		success_cases += tester.run_test(test_name, test_config)
+    print('')
+    result_color = '92' if success_cases == len(test_cases) else '93'
+    print('\033[%smTesting completed, %d of %d tests successful.\033[0m' %
+          (result_color, success_cases, len(test_cases)))
+    print('')
 
-	print ''
-	result_color = '92' if success_cases == len(test_cases) else '93'
-	print '\033[%smTesting completed, %d of %d tests successful.\033[0m' % (result_color, success_cases, len(test_cases))
-	print ''
-
-	if perform_rostest:
-		tester.perform_rostest(test_package)
-
-	
+    if perform_rostest:
+        tester.perform_rostest(test_package)
