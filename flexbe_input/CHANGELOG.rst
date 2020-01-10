@@ -2,8 +2,8 @@
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.3 (2020-01-10)
+------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
   # Conflicts:
   #	flexbe_testing/bin/testing_node

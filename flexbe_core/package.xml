@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_core</name>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <description>
      flexbe_core provides the core smach extension for the FlexBE behavior engine.
   </description>

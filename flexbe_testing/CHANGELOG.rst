@@ -2,8 +2,8 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.3 (2020-01-10)
+------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
   flexbe_testing support for behaviors
 * [flexbe_testing] Remove deprecated state tester

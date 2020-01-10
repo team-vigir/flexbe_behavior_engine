@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.3 (2020-01-10)
+------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
   flexbe_testing support for behaviors
 * [flexbe_core] Clear previous outcome requests on state loopback (see `#93 <https://github.com/team-vigir/flexbe_behavior_engine/issues/93>`_)
