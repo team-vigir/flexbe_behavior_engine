@@ -98,12 +98,12 @@ class Behavior(object):
         @type parameters: dict
         @param parameters: Optional assignment of values to behavior parameters. Any assigned parameter will be ignored for runtime customization, i.e., cannot be overwritten by a user who runs the behavior.
         """
-        if not self.contains.has_key(behavior_id):
+        if behavior_id not in self.contains:
             rospy.logerr('Tried to use not added behavior!')
             return None
 
         if parameters is not None:
-            for parameter, value in parameters.items():
+            for parameter, value in list(parameters.items()):
                 setattr(self.contains[behavior_id], parameter, value)
         
         state_machine = self.contains[behavior_id]._get_state_machine()
@@ -128,7 +128,7 @@ class Behavior(object):
 
         if input_data is None:
             input_data = dict()
-        for k, v in input_data.items():
+        for k, v in list(input_data.items()):
            if k in self._state_machine.userdata:
                 self._state_machine.userdata[k] = v
 
@@ -246,9 +246,9 @@ class Behavior(object):
                 state._is_controlled = False
 
     def _collect_contained(self, obj, path):
-        contain_list = {path+"/"+key: value for (key, value) in getattr(obj, 'contains', {}).items()}
+        contain_list = {path+"/"+key: value for (key, value) in list(getattr(obj, 'contains', {}).items())}
         add_to_list = {}
-        for b_id, b_inst in contain_list.items():
+        for b_id, b_inst in list(contain_list.items()):
             add_to_list.update(self._collect_contained(b_inst, b_id))
         contain_list.update(add_to_list)
         return contain_list
@@ -262,8 +262,8 @@ class Behavior(object):
         if not isinstance(value, type(attr)):
             if type(attr) is int:
                 value = int(value)
-            elif type(attr) is long:
-                value = long(value)
+            elif type(attr) is int:
+                value = int(value)
             elif type(attr) is float:
                 value = float(value)
             elif type(attr) is bool:
@@ -285,7 +285,7 @@ class Behavior(object):
         state_label = path_elements[1]
         new_path = "/".join(path_elements[1:])
 
-        if container.get_children().has_key(state_label):
+        if state_label in container.get_children():
             childlist = self._get_states_of_path(new_path, container.get_children()[state_label])
             if childlist is None:
                 return None

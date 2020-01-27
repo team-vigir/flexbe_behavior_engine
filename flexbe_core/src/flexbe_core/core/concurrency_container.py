@@ -45,7 +45,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         #self._state_transitioning_lock.release()
         sleep_dur = None
         for state in self._ordered_states:
-            if state.name in self._returned_outcomes.keys() and self._returned_outcomes[state.name] != self._loopback_name:
+            if state.name in list(self._returned_outcomes.keys()) and self._returned_outcomes[state.name] != self._loopback_name:
                 continue
             if PriorityContainer.active_container is not None \
             and not PriorityContainer.active_container.startswith(state._get_path()) \
@@ -75,7 +75,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         outcome = self._loopback_name
         for item in self._conditions:
             (oc, cond) = item
-            if all(self._returned_outcomes.has_key(sn) and self._returned_outcomes[sn] == o for sn,o in cond):
+            if all(sn in self._returned_outcomes and self._returned_outcomes[sn] == o for sn,o in cond):
                 outcome = oc
                 break
 
@@ -86,7 +86,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         if outcome in self.get_registered_outcomes():
             # Call termination callbacks
             self.call_termination_cbs([s.name for s in self._ordered_states],outcome)
-            self.on_exit(self.userdata, states = filter(lambda s: s.name not in self._returned_outcomes.keys() or self._returned_outcomes[s.name] == self._loopback_name, self._ordered_states))
+            self.on_exit(self.userdata, states = [s for s in self._ordered_states if s.name not in list(self._returned_outcomes.keys()) or self._returned_outcomes[s.name] == self._loopback_name])
             self._returned_outcomes = dict()
             # right now, going out of a cc may break sync
             # thus, as a quick fix, explicitly sync again

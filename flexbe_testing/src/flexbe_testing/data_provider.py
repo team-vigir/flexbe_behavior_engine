@@ -30,17 +30,17 @@ class DataProvider(object):
         result = value
         try:
             # message data
-            if (isinstance(value, basestring) and len(value) > 1 and value[0] == '/' and value[1] != '/' and
+            if (isinstance(value, str) and len(value) > 1 and value[0] == '/' and value[1] != '/' and
                     self._bag is not None):
                 (_, result, _) = list(self._bag.read_messages(topics=[value]))[0]
             # anonymous function
-            elif isinstance(value, basestring) and value.startswith('lambda '):
+            elif isinstance(value, str) and value.startswith('lambda '):
                 result = eval(value)
             # None
             elif value == 'None':
                 result = None
             # escaped backslash at the beginning
-            elif isinstance(value, basestring) and len(value) > 1 and value[0] == '/' and value[1] == '/':
+            elif isinstance(value, str) and len(value) > 1 and value[0] == '/' and value[1] == '/':
                 result = value[1:]
         except Exception as e:
             Logger.print_error('unable to parse value "%s" (will be considered as string):\n\t%s' % (

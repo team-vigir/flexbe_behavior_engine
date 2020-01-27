@@ -111,7 +111,7 @@ class JumpableStateMachine(SilentStateMachine):
                 
                 # determine the next state
                 # (consider that it might be necessary to go to the next higher hierarchy level)
-                while not next_container._states.has_key(next_state_label): 
+                while next_state_label not in next_container._states: 
                     if next_container._parent is None:
                         reached_exit = True
                         break

@@ -23,7 +23,7 @@ class ProxySubscriberCached(object):
         @type topics: dictionary string - message_class
         @param topics: A dictionary containing a collection of topic - message type pairs.
         """
-        for topic, msg_type in topics.iteritems():
+        for topic, msg_type in topics.items():
             self.subscribe(topic, msg_type)
     
     
@@ -67,7 +67,7 @@ class ProxySubscriberCached(object):
         if ProxySubscriberCached._simulate_delay:
             time.sleep(max(0, random.gauss(2, 0.6))) # for simulating comms_bridge delay
 
-        if not ProxySubscriberCached._topics.has_key(topic):
+        if topic not in ProxySubscriberCached._topics:
             return
         ProxySubscriberCached._topics[topic]['last_msg'] = msg
         if ProxySubscriberCached._topics[topic]['buffered']:

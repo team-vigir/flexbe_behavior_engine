@@ -54,7 +54,7 @@ class MirrorState(EventState):
         try:
             self._rate.sleep()
         except ROSInterruptException:
-            print 'Interrupted mirror sleep.'
+            print('Interrupted mirror sleep.')
     
     
     def on_enter(self, userdata):

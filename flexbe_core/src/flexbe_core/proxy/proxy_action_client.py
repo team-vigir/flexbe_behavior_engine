@@ -30,7 +30,7 @@ class ProxyActionClient(object):
             given set to become available (if it is not already available).
         """
 
-        for topic, msg_type in topics.iteritems():
+        for topic, msg_type in topics.items():
             self.setupClient(topic, msg_type, wait_duration)
 
 

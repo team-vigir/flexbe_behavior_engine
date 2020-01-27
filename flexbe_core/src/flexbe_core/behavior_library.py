@@ -95,7 +95,7 @@ class BehaviorLibrary(object):
 
 		@return Tuple (be_id, be_entry) corresponding to the name or (None, None) if not found.
 		"""
-		find = lambda: next((id, be) for (id, be) in self._behavior_lib.items() if be["name"] == be_name)
+		find = lambda: next((id, be) for (id, be) in list(self._behavior_lib.items()) if be["name"] == be_name)
 		try:
 			return find() 
 		except StopIteration:
