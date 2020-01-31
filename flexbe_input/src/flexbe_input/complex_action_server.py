@@ -34,10 +34,9 @@ import rospy
 import threading
 import traceback
 
-import queue
+import six
 
-from actionlib_msgs.msg import *
-
+import actionlib_msgs
 from actionlib import ActionServer
 from actionlib.server_goal_handle import ServerGoalHandle;
 
@@ -58,7 +57,7 @@ class ComplexActionServer:
     def __init__(self, name, ActionSpec, execute_cb = None, auto_start = True):
 
         self.goals_received_ = 0;
-        self.goal_queue_ = queue.Queue()
+        self.goal_queue_ = six.moves.queue.Queue()
 
         self.new_goal = False
 
