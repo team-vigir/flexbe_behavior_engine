@@ -119,7 +119,7 @@ class Behavior(object):
     def prepare_for_execution(self, input_data=None):
         """
         Prepares this behavior for execution by building its state machine.
-        """flexbe_core/src/flexbe_core/behavior.py
+        """
         OperatableStateMachine.autonomy_level = self._autonomy_level
 
         self._state_machine = self.create()
