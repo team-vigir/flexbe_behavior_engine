@@ -34,10 +34,9 @@ import rospy
 import threading
 import traceback
 
-import Queue
+import six
 
-from actionlib_msgs.msg import *
-
+import actionlib_msgs
 from actionlib import ActionServer
 from actionlib.server_goal_handle import ServerGoalHandle;
 
@@ -58,7 +57,7 @@ class ComplexActionServer:
     def __init__(self, name, ActionSpec, execute_cb = None, auto_start = True):
 
         self.goals_received_ = 0;
-        self.goal_queue_ = Queue.Queue()
+        self.goal_queue_ = six.moves.queue.Queue()
 
         self.new_goal = False
 
@@ -181,7 +180,7 @@ class ComplexActionServer:
               rospy.logdebug("A new goal %shas been recieved by the single goal action server",goal.get_goal_id().id);
 
 
-              print "got a goal"
+              print("got a goal")
               self.next_goal = goal;
               self.new_goal = True;
               self.goals_received_ += 1
@@ -193,7 +192,7 @@ class ComplexActionServer:
               self.execute_condition.notify();
               self.execute_condition.release();
 
-          except Exception, e:
+          except Exception as e:
               rospy.logerr("ComplexActionServer.internal_goal_callback - exception %s",str(e))
               self.execute_condition.release();
 
@@ -222,11 +221,11 @@ class ComplexActionServer:
 
                   try:
                   	
-                      print "run new executecb"
+                      print("run new executecb")
                       thread = threading.Thread(target=self.run_goal,args=(goal_handle.get_goal(),goal_handle));
                       thread.start()
 
-                  except Exception, ex:
+                  except Exception as ex:
                       rospy.logerr("Exception in your execute callback: %s\n%s", str(ex),
                                    traceback.format_exc())
                       self.set_aborted(None, "Exception in execute callback: %s" % str(ex))
@@ -238,7 +237,7 @@ class ComplexActionServer:
                   
                   
     def run_goal(self,goal, goal_handle):
-       print 'new thread'
+       print('new thread')
        self.execute_callback(goal,goal_handle);      
 
 

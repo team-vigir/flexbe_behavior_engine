@@ -27,7 +27,7 @@ class ProxyPublisher(object):
         @type _latch: bool
         @param: _latch: Defines if messages on the given topics should be latched.
         """
-        for topic, msg_type in topics.iteritems():
+        for topic, msg_type in topics.items():
             self.createPublisher(topic, msg_type, _latch)
             
     

@@ -98,7 +98,7 @@ class Behavior(object):
         @type parameters: dict
         @param parameters: Optional assignment of values to behavior parameters. Any assigned parameter will be ignored for runtime customization, i.e., cannot be overwritten by a user who runs the behavior.
         """
-        if not self.contains.has_key(behavior_id):
+        if behavior_id not in self.contains:
             rospy.logerr('Tried to use not added behavior!')
             return None
 
@@ -119,7 +119,7 @@ class Behavior(object):
     def prepare_for_execution(self, input_data=None):
         """
         Prepares this behavior for execution by building its state machine.
-        """
+        """flexbe_core/src/flexbe_core/behavior.py
         OperatableStateMachine.autonomy_level = self._autonomy_level
 
         self._state_machine = self.create()
@@ -262,8 +262,6 @@ class Behavior(object):
         if not isinstance(value, type(attr)):
             if type(attr) is int:
                 value = int(value)
-            elif type(attr) is long:
-                value = long(value)
             elif type(attr) is float:
                 value = float(value)
             elif type(attr) is bool:
@@ -285,7 +283,7 @@ class Behavior(object):
         state_label = path_elements[1]
         new_path = "/".join(path_elements[1:])
 
-        if container.get_children().has_key(state_label):
+        if state_label in container.get_children():
             childlist = self._get_states_of_path(new_path, container.get_children()[state_label])
             if childlist is None:
                 return None

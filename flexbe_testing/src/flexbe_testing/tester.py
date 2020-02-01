@@ -71,7 +71,7 @@ class Tester(object):
                     return 0
 
                 # instantiate test subject
-                params = {key: data.parse(value) for key, value in config.get('params', dict()).items()}
+                params = {key: data.parse(value) for key, value in list(config.get('params', dict()).items())}
                 try:
                     test_interface.instantiate(params)
                 except Exception as e:
@@ -82,7 +82,7 @@ class Tester(object):
 
                 # prepare user data
                 userdata = smach.UserData()
-                for input_key, input_value in config.get('input', dict()).items():
+                for input_key, input_value in list(config.get('input', dict()).items()):
                     userdata[input_key] = data.parse(input_value)
                 expected = {key: data.parse(value) for key, value in config.get('output', dict()).items()}
 
@@ -105,8 +105,8 @@ class Tester(object):
 
             # evaluate output
             output_ok = True
-            for expected_key, expected_value in expected.items():
-                if expected_key in userdata.keys():
+            for expected_key, expected_value in list(expected.items()):
+                if expected_key in list(userdata.keys()):
                     equals = userdata[expected_key] == expected_value
                     self._tests['test_%s_output_%s' % (name, expected_key)] = \
                         self._test_output(userdata[expected_key], expected_value)
@@ -141,12 +141,12 @@ class Tester(object):
 
     def _test_output(self, value, expected):
         def _test_call(test_self):
-            test_self.assertEquals(value, expected, "Output value %s does not match expected %s" % (value, expected))
+            test_self.assertEqual(value, expected, "Output value %s does not match expected %s" % (value, expected))
         return _test_call
 
     def _test_outcome(self, outcome, expected):
         def _test_call(test_self):
-            test_self.assertEquals(outcome, expected, "Outcome %s does not match expected %s" % (outcome, expected))
+            test_self.assertEqual(outcome, expected, "Outcome %s does not match expected %s" % (outcome, expected))
         return _test_call
 
     def _test_pass(self, passed):

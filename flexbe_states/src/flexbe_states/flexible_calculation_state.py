@@ -52,7 +52,7 @@ class FlexibleCalculationState(EventState):
 		
 		if self._calculation is not None:
 			try:
-				self._calculation_result = self._calculation(map(lambda key: userdata[key], self._input_keys))
+				self._calculation_result = self._calculation([userdata[key] for key in self._input_keys])
 			except Exception as e:
 				Logger.logwarn('Failed to execute calculation function!\n%s' % str(e))
 		else:

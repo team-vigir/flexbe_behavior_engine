@@ -49,7 +49,7 @@ class FlexibleCheckConditionState(EventState):
 
                 if self._predicate is not None:
                         try:
-                                self._outcome = "true" if self._predicate(map(lambda key: userdata[key], self._input_keys)) else 'false'
+                                self._outcome = "true" if self._predicate([userdata[key] for key in self._input_keys]) else 'false'
                         except Exception as e:
                                 Logger.logwarn('Failed to execute condition function!\n%s' % str(e))
                 else:

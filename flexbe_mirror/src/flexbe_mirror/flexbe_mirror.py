@@ -8,7 +8,7 @@ import zlib
 
 from flexbe_core import JumpableStateMachine, LockableStateMachine
 from flexbe_core.core import PreemptableState
-from mirror_state import MirrorState
+from .mirror_state import MirrorState
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import ContainerStructure, BehaviorSync, BEStatus

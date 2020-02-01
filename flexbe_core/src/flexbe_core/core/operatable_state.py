@@ -83,7 +83,7 @@ class OperatableState(PreemptableState):
                 self._last_requested_outcome = None
 
             # request outcome because autonomy level is too low
-            if not self._force_transition and (self.autonomy.has_key(outcome) and self.autonomy[outcome] >= OperatableStateMachine.autonomy_level or
+            if not self._force_transition and (outcome in self.autonomy and self.autonomy[outcome] >= OperatableStateMachine.autonomy_level or
                                                outcome != OperatableState._loopback_name and
                                                self._get_path() in rospy.get_param('/flexbe/breakpoints', [])):
                 if outcome != self._last_requested_outcome:

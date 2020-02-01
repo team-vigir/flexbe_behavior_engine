@@ -45,7 +45,7 @@ class MonitoringState(smach.State):
             new_status = ""
             diag_msg = self._sub.get_from_buffer(self._diagnostics_topic)
             for status in diag_msg.status:
-                if not status.name in self._monitored_keys.keys(): continue
+                if not status.name in list(self._monitored_keys.keys()): continue
                 if status.level == DiagnosticStatus.WARN:
                     had_warning = True
                     if not status.name + "_warn" in self._sent_keys:
