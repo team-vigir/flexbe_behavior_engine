@@ -103,7 +103,7 @@ class Behavior(object):
             return None
 
         if parameters is not None:
-            for parameter, value in list(parameters.items()):
+            for parameter, value in parameters.items():
                 setattr(self.contains[behavior_id], parameter, value)
         
         state_machine = self.contains[behavior_id]._get_state_machine()
@@ -119,7 +119,7 @@ class Behavior(object):
     def prepare_for_execution(self, input_data=None):
         """
         Prepares this behavior for execution by building its state machine.
-        """
+        """flexbe_core/src/flexbe_core/behavior.py
         OperatableStateMachine.autonomy_level = self._autonomy_level
 
         self._state_machine = self.create()
@@ -128,7 +128,7 @@ class Behavior(object):
 
         if input_data is None:
             input_data = dict()
-        for k, v in list(input_data.items()):
+        for k, v in input_data.items():
            if k in self._state_machine.userdata:
                 self._state_machine.userdata[k] = v
 
@@ -246,9 +246,9 @@ class Behavior(object):
                 state._is_controlled = False
 
     def _collect_contained(self, obj, path):
-        contain_list = {path+"/"+key: value for (key, value) in list(getattr(obj, 'contains', {}).items())}
+        contain_list = {path+"/"+key: value for (key, value) in getattr(obj, 'contains', {}).items()}
         add_to_list = {}
-        for b_id, b_inst in list(contain_list.items()):
+        for b_id, b_inst in contain_list.items():
             add_to_list.update(self._collect_contained(b_inst, b_id))
         contain_list.update(add_to_list)
         return contain_list

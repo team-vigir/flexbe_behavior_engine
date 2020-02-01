@@ -84,7 +84,7 @@ class Tester(object):
                 userdata = smach.UserData()
                 for input_key, input_value in list(config.get('input', dict()).items()):
                     userdata[input_key] = data.parse(input_value)
-                expected = {key: data.parse(value) for key, value in list(config.get('output', dict()).items())}
+                expected = {key: data.parse(value) for key, value in config.get('output', dict()).items()}
 
                 # run test subject
                 try:

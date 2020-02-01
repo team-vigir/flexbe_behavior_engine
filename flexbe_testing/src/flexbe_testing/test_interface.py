@@ -42,7 +42,7 @@ class TestInterface(object):
     def _instantiate_behavior(self, params=None):
         be = self._class()
         if params is not None:
-            for name, value in list(params.items()):
+            for name, value in params.items():
                 be.set_parameter(name, value)
         be.set_up(id=0, autonomy_level=255, debug=False)
         return be
