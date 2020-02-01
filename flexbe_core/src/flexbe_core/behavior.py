@@ -262,8 +262,6 @@ class Behavior(object):
         if not isinstance(value, type(attr)):
             if type(attr) is int:
                 value = int(value)
-            elif type(attr) is int:
-                value = int(value)
             elif type(attr) is float:
                 value = float(value)
             elif type(attr) is bool:
