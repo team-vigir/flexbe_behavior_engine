@@ -59,9 +59,11 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
             if state_sleep_dur <= 0:
                 sleep_dur = 0
                 self._returned_outcomes[state.name] = self._execute_state(state)
-                # this sleep returns immediately since sleep duration is negative,
-                # but is required here to reset the sleep time after executing
-                state._rate.sleep()
+                # check again in case the sleep has already been handled by the child
+                if state._rate.remaining().to_sec() < 0:
+                    # this sleep returns immediately since sleep duration is negative,
+                    # but is required here to reset the sleep time after executing
+                    state._rate.sleep()
             else:
                 if sleep_dur is None:
                     sleep_dur = state_sleep_dur
