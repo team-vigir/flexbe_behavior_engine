@@ -73,17 +73,17 @@ class BehaviorLauncher(object):
 		be_structure = ContainerStructure()
 		be_structure.containers = msg.structure
 
-		try:
+		if ("/install/" in self._rp.get_path(behavior["package"])):
+			# cmake install build
+			be_filepath_new = os.path.join(os.getenv('PYTHONPATH').split(":")[0], behavior["package"] + '/' + behavior["file"] + '.py')
+			be_filepath_old = os.path.join(os.getenv('PYTHONPATH').split(":")[0], behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+		else:
 			be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
-		except ResourceNotFound:
-			rospy.logerr("Could not find behavior package '%s'" % (behavior["package"]))
-			rospy.loginfo("Have you updated your ROS_PACKAGE_PATH after creating the behavior?")
-			return
+			be_filepath_old = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
 
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 			if msg.autonomy_level != 255:
