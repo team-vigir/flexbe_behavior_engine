@@ -172,12 +172,20 @@ class VigirBeOnboard(object):
             behavior = self._behavior_lib.get_behavior(msg.behavior_id)
             if behavior is None:
                 raise ValueError(msg.behavior_id)
-            be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+            if ("/install/" in rp.get_path(behavior["package"])):
+			    # cmake install build
+                be_filepath = os.path.join(os.getenv('PYTHONPATH').split(":")[0], behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+            else:
+                be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
                 rospy.logwarn("Found a tmp version of the referred behavior! Assuming local test run.")
             else:
-                be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+                if ("/install/" in rp.get_path(behavior["package"])):
+                    # cmake install build
+                    be_filepath = os.path.join(os.getenv('PYTHONPATH').split(":")[0], behavior["package"] + '/' + behavior["file"] + '.py')
+                else:
+                    be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
                 be_file = open(be_filepath, "r")
             be_content = be_file.read()
             be_file.close()
