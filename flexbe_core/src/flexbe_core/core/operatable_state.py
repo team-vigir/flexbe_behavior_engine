@@ -95,7 +95,7 @@ class OperatableState(PreemptableState):
             
             # autonomy level is high enough, report the executed transition
             elif outcome != OperatableState._loopback_name:
-                self._sent_outcome_requests = []
+                self._last_requested_outcome = None
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
                 self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
                 self._pub.publish(self._debug_topic, String("%s > %s" % (self._get_path(), outcome)))
