@@ -82,11 +82,11 @@ class BehaviorActionServer(object):
 		be_selection.input_values = goal.input_values
 
 		# check for local modifications of the behavior to send them to the onboard behavior
-		be_filepath_new = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+		be_filepath_new = self._behavior_lib.get_sourcecode_filepath(be_id)
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(self._rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+		be_filepath_old = self._behavior_lib.get_sourcecode_filepath(be_id, add_tmp=True)
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 		else:
