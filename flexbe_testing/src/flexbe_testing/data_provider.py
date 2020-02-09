@@ -32,7 +32,10 @@ class DataProvider(object):
             # message data
             if (isinstance(value, str) and len(value) > 1 and value[0] == '/' and value[1] != '/' and
                     self._bag is not None):
-                (_, result, _) = list(self._bag.read_messages(topics=[value]))[0]
+                try:
+                    (_, result, _) = list(self._bag.read_messages(topics=[value]))[0]
+                except IndexError:
+                    (_, result, _) = list(self._bag.read_messages(topics=[value[1:]]))[0]
             # anonymous function
             elif isinstance(value, str) and value.startswith('lambda '):
                 result = eval(value)
