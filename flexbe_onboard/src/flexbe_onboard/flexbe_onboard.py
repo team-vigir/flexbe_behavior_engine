@@ -172,12 +172,12 @@ class VigirBeOnboard(object):
             behavior = self._behavior_lib.get_behavior(msg.behavior_id)
             if behavior is None:
                 raise ValueError(msg.behavior_id)
-            be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+            be_filepath = self._behavior_lib.get_sourcecode_filepath(msg.behavior_id, add_tmp=True)
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
                 rospy.logwarn("Found a tmp version of the referred behavior! Assuming local test run.")
             else:
-                be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+                be_filepath = self._behavior_lib.get_sourcecode_filepath(msg.behavior_id)
                 be_file = open(be_filepath, "r")
             be_content = be_file.read()
             be_file.close()
