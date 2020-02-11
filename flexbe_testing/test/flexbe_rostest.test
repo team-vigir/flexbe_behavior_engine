@@ -3,10 +3,15 @@
 <launch>
 
 <arg name="testcases" default="" />
-
+<arg name="time-limit" default="60" doc="Maximum allotted time before test is torn down"/>
 <arg name="package" default="" />
 
-<test name="flexbe_testing" pkg="flexbe_testing" type="testing_node" test-name="$(arg package)" args="$(arg testcases)">
+<test name="flexbe_testing"
+      pkg="flexbe_testing"
+      type="testing_node"
+      test-name="$(arg package)"
+      time-limit="$(arg time-limit)"
+      args="$(arg testcases)">
 	<param name="~package" value="$(arg package)" />
 	<param name="~perform_rostest" value="true" />
 	<param name="~compact_format" value="true" />
