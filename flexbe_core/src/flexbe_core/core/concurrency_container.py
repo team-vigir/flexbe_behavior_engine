@@ -11,7 +11,7 @@ from flexbe_core.core.preemptable_state import PreemptableState
 from flexbe_core.core.priority_container import PriorityContainer
 
 
-class ConcurrencyContainer(EventState, OperatableStateMachine):
+class ConcurrencyContainer(OperatableStateMachine):
     """
     A state machine that can be operated.
     It synchronizes its current state with the mirror and supports some control mechanisms.
@@ -88,7 +88,7 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         if outcome in self.get_registered_outcomes():
             # Call termination callbacks
             self.call_termination_cbs([s.name for s in self._ordered_states],outcome)
-            self.on_exit(self.userdata, states = [s for s in self._ordered_states if s.name not in list(self._returned_outcomes.keys()) or self._returned_outcomes[s.name] == self._loopback_name])
+            self.exit(self.userdata, states = [s for s in self._ordered_states if s.name not in list(self._returned_outcomes.keys()) or self._returned_outcomes[s.name] == self._loopback_name])
             self._returned_outcomes = dict()
             # right now, going out of a cc may break sync
             # thus, as a quick fix, explicitly sync again
@@ -154,6 +154,6 @@ class ConcurrencyContainer(EventState, OperatableStateMachine):
         if isinstance(state, OperatableStateMachine):
             state._disable_ros_control()
 
-    def on_exit(self, userdata, states = None):
+    def exit(self, userdata, states = None):
         for state in self._ordered_states if states is None else states:
             self._execute_state(state, force_exit=True)

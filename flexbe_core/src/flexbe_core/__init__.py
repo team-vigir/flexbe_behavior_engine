@@ -15,6 +15,7 @@ from .behavior import Behavior
 from .behavior_library import BehaviorLibrary
 
 from .logger import Logger
+from .state_logger import StateLogger
 
 
 class Autonomy:
