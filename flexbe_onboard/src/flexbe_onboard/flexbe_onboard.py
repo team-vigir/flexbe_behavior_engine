@@ -252,7 +252,6 @@ class VigirBeOnboard(object):
         contain_list = {}
         try:
             contain_list = self._build_contains(be, "")
-            rospy.loginfo('Contained behaviors imported.')
         except Exception as e:
             Logger.logerr('Failed to load contained behaviors:\n%s' % str(e))
             return
@@ -262,7 +261,6 @@ class VigirBeOnboard(object):
             rospy.loginfo('The following parameters will be used:')
         try:
             for i in range(len(msg.arg_keys)):
-                rospy.loginfo('Parameter %s: %s.' % (str(i), str(msg.arg_keys[i])))
                 if msg.arg_keys[i] == '':
                     # action call has empty string as default, not a valid param key
                     continue
@@ -299,9 +297,7 @@ class VigirBeOnboard(object):
 
         # build state machine
         try:
-            rospy.loginfo('Trying to set up state machine...')
             be.set_up(id=msg.behavior_checksum, autonomy_level=msg.autonomy_level, debug=False)
-            rospy.loginfo('State machine set up, building it...')
             be.prepare_for_execution(self._convert_input_data(msg.input_keys, msg.input_values))
             rospy.loginfo('State machine built.')
         except Exception as e:

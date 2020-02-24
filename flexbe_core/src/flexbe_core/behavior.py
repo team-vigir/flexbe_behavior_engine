@@ -119,8 +119,6 @@ class Behavior(object):
         self._state_machine._input_keys = {}
         self._state_machine._output_keys = {}
 
-        rospy.loginfo('[behavior] prepare for execution with input data size: %s.' % str(len(input_data)))
-
         for k, v in input_data.items():
            if k in self._state_machine.userdata:
                 self._state_machine.userdata[k] = v
