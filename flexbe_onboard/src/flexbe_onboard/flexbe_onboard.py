@@ -67,7 +67,7 @@ class VigirBeOnboard(object):
         # enable automatic reloading of all subsequent modules on reload
         reload_importer = ReloadImporter()
         reload_importer.add_reload_path(self._tmp_folder)
-        for be_id in self._behavior_lib:
+        for be_id in self._behavior_lib._behavior_lib:
             reload_importer.add_reload_path(self._behavior_lib.get_sourcecode_filepath(be_id))
         reload_importer.enable()
 
