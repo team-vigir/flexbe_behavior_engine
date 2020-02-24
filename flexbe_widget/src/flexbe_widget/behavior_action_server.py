@@ -47,7 +47,7 @@ class BehaviorActionServer(object):
 
 		be_selection = BehaviorSelection()
 		be_selection.behavior_id = be_id
-		be_selection.autonomy_level = 3
+		be_selection.autonomy_level = 255
 		be_selection.arg_keys = goal.arg_keys
 		be_selection.arg_values = goal.arg_values
 		be_selection.input_keys = goal.input_keys
