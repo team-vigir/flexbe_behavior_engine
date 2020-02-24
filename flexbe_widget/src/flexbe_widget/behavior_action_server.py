@@ -48,7 +48,7 @@ class BehaviorActionServer(object):
 
 		be_selection = BehaviorSelection()
 		be_selection.behavior_id = be_id
-		be_selection.autonomy_level = 255
+		be_selection.autonomy_level = 3
 		try:
 			for k, v in zip(goal.arg_keys, goal.arg_values):
 				if v.startswith('file://'):
