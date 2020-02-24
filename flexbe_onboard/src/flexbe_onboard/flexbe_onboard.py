@@ -2,15 +2,17 @@
 
 import roslib; roslib.load_manifest('flexbe_onboard')
 import rospy
+import rospkg
 import os
 import sys
-import imp
 import inspect
 import threading
 import time
 import smach
+import random
 import yaml
 import zlib
+import xml.etree.ElementTree as ET
 from ast import literal_eval as cast
 
 from flexbe_core import Logger, BehaviorLibrary
@@ -53,7 +55,8 @@ class VigirBeOnboard(object):
         #ProxySubscriberCached._simulate_delay = True
 
         # prepare temp folder
-        self._tmp_folder = os.path.expanduser('~/.ros/flexbe_onboard/tmp/')
+        rp = rospkg.RosPack()
+        self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
         if not os.path.exists(self._tmp_folder):
             os.makedirs(self._tmp_folder)
         sys.path.append(self._tmp_folder)
@@ -65,7 +68,7 @@ class VigirBeOnboard(object):
         reload_importer = ReloadImporter()
         reload_importer.add_reload_path(self._tmp_folder)
         for pkg in self._behavior_lib.behavior_packages:
-            reload_importer.add_reload_path(imp.find_module(pkg)[1])
+            reload_importer.add_reload_path(rp.get_path(pkg))
         reload_importer.enable()
 
         self._pub = ProxyPublisher()
@@ -176,6 +179,7 @@ class VigirBeOnboard(object):
     def _prepare_behavior(self, msg):
         # get sourcecode from ros package
         try:
+            rp = rospkg.RosPack()
             # use BehaviorSelection.BEHAVIOR_ID_CURRENT as id to update current behavior
             if self._current_behavior is not None and msg.behavior_id == BehaviorSelection.BEHAVIOR_ID_CURRENT:
                 behavior = self._current_behavior
@@ -183,12 +187,12 @@ class VigirBeOnboard(object):
                 behavior = self._behavior_lib.get_behavior(msg.behavior_id)
                 if behavior is None:
                     raise ValueError(msg.behavior_id)
-            be_filepath = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
+            be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
                 rospy.logwarn("Found a tmp version of the referred behavior! Assuming local test run.")
             else:
-                be_filepath = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
+                be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
                 be_file = open(be_filepath, "r")
             be_content = be_file.read()
             be_file.close()
