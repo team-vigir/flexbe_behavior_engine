@@ -19,19 +19,21 @@ Furthermore, create your own repository for behavior development (contains examp
     
     rosrun flexbe_widget create_repo [your_project_name]
     
-Finally, install the user interface (Google Chrome App) by following [these steps](http://philserver.bplaced.net/fbe/download.php).
+Finally, it is recommended to install the FlexBE App user interface by following [these steps](http://philserver.bplaced.net/fbe/download.php).
 
 ## Usage
 
-Default launch file for running the onboard engine:
+Use the following launch file for running the onboard engine:
 
     roslaunch flexbe_onboard behavior_onboard.launch
     
-Default launch file for running the operator control station (OCS):
+Use the following launch file for running the operator control station (requires the FlexBE App):
 
-    roslaunch flexbe_widget behavior_ocs.launch
-    
-You can also create a program shortcut for the FlexBE Chrome App. When just developing behaviors and not executing them, it is not necessary to have ROS running.
+    roslaunch flexbe_app flexbe_ocs.launch
+
+Use the following lunach file to run both of the above, e.g., for testing on a single computer:
+
+    roslaunch flexbe_app flexbe_full.launch
 
 ## Next Steps
 
@@ -54,10 +56,13 @@ Philipp Schillinger, Stefan Kohlbrecher, and Oskar von Stryk, ["Human-Robot Coll
 
 ### Further Publications
 
-Stefan Kohlbrecher et al. ["A Comprehensive Software Framework for Complex Locomotion and Manipulation Tasks Applicable to Different Types of Humanoid Robots."](http://dx.doi.org/10.3389/frobt.2016.00031) Frontiers in Robotics and AI 3 (2016): 31.
+Refer for example to the following publications to get an impression about ways to use FlexBE.
+Let us know if you know a paper which should be added to the list.
 
-Spyros Maniatopoulos, Philipp Schillinger, Vitchyr Pong, David C. Conner, and Hadas Kress-Gazit, ["Reactive High-level Behavior Synthesis for an Atlas Humanoid Robot"](http://dx.doi.org/10.1109/ICRA.2016.7487613), IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016.
+- Stefan Kohlbrecher et al. ["A Comprehensive Software Framework for Complex Locomotion and Manipulation Tasks Applicable to Different Types of Humanoid Robots."](http://dx.doi.org/10.3389/frobt.2016.00031) Frontiers in Robotics and AI 3 (2016): 31.
+
+- Spyros Maniatopoulos, Philipp Schillinger, Vitchyr Pong, David C. Conner, and Hadas Kress-Gazit, ["Reactive High-level Behavior Synthesis for an Atlas Humanoid Robot"](http://dx.doi.org/10.1109/ICRA.2016.7487613), IEEE International Conference on Robotics and Automation (ICRA), Stockholm, Sweden, May 2016.
 
 ## Maintainer
 
-- Philipp Schillinger ([@pschillinger](https://github.com/pschillinger), schillinger@sim.tu-darmstadt.de, [Contact](http://philserver.bplaced.net/fbe/contact.php))
+- Philipp Schillinger ([@pschillinger](https://github.com/pschillinger), [Contact](http://philserver.bplaced.net/fbe/contact.php))

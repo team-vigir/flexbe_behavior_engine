@@ -42,7 +42,8 @@ class EventState(OperatableState):
                 rospy.loginfo("--> Pausing in state %s", self.name)
                 self._pub.publish(self._feedback_topic, CommandFeedback(command="pause"))
                 self._last_active_container = PriorityContainer.active_container
-                PriorityContainer.active_container = ''
+                # claim priority to propagate pause event
+                PriorityContainer.active_container = self._get_path()
                 self._paused = True
 
         if self._paused and not PreemptableState.preempt:
@@ -52,7 +53,7 @@ class EventState(OperatableState):
         if self._entering:
             self._entering = False
             self.on_enter(*args, **kwargs)
-        if self._skipped:
+        if self._skipped and not PreemptableState.preempt:
             self._skipped = False
             self.on_resume(*args, **kwargs)
         
@@ -65,7 +66,7 @@ class EventState(OperatableState):
             self._pub.publish(self._feedback_topic, CommandFeedback(command="repeat"))
             repeat = True
         
-        if execute_outcome != self._loopback_name and not PreemptableState.switching \
+        if execute_outcome != self._loopback_name and not PreemptableState.switching and not PreemptableState.preempt \
         or repeat:
             self._entering = True
             self.on_exit(*args, **kwargs)

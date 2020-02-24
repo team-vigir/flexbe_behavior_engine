@@ -21,7 +21,6 @@ class Logger(object):
 
     LOGGING_TOPIC = 'flexbe/log'
 
-    _last_status_update = None
     _pub = None
 
     @staticmethod
@@ -30,12 +29,6 @@ class Logger(object):
 
     @staticmethod
     def log(text, severity):
-        if Logger._last_status_update is not None:
-            elapsed = rospy.get_rostime() - Logger._last_status_update;
-            if (elapsed.to_sec() < 0.1):
-                rospy.sleep(0.05)
-        Logger._last_status_update = rospy.get_rostime()
-
         msg = BehaviorLog()
         msg.text = str(text)
         msg.status_code = severity

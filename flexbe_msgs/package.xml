@@ -1,10 +1,10 @@
 <package>
   <name>flexbe_msgs</name>
-  <version>1.0.0</version>
+  <version>1.2.3</version>
   <description>
      flexbe_msgs provides the messages used by FlexBE.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_msgs</url>

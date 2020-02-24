@@ -1,10 +1,10 @@
 <package>
   <name>flexbe_widget</name>
-  <version>1.0.0</version>
+  <version>1.2.3</version>
   <description>
      flexbe_widget implements some smaller scripts for the behavior engine.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_widget</url>
@@ -16,5 +16,7 @@
   <run_depend>rospy</run_depend>
   <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
+  <run_depend>flexbe_mirror</run_depend>
+  <run_depend>flexbe_onboard</run_depend>
 
 </package>

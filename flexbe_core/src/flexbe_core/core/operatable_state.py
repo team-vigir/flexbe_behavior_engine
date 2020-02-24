@@ -25,7 +25,7 @@ class OperatableState(PreemptableState):
         self.autonomy = None
         
         self._mute = False  # is set to true when used in silent state machine (don't report transitions)
-        self._sent_outcome_requests = []  # contains those outcomes that already requested a transition
+        self._last_requested_outcome = None
         
         self._outcome_topic = 'flexbe/mirror/outcome'
         self._request_topic = 'flexbe/outcome_request'
@@ -76,20 +76,26 @@ class OperatableState(PreemptableState):
         outcome = self.__execute(*args, **kwargs)
         
         if self._is_controlled:
-            log_requested_outcome = outcome
+
+            # reset previously requested outcome if applicable
+            if self._last_requested_outcome is not None and outcome == OperatableState._loopback_name:
+                self._pub.publish(self._request_topic, OutcomeRequest(outcome=255, target=self._parent._get_path() + "/" + self.name))
+                self._last_requested_outcome = None
 
             # request outcome because autonomy level is too low
-            if not self._force_transition and (self.autonomy.has_key(outcome) and self.autonomy[outcome] >= OperatableStateMachine.autonomy_level):
-                if self._sent_outcome_requests.count(outcome) == 0:
+            if not self._force_transition and (outcome in self.autonomy and self.autonomy[outcome] >= OperatableStateMachine.autonomy_level or
+                                               outcome != OperatableState._loopback_name and
+                                               self._get_path() in rospy.get_param('/flexbe/breakpoints', [])):
+                if outcome != self._last_requested_outcome:
                     self._pub.publish(self._request_topic, OutcomeRequest(outcome=self._outcome_list.index(outcome), target=self._parent._get_path() + "/" + self.name))
                     rospy.loginfo("<-- Want result: %s > %s", self.name, outcome)
                     StateLogger.log_state_execution(self._get_path(), self.__class__.__name__, outcome, not self._force_transition, False)
-                    self._sent_outcome_requests.append(outcome)
+                    self._last_requested_outcome = outcome
                 outcome = OperatableState._loopback_name
             
             # autonomy level is high enough, report the executed transition
             elif outcome != OperatableState._loopback_name:
-                self._sent_outcome_requests = []
+                self._last_requested_outcome = None
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
                 self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
                 self._pub.publish(self._debug_topic, String("%s > %s" % (self._get_path(), outcome)))

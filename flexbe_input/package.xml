@@ -1,10 +1,10 @@
 <package>
   <name>flexbe_input</name>
-  <version>1.0.0</version>
+  <version>1.2.3</version>
   <description>
      flexbe_input enables to send data to onboard behavior when required.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_input</url>
@@ -15,9 +15,9 @@
   <build_depend>actionlib</build_depend>
 
   <run_depend>actionlib</run_depend>
-
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>flexbe_msgs</run_depend>
+  <run_depend>python-six</run_depend>
 
 </package>

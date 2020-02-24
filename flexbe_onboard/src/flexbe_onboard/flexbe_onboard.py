@@ -6,6 +6,7 @@ import rospkg
 import os
 import sys
 import inspect
+import tempfile
 import threading
 import time
 import smach
@@ -56,10 +57,9 @@ class VigirBeOnboard(object):
 
         # prepare temp folder
         rp = rospkg.RosPack()
-        self._tmp_folder = os.path.join(rp.get_path('flexbe_onboard'), 'tmp/')
-        if not os.path.exists(self._tmp_folder):
-            os.makedirs(self._tmp_folder)
+        self._tmp_folder = tempfile.mkdtemp()
         sys.path.append(self._tmp_folder)
+        rospy.on_shutdown(self._cleanup_tempdir)
         
         # prepare manifest folder access
         self._behavior_lib = BehaviorLibrary()
@@ -68,7 +68,7 @@ class VigirBeOnboard(object):
         reload_importer = ReloadImporter()
         reload_importer.add_reload_path(self._tmp_folder)
         for pkg in self._behavior_lib.behavior_packages:
-            reload_importer.add_reload_path(rp.get_path(pkg))
+            reload_importer.add_reload_path(self._behavior_lib.get_sourcecode_filepath(pkg))
         reload_importer.enable()
 
         self._pub = ProxyPublisher()
@@ -187,12 +187,12 @@ class VigirBeOnboard(object):
                 behavior = self._behavior_lib.get_behavior(msg.behavior_id)
                 if behavior is None:
                     raise ValueError(msg.behavior_id)
-            be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '_tmp.py')
+            be_filepath = self._behavior_lib.get_sourcecode_filepath(msg.behavior_id, add_tmp=True)
             if os.path.isfile(be_filepath):
                 be_file = open(be_filepath, "r")
                 rospy.logwarn("Found a tmp version of the referred behavior! Assuming local test run.")
             else:
-                be_filepath = os.path.join(rp.get_path(behavior["package"]), 'src/' + behavior["package"] + '/' + behavior["file"] + '.py')
+                be_filepath = self._behavior_lib.get_sourcecode_filepath(msg.behavior_id)
                 be_file = open(be_filepath, "r")
             be_content = be_file.read()
             be_file.close()
@@ -252,47 +252,23 @@ class VigirBeOnboard(object):
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
             return
 
-        # import contained behaviors
-        contain_list = {}
-        try:
-            contain_list = self._build_contains(be, "")
-        except Exception as e:
-            Logger.logerr('Failed to load contained behaviors:\n%s' % str(e))
-            return
-
         # initialize behavior parameters
         if len(msg.arg_keys) > 0:
             rospy.loginfo('The following parameters will be used:')
         try:
             for i in range(len(msg.arg_keys)):
+                # action call has empty string as default, not a valid param key
                 if msg.arg_keys[i] == '':
-                    # action call has empty string as default, not a valid param key
                     continue
-                key_splitted = msg.arg_keys[i].rsplit('/', 1)
-                if len(key_splitted) == 1:
-                    behavior = ''
-                    key = key_splitted[0]
-                    rospy.logwarn('Parameter key %s has no path specification, assuming: /%s' % (key, key))
+                found = be.set_parameter(msg.arg_keys[i], msg.arg_values[i])
+                if found:
+                    name_split = msg.arg_keys[i].rsplit('/', 1)
+                    behavior = name_split[0] if len(name_split) == 2 else ''
+                    key = name_split[-1]
+                    suffix = ' (' + behavior + ')' if behavior != '' else ''
+                    rospy.loginfo(key + ' = ' + msg.arg_values[i] + suffix)
                 else:
-                    behavior = key_splitted[0]
-                    key = key_splitted[1]
-                found = False
-
-                if behavior == '' and hasattr(be, key):
-                    self._set_typed_attribute(be, key, msg.arg_values[i])
-                    # propagate to contained behaviors
-                    for b in contain_list:
-                        if hasattr(contain_list[b], key):
-                            self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
-                    found = True
-
-                for b in contain_list:
-                    if b == behavior and hasattr(contain_list[b], key):
-                        self._set_typed_attribute(contain_list[b], key, msg.arg_values[i], b)
-                        found = True
-
-                if not found:
-                    rospy.logwarn('Parameter ' + msg.arg_keys[i] + ' (set to ' + msg.arg_values[i] + ') not implemented')
+                    rospy.logwarn('Parameter ' + msg.arg_keys[i] + ' (set to ' + msg.arg_values[i] + ') not defined')
 
         except Exception as e:
             Logger.logerr('Failed to initialize parameters:\n%s' % str(e))
@@ -340,23 +316,12 @@ class VigirBeOnboard(object):
         except OSError:
             pass
 
-        
-    def _set_typed_attribute(self, obj, name, value, behavior=''):
-        attr = getattr(obj, name)
-        if type(attr) is int:
-            value = int(value)
-        elif type(attr) is long:
-            value = long(value)
-        elif type(attr) is float:
-            value = float(value)
-        elif type(attr) is bool:
-            value = (value != "0")
-        elif type(attr) is dict:
-            value = yaml.load(value)
-        setattr(obj, name, value)
-        suffix = ' (' + behavior + ')' if behavior != '' else ''
-        rospy.loginfo(name + ' = ' + str(value) + suffix)
 
+    def _cleanup_tempdir(self):
+        try:
+            os.remove(self._tmp_folder)
+        except OSError:
+            pass
 
     def _convert_input_data(self, keys, values):
         result = dict()
@@ -368,20 +333,10 @@ class VigirBeOnboard(object):
                 # unquoted strings will raise a ValueError, so leave it as string in this case
                 result[k] = str(v)
             except SyntaxError as se:
-                Logger.logwarn('Unable to parse input value for key "%s", assuming string:\n%s\%s', k, str(v), str(se))
+                Logger.loginfo('Unable to parse input value for key "%s", assuming string:\n%s\n%s' % (k, str(v), str(se)))
                 result[k] = str(v)
 
         return result
-
-
-    def _build_contains(self, obj, path):
-        contain_list = dict((path+"/"+key,value) for (key,value) in getattr(obj, 'contains', {}).items())
-        add_to_list = {}
-        for b_id, b_inst in contain_list.items():
-            add_to_list.update(self._build_contains(b_inst, b_id))
-        contain_list.update(add_to_list)
-        return contain_list
-
 
     def _execute_heartbeat(self):
         thread = threading.Thread(target=self._heartbeat_worker)
@@ -398,6 +353,6 @@ class VigirBeOnboard(object):
         if isinstance(o, list):
             return [self._convert_dict(e) for e in o]
         elif isinstance(o, dict):
-            return self._attr_dict((k, self._convert_dict(v)) for k, v in o.items())
+            return self._attr_dict((k, self._convert_dict(v)) for k, v in list(o.items()))
         else:
             return o

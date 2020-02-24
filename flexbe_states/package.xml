@@ -1,11 +1,11 @@
 <package>
   <name>flexbe_states</name>
-  <version>1.0.0</version>
+  <version>1.2.3</version>
   <description>
      flexbe_states provides a collection of predefined states.
      Feel free to add new states.
   </description>
-  <maintainer email="schillinger@sim.tu-darmstadt.de">Philipp Schillinger</maintainer>
+  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_states</url>
@@ -18,8 +18,11 @@
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rosbag</run_depend>
+  <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
   <run_depend>flexbe_testing</run_depend>
+
+  <test_depend>geometry_msgs</test_depend>
 
   <export>
     <flexbe_states />

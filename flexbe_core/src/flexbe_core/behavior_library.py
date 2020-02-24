@@ -14,7 +14,7 @@ Created on 10.01.2017
 
 class BehaviorLibrary(object):
 	'''
-	Provides a list of all known behavior manifests.
+	Provides access to all known behaviors.
 	'''
 
 	def __init__(self):
@@ -114,3 +114,31 @@ class BehaviorLibrary(object):
 		@return Number of behaviors.
 		"""
 		return len(self._behavior_lib)
+	
+
+	def get_sourcecode_filepath(self, be_id, add_tmp=False):
+		"""
+		Constructs a file path to the source code of corresponding to the given ID.
+
+		@type be_id: int
+		@param be_id: Behavior ID to look up.
+
+		@type add_tmp: bool
+		@param add_tmp: Append "_tmp" to the file to consider a temporary version.
+
+		@return String containing the absolute path to the source code file.
+		"""
+		be_entry = self.get_behavior(be_id)
+		if be_entry is None:
+			# rely on get_behavior to handle/log missing package
+			return None
+		try:
+			module_path = __import__(be_entry["package"]).__path__[-1]
+		except ImportError:
+			rospy.logwarn("Cannot import behavior package '%s', using 'rospack find' instead" % be_entry["package"])
+			# rp can find it because otherwise, the above entry would not exist
+			module_path = os.path.join(self._rp.get_path(be_entry["package"]), "src", be_entry["package"])
+		filename = be_entry["file"] + '.py' if not add_tmp else '_tmp.py'
+		return os.path.join(module_path, filename)
+
+

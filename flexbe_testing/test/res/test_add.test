@@ -1,13 +1,11 @@
 path: flexbe_testing.test.test_add_state
 class: TestAddState
 
-data: flexbe_testing/test/res/testdata.bag
-
 params:
     first_arg: 5
 
 input:
-    second_arg: /flexbe_testing/testint
+    second_arg: !!python/object/new:std_msgs.msg.Int32 {state: [2]}
 
 output:
     output_value: 7

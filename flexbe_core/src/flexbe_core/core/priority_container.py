@@ -19,7 +19,9 @@ class PriorityContainer(OperatableStateMachine):
         self._parent_active_container = None
 
     def execute(self, *args, **kwargs):
-        if PriorityContainer.active_container != self._get_path():
+        if (PriorityContainer.active_container is None
+            or not all(p == PriorityContainer.active_container.split('/')[i]
+                       for i, p in enumerate(self._get_path().split('/')))):
             self._parent_active_container = PriorityContainer.active_container
             PriorityContainer.active_container = self._get_path()
 

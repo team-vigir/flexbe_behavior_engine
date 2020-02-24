@@ -22,7 +22,7 @@ class ProxyServiceCaller(object):
         @param topics: A dictionay containing a collection of topic - message type pairs.
         """
 
-        for topic, msg_type in topics.iteritems():
+        for topic, msg_type in topics.items():
             self.setupService(topic, msg_type)
     
 
@@ -50,7 +50,7 @@ class ProxyServiceCaller(object):
                 t.start()
                 rospy.wait_for_service(topic, wait_duration)
                 available = True
-            except rospy.exceptions.ROSException, e:
+            except rospy.exceptions.ROSException as e:
                 available = False
 
             try:
@@ -93,8 +93,8 @@ class ProxyServiceCaller(object):
         
         try:
             return ProxyServiceCaller._services[topic].call(request)
-        except Exception, e:
-            print 'error: ' + str(e)
+        except Exception as e:
+            print('error: ' + str(e))
             raise
 
 

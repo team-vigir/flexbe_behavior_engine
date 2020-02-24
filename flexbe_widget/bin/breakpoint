@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import rospy
+import sys
+
+
+if __name__ == '__main__':
+    rospy.set_param('/flexbe/breakpoints', sys.argv[1:])

@@ -11,6 +11,7 @@
 
 		$(arg path)/import_only.test
 		$(arg path)/test_add.test
+		$(arg path)/test_add_bagfile.test
 		$(arg path)/sub_unavailable.test
 
 	" />

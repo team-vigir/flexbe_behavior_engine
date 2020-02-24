@@ -6,7 +6,7 @@
 <arg name="path" value="$(find flexbe_states)/tests" />
 
 <include file="$(find flexbe_testing)/launch/flexbe_testing.launch">
-	<arg name="compact_format" value="true" />
+	<arg name="compact_format" value="false" />
 	<arg name="package" value="$(arg pkg)" />
 	<arg name="testcases" value="
 
@@ -14,7 +14,6 @@
 		$(arg path)/calculation_state_none.test
 		$(arg path)/check_condition_state_true.test
 		$(arg path)/check_condition_state_invalid.test
-		$(arg path)/concurrent_state_import.test
 		$(arg path)/decision_state_simple.test
 		$(arg path)/flexible_calculation_state_simple.test
 		$(arg path)/input_state_import.test
@@ -23,6 +22,7 @@
 		$(arg path)/log_state_msg.test
 		$(arg path)/operator_decision_state_suggested.test
 		$(arg path)/subscriber_state_unavailable.test
+		$(arg path)/subscriber_state_pose.test
 		$(arg path)/wait_state_short.test
 
 	" />

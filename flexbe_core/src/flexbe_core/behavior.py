@@ -81,7 +81,7 @@ class Behavior(object):
         instance = behavior_class()
         self.contains[behavior_id] = instance
     
-    def use_behavior(self, behavior_class, behavior_id, default_keys=None):
+    def use_behavior(self, behavior_class, behavior_id, default_keys=None, parameters=None):
         """
         Creates a state machine implementing the given behavior to use it in the behavior state machine.
         Behavior has to be added first.
@@ -94,10 +94,17 @@ class Behavior(object):
         
         @type default_keys: list
         @param default_keys: List of input keys of the behavior which should be ignored and instead use the default values as given by the behavior.
+        
+        @type parameters: dict
+        @param parameters: Optional assignment of values to behavior parameters. Any assigned parameter will be ignored for runtime customization, i.e., cannot be overwritten by a user who runs the behavior.
         """
-        if not self.contains.has_key(behavior_id):
+        if behavior_id not in self.contains:
             rospy.logerr('Tried to use not added behavior!')
             return None
+
+        if parameters is not None:
+            for parameter, value in parameters.items():
+                setattr(self.contains[behavior_id], parameter, value)
         
         state_machine = self.contains[behavior_id]._get_state_machine()
 
@@ -109,7 +116,7 @@ class Behavior(object):
 
     # Lifecycle
 
-    def prepare_for_execution(self, input_data = {}):
+    def prepare_for_execution(self, input_data=None):
         """
         Prepares this behavior for execution by building its state machine.
         """
@@ -119,9 +126,39 @@ class Behavior(object):
         self._state_machine._input_keys = {}
         self._state_machine._output_keys = {}
 
+        if input_data is None:
+            input_data = dict()
         for k, v in input_data.items():
            if k in self._state_machine.userdata:
                 self._state_machine.userdata[k] = v
+
+
+    def set_parameter(self, name, value):
+        """
+        Set the given parameter of this behavior or any sub-behavior.
+        Use a path specification to refer to the corresponding sub-behavior.
+        The parameter value is propagated to all sub-behaviors according to the propagation rules.
+        Also, the value is casted to the type of the parameter if required.
+
+        @type name: string
+        @param name: Name of the parameter, possibly including the path to a sub-behavior.
+
+        @type value: object
+        @param value: New value of the parameter of same type as before (or can be casted to that type).
+
+        @return: Whether the parameter existed and could be set.
+        """
+        name_split = name.rsplit('/', 1)
+        behavior = name_split[0] if len(name_split) == 2 else ''
+        key = name_split[-1]
+        behaviors = self.get_contained_behaviors()
+        behaviors[''] = self  # add this behavior as well
+        found = False
+        for b in behaviors:
+            if b.startswith(behavior) and hasattr(behaviors[b], key):
+                behaviors[b]._set_typed_attribute(key, value)
+                found = True
+        return found
 
 
     def confirm(self):
@@ -208,7 +245,32 @@ class Behavior(object):
             else:
                 state._is_controlled = False
 
-    
+    def _collect_contained(self, obj, path):
+        contain_list = {path+"/"+key: value for (key, value) in getattr(obj, 'contains', {}).items()}
+        add_to_list = {}
+        for b_id, b_inst in contain_list.items():
+            add_to_list.update(self._collect_contained(b_inst, b_id))
+        contain_list.update(add_to_list)
+        return contain_list
+
+    def get_contained_behaviors(self):
+        return self._collect_contained(self, '')
+
+    def _set_typed_attribute(self, name, value):
+        attr = getattr(self, name)
+        # convert type if required
+        if not isinstance(value, type(attr)):
+            if type(attr) is int:
+                value = int(value)
+            elif type(attr) is float:
+                value = float(value)
+            elif type(attr) is bool:
+                value = (value != "0")
+            elif type(attr) is dict:
+                import yaml
+                value = yaml.load(value)
+        setattr(self, name, value)
+
     def set_up(self, id, autonomy_level, debug):
         self.id = id
         self._autonomy_level = autonomy_level
@@ -221,7 +283,7 @@ class Behavior(object):
         state_label = path_elements[1]
         new_path = "/".join(path_elements[1:])
 
-        if container.get_children().has_key(state_label):
+        if state_label in container.get_children():
             childlist = self._get_states_of_path(new_path, container.get_children()[state_label])
             if childlist is None:
                 return None
