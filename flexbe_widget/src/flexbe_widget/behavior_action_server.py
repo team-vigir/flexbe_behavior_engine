@@ -10,7 +10,7 @@ from std_msgs.msg import String, Empty
 import zlib
 import difflib
 import os
-import importlib
+import imp
 
 
 class BehaviorActionServer(object):
@@ -52,11 +52,11 @@ class BehaviorActionServer(object):
 		be_selection.input_values = goal.input_values
 
 		# check for local modifications of the behavior to send them to the onboard behavior
-		be_filepath_new = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '.py')
+		be_filepath_new = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '_tmp.py')
+		be_filepath_old = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 		else:

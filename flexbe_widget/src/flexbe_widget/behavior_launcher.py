@@ -7,7 +7,7 @@ from rospkg import RosPack
 from flexbe_core import Logger, BehaviorLibrary
 from std_msgs.msg import String
 
-import importlib
+import imp
 import zlib
 import difflib
 import os
@@ -73,7 +73,7 @@ class BehaviorLauncher(object):
 		be_structure.containers = msg.structure
 
 		try:
-			be_filepath_new = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '.py')
+			be_filepath_new = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '.py')
 		except ImportError:
 			rospy.logerr("Could not find behavior package '%s'" % (behavior["package"]))
 			rospy.loginfo("Have you updated your ROS_PACKAGE_PATH after creating the behavior?")
@@ -82,7 +82,7 @@ class BehaviorLauncher(object):
 		with open(be_filepath_new, "r") as f:
 			be_content_new = f.read()
 
-		be_filepath_old = os.path.join(importlib.import_module(behavior["package"]).__path__[-1], behavior["file"] + '_tmp.py')
+		be_filepath_old = os.path.join(imp.find_module(behavior["package"])[1], behavior["file"] + '_tmp.py')
 		if not os.path.isfile(be_filepath_old):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 			if msg.autonomy_level != 255:
