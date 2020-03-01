@@ -25,7 +25,7 @@ class Logger(object):
 
     @staticmethod
     def initialize():
-    	Logger._pub = ProxyPublisher({Logger.LOGGING_TOPIC: BehaviorLog})
+        Logger._pub = ProxyPublisher({Logger.LOGGING_TOPIC: BehaviorLog})
 
     @staticmethod
     def log(text, severity):

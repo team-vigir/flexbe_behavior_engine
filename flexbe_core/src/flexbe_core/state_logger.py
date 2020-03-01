@@ -7,8 +7,8 @@ import pickle
 import logging
 import logging.config
 from functools import wraps, partial
-
-from flexbe_core.core.loopback_state import LoopbackState
+from flexbe_core.proxy import ProxyPublisher
+from std_msgs.msg import String
 
 
 class StateLogger(object):
@@ -16,7 +16,6 @@ class StateLogger(object):
     Realizes logging of active states.
     '''
 
-    LOG_FOLDER = "~/.flexbe_logs"
     enabled = False
     _serialize_impl = 'yaml'
 
@@ -41,21 +40,30 @@ class StateLogger(object):
         logger_config = dict({
             'version': 1,
             'disable_existing_loggers': False,
-            'formatters': {'yaml': {'()': 'flexbe_core.state_logger.StateLoggerFormatter'}},
-            'handlers': {'file': {
-                'class': 'logging.FileHandler',
-                'filename': '%(log_folder)s/%(behavior)s_%(timestamp)s.yaml',
-                'formatter': 'yaml',
-                'level': 'DEBUG'
-            }},
+            'formatters': {'yaml': {'()': 'flexbe_core.state_logger.YamlFormatter'}},
+            'handlers': {
+                'file': {
+                    'class': 'logging.FileHandler',
+                    'filename': '%(log_folder)s/%(behavior)s_%(timestamp)s.yaml',
+                    'formatter': 'yaml'
+                },
+                'publish': {
+                    'class': 'flexbe_core.state_logger.PublishBehaviorLogMessage',
+                    'topic': 'flexbe/state_logger',
+                    'formatter': 'yaml'
+                }
+            },
             'loggers': {'flexbe': {'level': 'INFO', 'handlers': ['file']}}
         }, **rospy.get_param('~log_config', {}))
-        logger_config['handlers']['file']['filename'] %= {
-            'log_folder': log_folder,
-            'behavior': name,
-            'timestamp': time.strftime("%Y-%m-%d-%H_%M_%S")
-        }
-        logger_config['loggers']['flexbe']['level'] = rospy.get_param('~/log_level', 'INFO').upper()
+        if ('handlers' in logger_config and 'file' in logger_config['handlers'] and
+                'filename' in logger_config['handlers']['file']):
+            logger_config['handlers']['file']['filename'] %= {
+                'log_folder': log_folder,
+                'behavior': name,
+                'timestamp': time.strftime("%Y-%m-%d-%H_%M_%S")
+            }
+        if 'loggers' in logger_config and 'flexbe' in logger_config['loggers']:
+            logger_config['loggers']['flexbe']['level'] = rospy.get_param('~log_level', 'INFO').upper()
         logging.config.dictConfig(logger_config)
 
     @staticmethod
@@ -74,7 +82,7 @@ class StateLogger(object):
     def log(name, state, **kwargs):
         """ Log custom data as given by the keyword arguments. """
         if StateLogger.enabled:
-            StateLogger.get(name).info(dict(StateLogger._basic(state), **kwargs))
+            StateLogger.get(name).log(kwargs.get('loglevel', logging.INFO), dict(StateLogger._basic(state), **kwargs))
 
     # state decorators
 
@@ -123,7 +131,7 @@ class StateLogger(object):
                         outcome = execute_method(*args, **kwargs)
                         return outcome
                     finally:
-                        if StateLogger.enabled and outcome != LoopbackState._loopback_name:
+                        if StateLogger.enabled and outcome != cls._loopback_name:
                             StateLogger.get(name).info(dict(
                                 StateLogger._basic(self),
                                 outcome=outcome))
@@ -173,16 +181,30 @@ class StateLogger(object):
 
     @staticmethod
     def _basic(state):
-        return {
-            'time': rospy.get_time(),
-            'name': state.name,
-            'state': state.__class__.__name__,
-            'path': state._get_path(),
-        }
+        result = {'time': rospy.get_time()}
+        if state is not None:
+            result.update({
+                'name': state.name,
+                'state': state.__class__.__name__,
+                'path': state._get_path()
+            })
+        return result
 
 
-class StateLoggerFormatter(logging.Formatter):
+class YamlFormatter(logging.Formatter):
 
     def format(self, record):
         record.msg.update(logger=record.name, loglevel=record.levelname)
-        return '- %s' % super(StateLoggerFormatter, self).format(record)
+        return '- %s' % super(YamlFormatter, self).format(record)
+
+
+class PublishBehaviorLogMessage(logging.Handler):
+
+    def __init__(self, level=logging.NOTSET, topic='flexbe/state_logger'):
+        super(PublishBehaviorLogMessage, self).__init__(level)
+        self._topic = topic
+        self._pub = ProxyPublisher({self._topic: String})
+
+    def emit(self, record):
+        message = self.format(record)
+        self._pub.publish(self._topic, String(message))
