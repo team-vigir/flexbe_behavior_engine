@@ -18,6 +18,7 @@ class Logger(object):
     REPORT_WARN = BehaviorLog.WARN
     REPORT_HINT = BehaviorLog.HINT
     REPORT_ERROR = BehaviorLog.ERROR
+    REPORT_DEBUG = BehaviorLog.DEBUG
 
     LOGGING_TOPIC = 'flexbe/log'
 
@@ -42,20 +43,27 @@ class Logger(object):
             rospy.loginfo('\033[94mBehavior Hint: %s\033[0m', text)
         elif severity == Logger.REPORT_ERROR:
             rospy.logerr(text)
-        
+        elif severity == Logger.REPORT_DEBUG:
+            rospy.logdebug(text)
+        else:
+            rospy.logdebug(text + ' (unknown log level %s)' % str(severity))
 
-    @staticmethod    
+    @staticmethod
+    def logdebug(text):
+        Logger.log(text, Logger.REPORT_DEBUG)
+
+    @staticmethod
     def loginfo(text):
         Logger.log(text, Logger.REPORT_INFO)
-    
-    @staticmethod       
+
+    @staticmethod
     def logwarn(text):
         Logger.log(text, Logger.REPORT_WARN)
-    
-    @staticmethod       
+
+    @staticmethod
     def loghint(text):
         Logger.log(text, Logger.REPORT_HINT)
-    
-    @staticmethod       
+
+    @staticmethod
     def logerr(text):
         Logger.log(text, Logger.REPORT_ERROR)
