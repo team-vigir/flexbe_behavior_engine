@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 import rospy
 
-from flexbe_core.proxy import ProxyPublisher
 from flexbe_msgs.msg import BehaviorLog
 
 
-'''
-Created on 12/17/2014
-
-@author: Philipp Schillinger
-'''
 class Logger(object):
     '''
     Realizes behavior-specific logging.
@@ -26,14 +20,17 @@ class Logger(object):
 
     @staticmethod
     def initialize():
-    	Logger._pub = ProxyPublisher({Logger.LOGGING_TOPIC: BehaviorLog})
+        Logger._pub = rospy.Publisher(Logger.LOGGING_TOPIC, BehaviorLog, queue_size=100)
 
     @staticmethod
     def log(text, severity):
+        if Logger._pub is None:
+            Logger.initialize()
+
         msg = BehaviorLog()
         msg.text = str(text)
         msg.status_code = severity
-        Logger._pub.publish(Logger.LOGGING_TOPIC, msg)
+        Logger._pub.publish(msg)
 
         if severity == Logger.REPORT_INFO:
             rospy.loginfo(text)
