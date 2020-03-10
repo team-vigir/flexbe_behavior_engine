@@ -281,16 +281,17 @@ class VigirBeOnboard(object):
 
 
     def _cleanup_behavior(self, behavior_checksum):
-        del(sys.modules["tmp_%d" % behavior_checksum])
-        file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
+        module_name = "tmp_%d" % behavior_checksum
         try:
+            module = sys.modules[module_name]
+            file_path = module.__file__
+            del sys.modules[module_name]
+        except KeyError:
+            return
+        if os.path.exists(file_path):
             os.remove(file_path)
-        except OSError:
-            pass
-        try:
+        if os.path.exists(file_path + 'c'):
             os.remove(file_path + 'c')
-        except OSError:
-            pass
 
 
     def _cleanup_tempdir(self):
