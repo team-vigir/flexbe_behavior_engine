@@ -2,6 +2,19 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#109 <https://github.com/team-vigir/flexbe_behavior_engine/issues/109>`_ from Achllle/feature/testing/timeout_parameter
+  Expose time-limit parameter from rostest
+* Merge pull request `#108 <https://github.com/team-vigir/flexbe_behavior_engine/issues/108>`_ from Achllle/fix/test_bagfile_topic
+  Retry reading bag file messages without backslash in unit tests
+* Expose time-limit parameter from rostest
+* Ignore topic backslash when no messages are found that way
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* Remove explicit list construction where not required
+* python3 compatibility via 2to3
+* Contributors: Achille, Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors

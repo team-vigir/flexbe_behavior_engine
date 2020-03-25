@@ -2,6 +2,12 @@
 Changelog for package flexbe_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_msgs] [flexbe_core] Add debug level to logger
+  (see `#101 <https://github.com/team-vigir/flexbe_behavior_engine/issues/101>`_)
+* Contributors: Philipp Schillinger
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors

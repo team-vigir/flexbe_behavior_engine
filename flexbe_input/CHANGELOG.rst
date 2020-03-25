@@ -2,6 +2,13 @@
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* use six.moves for Queue
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors

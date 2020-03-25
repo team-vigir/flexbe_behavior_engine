@@ -2,6 +2,14 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install
+  Let behavior library find sourcecode in devel or install spaces
+* Let behavior library find sourcecode in devel or install spaces
+  (fix `#104 <https://github.com/team-vigir/flexbe_behavior_engine/issues/104>`_)
+* Contributors: Philipp Schillinger
+
 1.2.3 (2020-01-10)
 ------------------
 * Revise internal dependencies

@@ -2,6 +2,29 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] Add tests for proxies
+* [flexbe_core] Several minor improvements of proxies
+  (see `#114 <https://github.com/team-vigir/flexbe_behavior_engine/issues/114>`_)
+* [flexbe_msgs] [flexbe_core] Add debug level to logger
+  (see `#101 <https://github.com/team-vigir/flexbe_behavior_engine/issues/101>`_)
+* Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install
+  Let behavior library find sourcecode in devel or install spaces
+* Let behavior library find sourcecode in devel or install spaces
+  (fix `#104 <https://github.com/team-vigir/flexbe_behavior_engine/issues/104>`_)
+* [flexbe_core] Fix reset of requested outcome when re-visiting the same state and immediately requesting an outcome
+* [flexbe_core] Fix duplicate sleep in case of state machine inside concurrency
+* [flexbe_core] Robustify priority container path handling
+* Do not trigger on_resume and on_exit when stopped during pause
+  (see `#103 <https://github.com/team-vigir/flexbe_behavior_engine/issues/103>`_)
+* Remove mistakenly added text
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* Remove explicit list construction where not required
+* Remove redundant type check
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors
