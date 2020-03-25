@@ -20,14 +20,16 @@ class BehaviorActionServer(object):
 	def __init__(self):
 		self._behavior_started = False
 		self._current_state = None
-		self._engine_status = None
+		self._active_behavior_id = None
 
 		self._pub = rospy.Publisher('flexbe/start_behavior', BehaviorSelection, queue_size=100)
 		self._preempt_pub = rospy.Publisher('flexbe/command/preempt', Empty, queue_size=100)
 		self._status_sub = rospy.Subscriber('flexbe/status', BEStatus, self._status_cb)
 		self._state_sub = rospy.Subscriber('flexbe/behavior_update', String, self._state_cb)
 
-		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, self._execute_cb, False)
+		self._as = actionlib.SimpleActionServer('flexbe/execute_behavior', BehaviorExecutionAction, None, False)
+		self._as.register_preempt_callback(self._preempt_cb)
+		self._as.register_goal_callback(self._goal_cb)
 
 		self._rp = RosPack()
 		self._behavior_lib = BehaviorLibrary()
@@ -38,7 +40,10 @@ class BehaviorActionServer(object):
 		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
 
-	def _execute_cb(self, goal):
+	def _goal_cb(self):
+		if not self._as.is_new_goal_available():
+			return
+		goal = self._as.accept_new_goal()
 		rospy.loginfo('Received a new request to start behavior: %s' % goal.behavior_name)
 		be_id, behavior = self._behavior_lib.find_behavior(goal.behavior_name)
 		if be_id is None:
@@ -102,74 +107,49 @@ class BehaviorActionServer(object):
 			be_selection.behavior_checksum = zlib.adler32(be_content_new)
 
 		# reset state before starting new behavior
-		self._engine_status = None
 		self._current_state = None
 		self._behavior_started = False
 
 		# start new behavior
 		self._pub.publish(be_selection)
 
-		try:
-			rate = rospy.Rate(10)
-			while not rospy.is_shutdown():
-				if self._current_state is not None:
-					self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
-					self._current_state = None
 
-				# check if goal has been preempted first
-				if self._as.is_preempt_requested():
-					rospy.loginfo('Behavior execution preempt requested!')
-					self._preempt_pub.publish()
-					rate.sleep()
-					self._as.set_preempted('')
-					break
-
-				if self._engine_status is None:
-					rospy.logdebug_throttle(1, 'No behavior engine status received yet. Waiting for it...')
-					rate.sleep()
-					continue
-
-				if self._engine_status.code == BEStatus.ERROR:
-					rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
-					rate.sleep()
-					self._as.set_aborted('')
-					break
-
-				if not self._behavior_started:
-					rospy.logdebug_throttle(1, 'Behavior execution has not yet started. Waiting for it...')
-					rate.sleep()
-					continue
-
-				if self._engine_status.code == BEStatus.FINISHED:
-					result = self._engine_status.args[0] \
-						if len(self._engine_status.args) >= 1 else ''
-					rospy.loginfo('Finished behavior execution with result "%s"!' % result)
-					self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
-					break
-
-				if self._engine_status.code == BEStatus.FAILED:
-					rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
-					rate.sleep()
-					self._as.set_aborted('')
-					break
-
-				rate.sleep()
-
-			rospy.loginfo('Ready for next behavior start request.')
-
-		except rospy.ROSInterruptException:
-			pass # allow clean exit on ROS shutdown
+	def _preempt_cb(self):
+		self._preempt_pub.publish()
+		rospy.loginfo('Behavior execution preempt requested!')
 
 
 	def _status_cb(self, msg):
-		self._engine_status = msg
-
-		# check for behavior start here, to avoid race condition between execute_cb and status_cb threads
-		if not self._behavior_started and self._engine_status.code == BEStatus.STARTED:
+		if not self._behavior_started and msg.code == BEStatus.STARTED:
 			self._behavior_started = True
+			self._active_behavior_id = msg.behavior_id
 			rospy.loginfo('Behavior execution has started!')
+		# Ignore status until behavior start was received
+		if not self._behavior_started:
+			return
+
+		if msg.behavior_id != self._active_behavior_id:
+			rospy.logwarn('Ignored status because behavior id differed ({} vs {})!'.format(msg.behavior_id, self._active_behavior_id))
+			return
+
+		if msg.code == BEStatus.ERROR:
+			rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+			self._as.set_aborted('')
+		elif msg.code == BEStatus.FINISHED:
+			result = msg.args[0] if len(msg.args) >= 1 else ''
+			rospy.loginfo('Finished behavior execution with result "%s"!' % result)
+			self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
+		elif msg.code == BEStatus.FAILED:
+			rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
+			self._as.set_aborted('')
+
+		# Start new goal if available and current is not active anymore
+		if not self._as.is_active() and self._as.is_new_goal_available():
+			self._goal_cb()
 
 
 	def _state_cb(self, msg):
 		self._current_state = msg.data
+		if self._as.is_active():
+			self._as.publish_feedback(BehaviorExecutionFeedback(self._current_state))
 		rospy.loginfo('Current state: %s' % self._current_state)
