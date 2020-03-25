@@ -2,8 +2,8 @@
 Changelog for package flexbe_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * [flexbe_msgs] [flexbe_core] Add debug level to logger
   (see `#101 <https://github.com/team-vigir/flexbe_behavior_engine/issues/101>`_)
 * Contributors: Philipp Schillinger

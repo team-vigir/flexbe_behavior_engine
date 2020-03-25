@@ -2,8 +2,8 @@
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * Merge branch 'fmessmer-feature/python3_compatibility' into develop
 * use six.moves for Queue
 * python3 compatibility via 2to3

@@ -2,8 +2,8 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * Merge branch 'fmessmer-feature/python3_compatibility' into develop
 * python3 compatibility via 2to3
 * Contributors: Philipp Schillinger, fmessmer

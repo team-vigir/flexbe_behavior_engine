@@ -2,8 +2,8 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * Merge pull request `#109 <https://github.com/team-vigir/flexbe_behavior_engine/issues/109>`_ from Achllle/feature/testing/timeout_parameter
   Expose time-limit parameter from rostest
 * Merge pull request `#108 <https://github.com/team-vigir/flexbe_behavior_engine/issues/108>`_ from Achllle/fix/test_bagfile_topic

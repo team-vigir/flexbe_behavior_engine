@@ -2,8 +2,8 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install
   Let behavior library find sourcecode in devel or install spaces
 * Let behavior library find sourcecode in devel or install spaces

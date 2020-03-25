@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.4 (2020-03-25)
+------------------
 * [flexbe_core] Add tests for proxies
 * [flexbe_core] Several minor improvements of proxies
   (see `#114 <https://github.com/team-vigir/flexbe_behavior_engine/issues/114>`_)
