@@ -24,9 +24,9 @@ class BehaviorLauncher(object):
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
 
-		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100)
-		self._status_pub = rospy.Publisher("flexbe/status", BEStatus, queue_size=100)
-		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
+		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100, latch=True)
+		self._status_pub = rospy.Publisher("flexbe/status", BEStatus, queue_size=100, latch=True)
+		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100, latch=True)
 
 		self._rp = RosPack()
 		self._behavior_lib = BehaviorLibrary()
