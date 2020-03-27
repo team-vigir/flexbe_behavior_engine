@@ -1,18 +1,8 @@
-# Available request types
-
-uint8 POINT_LOCATION 	    = 0
-uint8 SELECTED_OBJECT_ID    = 1
-uint8 WAYPOINT_GOAL_POSE    = 2
-uint8 GHOST_JOINT_STATES    = 3
-uint8 FOOTSTEP_PLAN_HEADER  = 4
-
-
-# Choose one of the available request types above
+# If desired, custom request types can be defined and choosen here
 uint8 request_type
 
 # Request message displayed to the operator
 # Provide context information, i.e. for which purpose the data is required.
-# The operator will be told which type of data to provide indepently from this message.
 string msg
 
 ---
@@ -29,5 +19,3 @@ uint8 result_code
 string data
 
 ---
-
-
