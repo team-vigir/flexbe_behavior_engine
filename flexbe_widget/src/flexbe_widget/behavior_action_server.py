@@ -19,6 +19,7 @@ class BehaviorActionServer(object):
 
 	def __init__(self):
 		self._behavior_started = False
+		self._preempt_requested = False
 		self._current_state = None
 		self._active_behavior_id = None
 
@@ -109,12 +110,16 @@ class BehaviorActionServer(object):
 		# reset state before starting new behavior
 		self._current_state = None
 		self._behavior_started = False
+		self._preempt_requested = False
 
 		# start new behavior
 		self._pub.publish(be_selection)
 
 
 	def _preempt_cb(self):
+		self._preempt_requested = True
+		if not self._behavior_started:
+			return
 		self._preempt_pub.publish()
 		rospy.loginfo('Behavior execution preempt requested!')
 
@@ -130,6 +135,9 @@ class BehaviorActionServer(object):
 			self._behavior_started = True
 			self._active_behavior_id = msg.behavior_id
 			rospy.loginfo('Behavior execution has started!')
+			# Preempt if the goal was asked to preempt before the behavior started
+			if self._preempt_requested:
+				self._preempt_cb()
 		# Ignore status until behavior start was received
 		if not self._behavior_started:
 			return
