@@ -120,6 +120,12 @@ class BehaviorActionServer(object):
 
 
 	def _status_cb(self, msg):
+		if msg.code == BEStatus.ERROR:
+			rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
+			self._as.set_aborted('')
+			# Call goal cb in case there is a queued goal available
+			self._goal_cb()
+			return
 		if not self._behavior_started and msg.code == BEStatus.STARTED:
 			self._behavior_started = True
 			self._active_behavior_id = msg.behavior_id
@@ -131,10 +137,6 @@ class BehaviorActionServer(object):
 		if msg.behavior_id != self._active_behavior_id:
 			rospy.logwarn('Ignored status because behavior id differed ({} vs {})!'.format(msg.behavior_id, self._active_behavior_id))
 			return
-
-		if msg.code == BEStatus.ERROR:
-			rospy.logerr('Failed to run behavior! Check onboard terminal for further infos.')
-			self._as.set_aborted('')
 		elif msg.code == BEStatus.FINISHED:
 			result = msg.args[0] if len(msg.args) >= 1 else ''
 			rospy.loginfo('Finished behavior execution with result "%s"!' % result)
