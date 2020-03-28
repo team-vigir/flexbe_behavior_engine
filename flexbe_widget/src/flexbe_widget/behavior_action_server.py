@@ -41,7 +41,7 @@ class BehaviorActionServer(object):
 
 
 	def _goal_cb(self):
-		if not self._as.is_new_goal_available():
+		if self._as.is_active() or not self._as.is_new_goal_available():
 			return
 		goal = self._as.accept_new_goal()
 		rospy.loginfo('Received a new request to start behavior: %s' % goal.behavior_name)
@@ -141,12 +141,12 @@ class BehaviorActionServer(object):
 			result = msg.args[0] if len(msg.args) >= 1 else ''
 			rospy.loginfo('Finished behavior execution with result "%s"!' % result)
 			self._as.set_succeeded(BehaviorExecutionResult(outcome=result))
+			# Call goal cb in case there is a queued goal available
+			self._goal_cb()
 		elif msg.code == BEStatus.FAILED:
 			rospy.logerr('Behavior execution failed in state %s!' % str(self._current_state))
 			self._as.set_aborted('')
-
-		# Start new goal if available and current is not active anymore
-		if not self._as.is_active() and self._as.is_new_goal_available():
+			# Call goal cb in case there is a queued goal available
 			self._goal_cb()
 
 
