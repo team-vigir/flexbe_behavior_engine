@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="Test Behavior Log">
+
+	<executable package_path="flexbe_onboard_test_data.test_behavior_log_sm" class="TestBehaviorLogSM" />
+	<tagstring></tagstring>
+	<author>Philipp Schillinger</author>
+	<date>Mon Mar 30 2020</date>
+	<description>
+		Simple behavior for testing the onboard engine.
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+
+</behavior>

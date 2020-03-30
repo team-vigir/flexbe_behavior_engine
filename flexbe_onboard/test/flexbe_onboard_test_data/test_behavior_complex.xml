@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<behavior name="Test Behavior Complex">
+
+	<executable package_path="flexbe_onboard_test_data.test_behavior_complex_sm" class="TestBehaviorComplexSM" />
+	<tagstring></tagstring>
+	<author>Philipp Schillinger</author>
+	<date>Mon Mar 30 2020</date>
+	<description>
+		A more complex behavior for testing the onboard engine.
+Note: This behavior contains intentional errors that are fixed by sent modifications.
+	</description>
+
+
+	<!-- Contained Behaviors -->
+
+	<!-- Available Parameters -->
+	<params>
+
+		<param type="enum" name="param" default="value_1" label="param" hint="Sets the param">
+			<option value="value_1" />
+			<option value="value_2" />
+		</param>
+
+	</params>
+
+
+</behavior>
