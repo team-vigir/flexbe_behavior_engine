@@ -141,7 +141,7 @@ class StateLogger(object):
         return decorator
 
     @staticmethod
-    def log_userdata(name):
+    def log_userdata(name, keys=None):
         """ Log all userdata that is passed to the state. """
         def decorator(cls):
             cls_init = cls.__init__
@@ -156,6 +156,8 @@ class StateLogger(object):
                     if StateLogger.enabled and logger.isEnabledFor(logging.DEBUG) and input_keys:
                         logdata = dict(StateLogger._basic(self), userdata=dict())
                         for key in input_keys:
+                            if keys is not None and key not in keys:
+                                continue
                             try:
                                 logdata['userdata'][key] = StateLogger._serialize(userdata[key])
                             except Exception as e:
