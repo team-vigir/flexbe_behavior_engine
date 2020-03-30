@@ -9,7 +9,14 @@ from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import CommandFeedback
 from std_msgs.msg import Bool, Empty
 
+from flexbe_core.state_logger import StateLogger
 
+
+@StateLogger.log_events('flexbe.events',
+                        start='on_start', stop='on_stop',
+                        pause='on_pause', resume='on_resume',
+                        enter='on_enter', exit='on_exit')
+@StateLogger.log_userdata('flexbe.userdata')
 class EventState(OperatableState):
     """
     A state that allows implementing certain events.

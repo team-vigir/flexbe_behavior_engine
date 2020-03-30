@@ -220,6 +220,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         self._sub.subscribe('flexbe/request_mirror_structure', Int32, self._mirror_structure_callback)
 
         StateLogger.initialize(name)
+        StateLogger.log('flexbe.initialize', None, behavior=name, autonomy=OperatableStateMachine.autonomy_level)
         if OperatableStateMachine.autonomy_level != 255:
             self._enable_ros_control()
 

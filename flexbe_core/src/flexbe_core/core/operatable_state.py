@@ -11,6 +11,7 @@ from std_msgs.msg import UInt8, String
 from flexbe_core.state_logger import StateLogger
 
 
+@StateLogger.log_outcomes('flexbe.outcomes')
 class OperatableState(PreemptableState):
     """
     A state that supports autonomy levels and silent mode.
@@ -89,17 +90,21 @@ class OperatableState(PreemptableState):
                 if outcome != self._last_requested_outcome:
                     self._pub.publish(self._request_topic, OutcomeRequest(outcome=self._outcome_list.index(outcome), target=self._parent._get_path() + "/" + self.name))
                     rospy.loginfo("<-- Want result: %s > %s", self.name, outcome)
-                    StateLogger.log_state_execution(self._get_path(), self.__class__.__name__, outcome, not self._force_transition, False)
+                    StateLogger.log('flexbe.operator', self, type='request', request=outcome,
+                                    autonomy=OperatableStateMachine.autonomy_level,
+                                    required=self.autonomy[outcome])
                     self._last_requested_outcome = outcome
                 outcome = OperatableState._loopback_name
             
             # autonomy level is high enough, report the executed transition
             elif outcome != OperatableState._loopback_name:
-                self._last_requested_outcome = None
                 rospy.loginfo("State result: %s > %s", self.name, outcome)
                 self._pub.publish(self._outcome_topic, UInt8(self._outcome_list.index(outcome)))
                 self._pub.publish(self._debug_topic, String("%s > %s" % (self._get_path(), outcome)))
-                StateLogger.log_state_execution(self._get_path(), self.__class__.__name__, outcome, not self._force_transition, True)
+                if self._force_transition:
+                    StateLogger.log('flexbe.operator', self, type='forced', forced=outcome,
+                                    requested=self._last_requested_outcome)
+                self._last_requested_outcome = None
 
         self._force_transition = False
         
