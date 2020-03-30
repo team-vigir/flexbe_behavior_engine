@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<launch>
+    <test name="test_flexbe_proxies" pkg="flexbe_core" type="test_proxies.py" test-name="test_flexbe_proxies" />
+</launch>

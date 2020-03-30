@@ -25,3 +25,8 @@ catkin_package(
 #install(PROGRAMS bin/hello
 #        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
+# run tests
+if(CATKIN_ENABLE_TESTING)
+	find_package(rostest REQUIRED)
+	add_rostest(test/flexbe_proxies.test)
+endif()

@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_core</name>
-  <version>1.2.3</version>
+  <version>1.2.4</version>
   <description>
      flexbe_core provides the core smach extension for the FlexBE behavior engine.
   </description>
@@ -11,6 +11,8 @@
   <author>Philipp Schillinger</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rostest</build_depend>
 
   <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>

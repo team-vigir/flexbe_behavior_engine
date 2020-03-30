@@ -2,6 +2,9 @@
 Changelog for package flexbe_behavior_engine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.4 (2020-03-25)
+------------------
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors
