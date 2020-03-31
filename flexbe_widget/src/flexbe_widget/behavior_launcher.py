@@ -22,6 +22,8 @@ class BehaviorLauncher(object):
 	def __init__(self):
 		Logger.initialize()
 
+		self._ready_event = threading.Event()
+
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
 
@@ -32,7 +34,6 @@ class BehaviorLauncher(object):
 
 		self._rp = RosPack()
 		self._behavior_lib = BehaviorLibrary()
-		self._ready_event = threading.Event()
 
 		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
