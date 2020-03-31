@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 import rospy
-import smach_ros
-import smach
-import importlib
-import sys
-import string
 
 from flexbe_core import OperatableStateMachine, LockableStateMachine
 from flexbe_core.core import PreemptableState
@@ -178,7 +173,7 @@ class Behavior(object):
         @return: A string containing the execution result such as finished or failed.
         """
         PreemptableState.switching = False
-        result = self._state_machine.execute()
+        result = self._state_machine.spin()
 
         self._state_machine.destroy()
 
@@ -194,7 +189,7 @@ class Behavior(object):
         """
         states = self._get_states_of_path(state._get_path(), self._state_machine)
         if states is None:
-            raise smach.InvalidConstructionError("Did not find locked state in new behavior!")
+            raise RuntimeError("Did not find locked state in new behavior!")
         state_container = state._parent
         for sm in states[1:]:
             sm.set_initial_state([sm._initial_state_label], state_container.userdata)

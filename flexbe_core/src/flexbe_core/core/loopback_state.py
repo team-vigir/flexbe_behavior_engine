@@ -11,7 +11,6 @@ class LoopbackState(LockableState):
     
     _loopback_name = 'loopback'
     def __init__(self, *args, **kwargs):
-        self._rate = rospy.Rate(10)
         # add loopback outcome
         if len(args) > 0  and type(args[0]) is list:
             # need this ugly check for list type, because first argument in CBState is the callback
@@ -22,6 +21,7 @@ class LoopbackState(LockableState):
             kwargs['outcomes'] = outcomes
             
         super(LoopbackState, self).__init__(*args, **kwargs)
+        self._rate = rospy.Rate(10)
         self.__execute = self.execute
         self.execute = self._loopback_execute
 

@@ -4,14 +4,12 @@ import rosunit
 import unittest
 import re
 
+from flexbe_core.core.user_data import UserData
+
 from .logger import Logger
 from .test_interface import TestInterface
 from .test_context import TestContext, LaunchContext
 from .data_provider import DataProvider
-
-import smach
-# hide SMACH transition log spamming
-smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
 
 class Tester(object):
@@ -81,7 +79,7 @@ class Tester(object):
                     return 0
 
                 # prepare user data
-                userdata = smach.UserData()
+                userdata = UserData()
                 for input_key, input_value in list(config.get('input', dict()).items()):
                     userdata[input_key] = data.parse(input_value)
                 expected = {key: data.parse(value) for key, value in config.get('output', dict()).items()}

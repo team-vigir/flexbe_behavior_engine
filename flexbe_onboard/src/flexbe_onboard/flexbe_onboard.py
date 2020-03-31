@@ -6,7 +6,6 @@ import inspect
 import tempfile
 import threading
 import time
-import smach
 import zlib
 from ast import literal_eval as cast
 
@@ -25,8 +24,6 @@ class FlexbeOnboard(object):
     def __init__(self):
         self.be = None
         Logger.initialize()
-        # hide SMACH transition log spamming
-        smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
         # prepare temp folder
         self._tmp_folder = tempfile.mkdtemp()

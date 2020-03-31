@@ -2,7 +2,6 @@
 
 import roslib; roslib.load_manifest('flexbe_mirror')
 import rospy
-import smach
 import threading
 import zlib
 
@@ -30,13 +29,6 @@ class VigirBehaviorMirror(object):
         Constructor
         '''
         self._sm = None
-
-        smach.set_loggers (
-            rospy.logdebug, # hide SMACH transition log spamming
-            rospy.logwarn,
-            rospy.logdebug,
-            rospy.logerr
-        )
         
         # set up proxys for sm <--> GUI communication
         # publish topics
@@ -197,7 +189,7 @@ class VigirBehaviorMirror(object):
             try:
                 self._mirror_state_machine(self._current_struct)
                 rospy.loginfo('Mirror built.')
-            except (AttributeError, smach.InvalidStateError):
+            except (AttributeError, RuntimeError):
                 rospy.loginfo('Stopping synchronization because behavior has stopped.')
 
         self._execute_mirror()
@@ -214,7 +206,7 @@ class VigirBehaviorMirror(object):
 
         result = 'preempted'
         try:
-            result = self._sm.execute()
+            result = self._sm.spin()
         except Exception as e:
             rospy.loginfo('Caught exception on preempt:\n%s' % str(e))
             result = 'preempted'

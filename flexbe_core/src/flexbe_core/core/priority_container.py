@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 import traceback
-import smach
-
-from smach.state_machine import StateMachine
 
 from flexbe_core.core.operatable_state_machine import OperatableStateMachine
 
@@ -27,7 +24,7 @@ class PriorityContainer(OperatableStateMachine):
 
         outcome = OperatableStateMachine.execute(self, *args, **kwargs)
 
-        if outcome != self._loopback_name:
+        if outcome != self._loopback_name and outcome is not None:
             PriorityContainer.active_container = self._parent_active_container
 
         return outcome

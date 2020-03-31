@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-import smach
 import rospy
+from .state_machine import StateMachine
 
 
-class LockableStateMachine(smach.StateMachine):
+class LockableStateMachine(StateMachine):
     """
     A state machine that can be locked.
     When locked, no transition can be done regardless of the resulting outcome.
@@ -16,10 +16,7 @@ class LockableStateMachine(smach.StateMachine):
         super(LockableStateMachine, self).__init__(*args, **kwargs)
 
         self._locked = False
-        self._parent = None
-        self.transitions = None
         
-        self.name = None
         self._is_controlled = False
     
 
@@ -30,24 +27,23 @@ class LockableStateMachine(smach.StateMachine):
         @return: The current state (not state machine)
         """
         container = self
-        while isinstance(container._current_state, smach.StateMachine):
+        while isinstance(container._current_state, StateMachine):
             container = container._current_state
         return container._current_state
-        
 
-    def _update_once(self):
+
+    def execute(self, userdata):
         if LockableStateMachine.path_for_switch is not None and LockableStateMachine.path_for_switch.startswith(self._get_path()):
             path_segments = LockableStateMachine.path_for_switch.replace(self._get_path(), "", 1).split("/")
             wanted_state = path_segments[1]
-            self._set_current_state(wanted_state)
+            self._current_state(wanted_state)
             if len(path_segments) <= 2:
                 LockableStateMachine.path_for_switch = None
-                #self._current_state._entering = False
-        return super(LockableStateMachine, self)._update_once()
+        return super(LockableStateMachine, self).execute(userdata)
 
 
     def _is_internal_transition(self, transition_target):
-        return transition_target in self._states
+        return transition_target in self._labels
 
 
     def transition_allowed(self, state, outcome):
@@ -91,7 +87,7 @@ class LockableStateMachine(smach.StateMachine):
 
         for state in self._states:
             result = False
-            if isinstance(state, smach.StateMachine):
+            if isinstance(state, StateMachine):
                 result = state.is_locked_inside()
             else:
                 result = state.is_locked()
@@ -108,7 +104,7 @@ class LockableStateMachine(smach.StateMachine):
         for state in self._states:
             if state.is_locked():
                 return state
-            elif isinstance(state, smach.StateMachine):
+            elif isinstance(state, StateMachine):
                 return state.get_locked_state()
 
         return None

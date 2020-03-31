@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import rospy
-import smach
 import time
+
+from .state_machine import StateMachine
 
 from flexbe_msgs.msg import OutcomeRequest
 from ..proxy import ProxySubscriberCached
@@ -33,7 +34,7 @@ class JumpableStateMachine(SilentStateMachine):
         """
         # set current state and current container
         container = self
-        while isinstance(container._current_state, smach.StateMachine):
+        while isinstance(container._current_state, StateMachine):
             container = container._current_state
         current_state = container._current_state
         
@@ -89,7 +90,7 @@ class JumpableStateMachine(SilentStateMachine):
         target_path = None
         
         # enter the state machine (next lower hierarchy level)
-        if isinstance(origin_state, smach.StateMachine):
+        if isinstance(origin_state, StateMachine):
             # do not need to enter, inital state is implicitly active
             if origin_state._initial_state_label == target_state_label:
                 return path

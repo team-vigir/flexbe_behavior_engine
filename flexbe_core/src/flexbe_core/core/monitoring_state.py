@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import rospy
-import smach
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import CommandFeedback, OutcomeRequest
@@ -8,8 +7,10 @@ from flexbe_core.logger import Logger
 
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
+from .state import State
 
-class MonitoringState(smach.State):
+
+class MonitoringState(State):
     """
     A state to monitor a custom set of conditions.
     For each conditions, an outcome is added or mapped which will be returned if the condition is not met. 
@@ -22,8 +23,6 @@ class MonitoringState(smach.State):
         self._outcome_list = list(outcomes)
         self._outcome_list.remove('loopback')
 
-        self.name = None
-        self._parent = None
         self._is_controlled = False
         self._force_monitoring = False
 

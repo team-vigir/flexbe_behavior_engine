@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from smach.state_machine import StateMachine
+from .state_machine import StateMachine
 
 from .preemptable_state_machine import PreemptableStateMachine
 from flexbe_core.core.loopback_state import LoopbackState
@@ -14,10 +14,8 @@ class SilentStateMachine(PreemptableStateMachine):
     
     def __init__(self, *args, **kwargs):
         super(SilentStateMachine, self).__init__(*args, **kwargs)
-        self.name = None
         self.transitions = None
         self.autonomy = None
-        self._parent = None
         
     @staticmethod
     def add(label, state, transitions = None, autonomy = None, remapping = None):
@@ -38,7 +36,7 @@ class SilentStateMachine(PreemptableStateMachine):
         @param remapping: A dictrionary mapping local userdata keys to userdata
         keys in the container.
         """
-        self = StateMachine._currently_opened_container()
+        self = StateMachine._currently_opened_container
         
         # add loopback transition to loopback states
         if isinstance(state, LoopbackState):
@@ -46,10 +44,8 @@ class SilentStateMachine(PreemptableStateMachine):
         
         StateMachine.add(label, state, transitions, remapping)
         
-        state.name = label
         state.transitions = transitions
         state.autonomy = None
-        state._parent = self
         state._mute = True
             
     def destroy(self):
