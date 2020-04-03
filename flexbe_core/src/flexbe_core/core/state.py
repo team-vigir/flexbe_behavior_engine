@@ -4,11 +4,10 @@
 class State(object):
 
     def __init__(self, *args, **kwargs):
-        self._outcomes = set(kwargs.get('outcomes', []))
+        self._outcomes = list(set(kwargs.get('outcomes', [])))
         io_keys = kwargs.get('io_keys', [])
-        self._input_keys = set(kwargs.get('input_keys', []) + io_keys)
-        self._output_keys = set(kwargs.get('output_keys', []) + io_keys)
-        self._rate = None
+        self._input_keys = list(set(kwargs.get('input_keys', []) + io_keys))
+        self._output_keys = list(set(kwargs.get('output_keys', []) + io_keys))
         # properties of instances of a state machine
         self._name = None
         self._parent = None
@@ -17,8 +16,23 @@ class State(object):
         pass
 
     def sleep(self):
-        if self._rate is not None:
-            self._rate.sleep()
+        pass
+
+    @property
+    def sleep_duration(self):
+        return 0.
+
+    @property
+    def outcomes(self):
+        return self._outcomes
+
+    @property
+    def input_keys(self):
+        return self._input_keys
+
+    @property
+    def output_keys(self):
+        return self._output_keys
 
     # instance properties
 
@@ -43,20 +57,5 @@ class State(object):
             self._parent = value
 
     @property
-    def outcomes(self):
-        return self._outcomes
-
-    @property
-    def input_keys(self):
-        return self._input_keys
-
-    @property
-    def output_keys(self):
-        return self._output_keys
-
-    @property
-    def sleep_duration(self):
-        if self._rate is not None:
-            return self._rate.remaining().to_sec()
-        else:
-            return 0.
+    def path(self):
+        return "" if self.parent is None else self.parent.path + "/" + self.name

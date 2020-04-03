@@ -41,12 +41,12 @@ class DecisionState(EventState):
 		'''
 		
 		if self._conditions is not None:
-			outcome = DecisionState._loopback_name
+			outcome = None
 			try:
 				outcome = str(self._conditions(userdata.input_value))
 			except Exception as e:
 				Logger.logwarn('Passed no function as predicate!\n%s' % str(e))
-				outcome = DecisionState._loopback_name
+				outcome = None
 			if outcome is not None:
 				return outcome
 			

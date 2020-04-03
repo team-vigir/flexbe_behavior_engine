@@ -8,7 +8,7 @@
 #
 
 from .core import EventState
-from .core import OperatableStateMachine, JumpableStateMachine, SilentStateMachine, LockableStateMachine, ConcurrencyContainer, PriorityContainer
+from .core import OperatableStateMachine, ConcurrencyContainer, PriorityContainer
 
 from .behavior import Behavior
 

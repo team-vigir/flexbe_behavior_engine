@@ -25,11 +25,20 @@ class StateMachine(State):
         StateMachine._currently_opened_container = self._previously_opened_container
         self._previously_opened_container = None
 
+    def __contains__(self, label):
+        return label in self._labels
+
+    def __getitem__(self, label):
+        return self._labels[label]
+
+    def __iter__(self):
+        return iter(state.name for state in self._states)
+
     # construction
 
     @staticmethod
-    def add(label, state, transitions, remappings):
-        self = StateMachine._currently_opened_container
+    def add(label, state, transitions, remapping=None):
+        self = StateMachine.get_opened_container()
         if label in self._labels:
             raise ValueError("The label %s has already been added to this state machine!" % label)
         if label in self._outcomes:
@@ -38,10 +47,14 @@ class StateMachine(State):
         self._states.append(state)
         self._labels[label] = state
         self._transitions[label] = transitions
-        self._remappings[label] = remappings
+        self._remappings[label] = remapping or dict()
         # update state instance
         state.set_name(label)
         state.set_parent(self)
+
+    @staticmethod
+    def get_opened_container():
+        return StateMachine._currently_opened_container
 
     # execution
 
@@ -59,14 +72,14 @@ class StateMachine(State):
         if self._current_state is None:
             self._current_state = self.initial_state
             self._userdata = userdata
-        outcome = self._update_once()
+        outcome = self._execute_current_state()
         return outcome
 
     def sleep(self):
         if self._current_state is not None:
             self._current_state.sleep()
 
-    def _update_once(self):
+    def _execute_current_state(self):
         outcome = self._current_state.execute(
             UserData(reference=self.userdata, input_keys=self._current_state.input_keys,
                      output_keys=self._current_state.output_keys, remap=self._remappings[self._current_state.name])
@@ -74,7 +87,7 @@ class StateMachine(State):
         if outcome is not None:
             target = self._transitions[self._current_state.name][outcome]
             self._current_state = self._labels.get(target)
-            if self._current_state is None and target in self._outcomes:
+            if self._current_state is None:
                 return target
 
     # properties

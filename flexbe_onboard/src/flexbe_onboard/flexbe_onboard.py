@@ -111,7 +111,7 @@ class FlexbeOnboard(object):
                         return
                     # stop the rest
                     rospy.loginfo('Preempting current behavior version...')
-                    self.be.preempt_for_switch()
+                    self.be.preempt()
 
         # execute the behavior
         with self._run_lock:

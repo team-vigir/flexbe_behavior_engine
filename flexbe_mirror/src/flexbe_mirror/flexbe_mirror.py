@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-
-import roslib; roslib.load_manifest('flexbe_mirror')
 import rospy
 import threading
 import zlib
 
-from flexbe_core import JumpableStateMachine, LockableStateMachine
-from flexbe_core.core import PreemptableState
+from flexbe_core.core import PreemptableState, PreemptableStateMachine, LockableStateMachine
 from .mirror_state import MirrorState
 
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
@@ -29,12 +26,12 @@ class VigirBehaviorMirror(object):
         Constructor
         '''
         self._sm = None
-        
+
         # set up proxys for sm <--> GUI communication
         # publish topics
         self._pub = ProxyPublisher({'flexbe/behavior_update': String,
                                     'flexbe/request_mirror_structure': Int32})
-            
+
         self._running = False
         self._stopping = False
         self._active_id = 0
@@ -111,7 +108,7 @@ class VigirBehaviorMirror(object):
                 self._struct_buffer = self._struct_buffer[1:]
                 if struct.behavior_id == self._active_id:
                     self._mirror_state_machine(struct)
-                    rospy.loginfo('Mirror built.')
+                    rospy.loginfo('Mirror built for checksum %s.' % self._active_id)
                 else:
                     rospy.logwarn('Discarded mismatching buffered structure for checksum %s' % str(struct.behavior_id))
 
@@ -211,8 +208,6 @@ class VigirBehaviorMirror(object):
             rospy.loginfo('Caught exception on preempt:\n%s' % str(e))
             result = 'preempted'
 
-        if self._sm is not None:
-            self._sm.destroy()
         self._running = False
 
         rospy.loginfo('Mirror finished with result ' + result)
@@ -252,38 +247,22 @@ class VigirBehaviorMirror(object):
         if len(container.children) > 0:
             sm_outcomes = []
             for outcome in container.outcomes: sm_outcomes.append(outcome + '_mirror')
-            sm = JumpableStateMachine(outcomes=sm_outcomes)
+            sm = PreemptableStateMachine(outcomes=sm_outcomes)
             with sm:
                 for child in container.children: 
                     self._add_node(msg, path+'/'+child)
             if len(transitions) > 0: 
                 container_transitions = {}
                 for i in range(len(container.transitions)): container_transitions[sm_outcomes[i]] = transitions[container.outcomes[i]]
-                JumpableStateMachine.add(container_name + '_mirror', sm, transitions=container_transitions)
+                PreemptableStateMachine.add(container_name + '_mirror', sm, transitions=container_transitions)
             else:
                 self._sm = sm
         else:
-            JumpableStateMachine.add(container_name + '_mirror', MirrorState(container_name, path, container.outcomes, container.autonomy), transitions=transitions)
-    
-    
-    def _jump_callback(self, msg):
-        start_time = rospy.Time.now()
-        current_elapsed = 0
-        jumpable = True
-        while self._sm is None or not self._sm.is_running():
-            current_elapsed = rospy.Time.now() - start_time
-            if current_elapsed > rospy.Duration.from_sec(10):
-                jumpable = False
-                break
-            rospy.sleep(0.05)
-        if jumpable:
-            self._sm.jump_to(msg.stateName)
-        else:
-            rospy.logwarn('Could not jump in mirror: Mirror does not exist or is not running!')
+            PreemptableStateMachine.add(container_name + '_mirror', MirrorState(container_name, path, container.outcomes, container.autonomy), transitions=transitions)
             
 
     def _preempt_callback(self, msg):
-        if self._sm is not None and self._sm.is_running():
+        if self._sm is not None:
             rospy.logwarn('Explicit preempting is currently ignored, mirror should be preempted by onboard behavior.')
         else:
             rospy.logwarn('Could not preempt mirror because it seems not to be running!')
