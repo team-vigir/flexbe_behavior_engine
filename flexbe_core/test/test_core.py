@@ -5,6 +5,7 @@ import rospy
 from flexbe_core import EventState, OperatableStateMachine, ConcurrencyContainer
 from flexbe_core.core import PreemptableState
 from flexbe_core.proxy import ProxySubscriberCached
+from flexbe_core.core.exceptions import StateMachineError
 
 from std_msgs.msg import Bool, Empty, UInt8, String
 from flexbe_msgs.msg import CommandFeedback, OutcomeRequest
@@ -177,7 +178,7 @@ class TestCore(unittest.TestCase):
         PreemptableState.preempt = True
         outcome = self._execute(state)
         self.assertEqual(outcome, PreemptableState._preempted_name)
-        self.assertRaises(ValueError, lambda: state.parent.current_state)
+        self.assertRaises(StateMachineError, lambda: state.parent.current_state)
         PreemptableState.preempt = False
         outcome = self._execute(state)
         self.assertIsNone(outcome)
@@ -186,7 +187,7 @@ class TestCore(unittest.TestCase):
         state._sub._callback(Empty(), 'flexbe/command/preempt')
         outcome = self._execute(state)
         self.assertEqual(outcome, PreemptableState._preempted_name)
-        self.assertRaises(ValueError, lambda: state.parent.current_state)
+        self.assertRaises(StateMachineError, lambda: state.parent.current_state)
         self.assertMessage(sub, fb_topic, CommandFeedback(command='preempt'))
         PreemptableState.preempt = False
 
@@ -413,6 +414,6 @@ class TestCore(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    rospy.init_node('test_flexbe_cores')
+    rospy.init_node('test_flexbe_core')
     import rostest
     rostest.rosrun('flexbe_core', 'test_flexbe_core', TestCore)

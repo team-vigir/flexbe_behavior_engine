@@ -2,7 +2,7 @@
 import rospy
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 
-from .state import State
+from flexbe_core.core.state import State
 
 
 class RosState(State):

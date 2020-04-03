@@ -30,3 +30,7 @@ class PreemptableStateMachine(LockableStateMachine):
     def add(label, state, transitions=None, remapping=None):
         transitions[PreemptableState._preempted_name] = PreemptableStateMachine._preempted_name
         LockableStateMachine.add(label, state, transitions, remapping)
+
+    @property
+    def _valid_targets(self):
+        return super(PreemptableStateMachine, self)._valid_targets + [PreemptableStateMachine._preempted_name]

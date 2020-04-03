@@ -24,6 +24,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         self.id = None
         self._autonomy = {}
         self._inner_sync_request = False
+        self._last_exception = None
 
     # construction
 
@@ -89,7 +90,14 @@ class OperatableStateMachine(PreemptableStateMachine):
     # execution
 
     def _execute_current_state(self):
-        outcome = super(OperatableStateMachine, self)._execute_current_state()
+        # catch any exception and keep state active to let operator intervene
+        try:
+            outcome = super(OperatableStateMachine, self)._execute_current_state()
+            self._last_exception = None
+        except Exception as e:
+            outcome = None
+            self._last_exception = e
+            Logger.logerr('Failed to execute state %s:\n%s' % (self.current_state_label, str(e)))
         # provide explicit sync as back-up functionality
         # should be used only if there is no other choice
         # since it requires additional 8 byte + header update bandwith and time to restart mirror

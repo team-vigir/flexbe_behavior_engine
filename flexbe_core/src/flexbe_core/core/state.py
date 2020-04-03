@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from flexbe_core.core.exceptions import StateError
 
 
 class State(object):
@@ -42,7 +43,7 @@ class State(object):
 
     def set_name(self, value):
         if self._name is not None:
-            raise ValueError("Cannot change the name of a state!")
+            raise StateError("Cannot change the name of a state!")
         else:
             self._name = value
 
@@ -52,7 +53,7 @@ class State(object):
 
     def set_parent(self, value):
         if self._parent is not None:
-            raise ValueError("Cannot change the parent of a state!")
+            raise StateError("Cannot change the parent of a state!")
         else:
             self._parent = value
 

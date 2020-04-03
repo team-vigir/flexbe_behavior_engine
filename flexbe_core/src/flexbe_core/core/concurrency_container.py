@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import traceback
-
+from flexbe_core.logger import Logger
 from flexbe_core.core.user_data import UserData
 from flexbe_core.core.event_state import EventState
 from flexbe_core.core.priority_container import PriorityContainer
@@ -69,21 +68,16 @@ class ConcurrencyContainer(OperatableStateMachine):
         if outcome is None:
             return None
 
-        if outcome in self.outcomes:
-            # trigger on_exit for those states that are not done yet
-            self.on_exit(self.userdata,
-                         states=[s for s in self._states if (s.name not in list(self._returned_outcomes.keys()) or
-                                                             self._returned_outcomes[s.name] is None)])
-            self._returned_outcomes = dict()
-            # right now, going out of a cc may break sync
-            # thus, as a quick fix, explicitly sync again
-            self._parent._inner_sync_request = True
-            self._current_state = None
-            return outcome
-        else:
-            raise ValueError("Outcome '%s' of state '%s' with transition target '%s' "
-                             "is neither a registered state nor a registered container outcome." %
-                             (outcome, self.name, outcome))
+        # trigger on_exit for those states that are not done yet
+        self.on_exit(self.userdata,
+                     states=[s for s in self._states if (s.name not in list(self._returned_outcomes.keys()) or
+                                                         self._returned_outcomes[s.name] is None)])
+        self._returned_outcomes = dict()
+        # right now, going out of a cc may break sync
+        # thus, as a quick fix, explicitly sync again
+        self._parent._inner_sync_request = True
+        self._current_state = None
+        return outcome
 
     def _execute_single_state(self, state, force_exit=False):
         result = None
@@ -95,9 +89,10 @@ class ConcurrencyContainer(OperatableStateMachine):
                 state.on_exit(ud)
             else:
                 result = state.execute(ud)
-        except Exception:
-            raise RuntimeError("Could not execute state '%s' of type '%s': " %
-                               (state.name, state) + traceback.format_exc())
+        except Exception as e:
+            result = None
+            self._last_exception = e
+            Logger.logerr('Failed to execute state %s:\n%s' % (self.current_state_label, str(e)))
         return result
 
     def _enable_ros_control(self):

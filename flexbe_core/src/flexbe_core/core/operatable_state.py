@@ -51,7 +51,7 @@ class OperatableState(PreemptableState):
                 outcome = None
 
             # autonomy level is high enough, report the executed transition
-            elif outcome is not None and outcome != self._preempted_name:
+            elif outcome is not None and outcome in self.outcomes:
                 Logger.localinfo("State result: %s > %s" % (self.name, outcome))
                 self._pub.publish(self._outcome_topic, UInt8(self.outcomes.index(outcome)))
                 self._pub.publish(self._debug_topic, String("%s > %s" % (self.path, outcome)))

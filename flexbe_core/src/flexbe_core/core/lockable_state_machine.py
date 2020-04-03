@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from .ros_state_machine import RosStateMachine
+from flexbe_core.core.ros_state_machine import RosStateMachine
 
 
 class LockableStateMachine(RosStateMachine):
@@ -32,7 +32,7 @@ class LockableStateMachine(RosStateMachine):
     def transition_allowed(self, state, outcome):
         if outcome is None or outcome == 'None':
             return True
-        transition_target = self._transitions[state][outcome]
+        transition_target = self._transitions[state].get(outcome)
         return (self._is_internal_transition(transition_target) or
                 (not self._locked and (self.parent is None or
                                        self.parent.transition_allowed(self.name, transition_target))))

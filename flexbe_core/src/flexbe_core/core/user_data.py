@@ -1,4 +1,5 @@
 #!/user/bin/env python
+from flexbe_core.core.exceptions import UserDataError
 
 
 class UserData(object):
@@ -17,12 +18,14 @@ class UserData(object):
 
     def __getitem__(self, key):
         if key not in self:
-            raise KeyError("Key %s not contained, make sure it is defined as input key." % key)
+            raise UserDataError("Key '%s' cannot be accessed, declare it as input key for read access." % key
+                                if self._input_keys is not None and key not in self._input_keys else
+                                "No data found for declared input key '%s'" % key)
         return self._data[self._remap.get(key, key)]
 
     def __setitem__(self, key, value):
         if self._output_keys is not None and key not in self._output_keys:
-            raise KeyError("Key %s cannot be set, make sure it is defined as output key." % key)
+            raise UserDataError("Key '%s' cannot be set, declare it as output key for write access." % key)
         self._data[self._remap.get(key, key)] = value
 
     def __getattr__(self, key):

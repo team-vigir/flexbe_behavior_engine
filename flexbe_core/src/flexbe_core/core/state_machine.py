@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-from .state import State
-from .user_data import UserData
+from flexbe_core.core.state import State
+from flexbe_core.core.user_data import UserData
+from flexbe_core.core.exceptions import StateError, StateMachineError
 
 
 class StateMachine(State):
@@ -39,10 +40,12 @@ class StateMachine(State):
     @staticmethod
     def add(label, state, transitions, remapping=None):
         self = StateMachine.get_opened_container()
+        if self is None:
+            raise StateMachineError("No container openend, activate one first by: 'with state_machine:'")
         if label in self._labels:
-            raise ValueError("The label %s has already been added to this state machine!" % label)
+            raise StateMachineError("The label %s has already been added to this state machine!" % label)
         if label in self._outcomes:
-            raise ValueError("The label %s is an outcome of this state machine!" % label)
+            raise StateMachineError("The label %s is an outcome of this state machine!" % label)
         # add state to this state machine
         self._states.append(state)
         self._labels[label] = state
@@ -70,6 +73,7 @@ class StateMachine(State):
 
     def execute(self, userdata):
         if self._current_state is None:
+            self.assert_consistent_transitions()
             self._current_state = self.initial_state
             self._userdata = userdata
         outcome = self._execute_current_state()
@@ -85,7 +89,11 @@ class StateMachine(State):
                      output_keys=self._current_state.output_keys, remap=self._remappings[self._current_state.name])
         )
         if outcome is not None:
-            target = self._transitions[self._current_state.name][outcome]
+            try:
+                target = self._transitions[self._current_state.name][outcome]
+            except KeyError as e:
+                outcome = None
+                raise StateError("Returned outcome '%s' is not registered as transition!" % str(e))
             self._current_state = self._labels.get(target)
             if self._current_state is None:
                 return target
@@ -101,7 +109,7 @@ class StateMachine(State):
         if self._current_state is not None:
             return self._current_state
         else:
-            raise ValueError("No state active!")
+            raise StateMachineError("No state active!")
 
     @property
     def current_state_label(self):
@@ -112,7 +120,7 @@ class StateMachine(State):
         if len(self._states) > 0:
             return self._states[0]
         else:
-            raise ValueError("No states added yet!")
+            raise StateMachineError("No states added yet!")
 
     @property
     def initial_state_label(self):
@@ -124,3 +132,16 @@ class StateMachine(State):
             return self._current_state.sleep_duration
         else:
             return 0.
+
+    # consistency checks
+
+    @property
+    def _valid_targets(self):
+        return self._labels.keys() + self.outcomes
+
+    def assert_consistent_transitions(self):
+        for transitions in self._transitions.values():
+            for transition_target in transitions.values():
+                if transition_target not in self._valid_targets:
+                    raise StateMachineError("Transition target '%s' missing in %s" %
+                                            (transition_target, str(self._valid_targets)))
