@@ -13,6 +13,7 @@ import difflib
 import os
 import yaml
 import xml.etree.ElementTree as ET
+import threading
 
 class BehaviorLauncher(object):
 
@@ -21,11 +22,14 @@ class BehaviorLauncher(object):
 	def __init__(self):
 		Logger.initialize()
 
+		self._ready_event = threading.Event()
+
 		self._sub = rospy.Subscriber("flexbe/request_behavior", BehaviorRequest, self._callback)
 		self._version_sub = rospy.Subscriber("flexbe/ui_version", String, self._version_callback)
 
 		self._pub = rospy.Publisher("flexbe/start_behavior", BehaviorSelection, queue_size=100)
 		self._status_pub = rospy.Publisher("flexbe/status", BEStatus, queue_size=100)
+		self._status_sub = rospy.Subscriber("flexbe/status", BEStatus, self._status_callback)
 		self._mirror_pub = rospy.Publisher("flexbe/mirror/structure", ContainerStructure, queue_size=100)
 
 		self._rp = RosPack()
@@ -33,6 +37,9 @@ class BehaviorLauncher(object):
 
 		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
+	def _status_callback(self, msg):
+		if msg.code == BEStatus.READY:
+			self._ready_event.set()
 
 	def _callback(self, msg):
 		be_id, behavior = self._behavior_lib.find_behavior(msg.behavior_name)
@@ -69,6 +76,9 @@ class BehaviorLauncher(object):
 			rospy.logwarn('Failed to parse and substitute behavior arguments, will use direct input.\n%s' % str(e))
 			be_selection.arg_keys = msg.arg_keys
 			be_selection.arg_values = msg.arg_values
+
+		# wait until Behavior Engine status is BEStatus.READY
+		self._ready_event.wait()
 
 		be_structure = ContainerStructure()
 		be_structure.containers = msg.structure
