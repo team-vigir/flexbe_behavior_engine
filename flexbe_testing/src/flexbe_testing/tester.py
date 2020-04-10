@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import rospy
 import rosunit
 import unittest
 import re
@@ -104,7 +103,7 @@ class Tester(object):
             # evaluate output
             output_ok = True
             for expected_key, expected_value in list(expected.items()):
-                if expected_key in list(userdata.keys()):
+                if expected_key in userdata:
                     equals = userdata[expected_key] == expected_value
                     self._tests['test_%s_output_%s' % (name, expected_key)] = \
                         self._test_output(userdata[expected_key], expected_value)
