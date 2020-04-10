@@ -15,7 +15,8 @@ class StateMachine(State):
         self._transitions = dict()
         self._remappings = dict()
         self._current_state = None
-        self._userdata = UserData()
+        self._own_userdata = UserData()
+        self._userdata = None
         self._previously_opened_container = None
 
     def __enter__(self):
@@ -62,10 +63,9 @@ class StateMachine(State):
     # execution
 
     def spin(self, userdata=None):
-        self._userdata = userdata or self._userdata
         outcome = None
         while True:
-            outcome = self.execute(self._userdata)
+            outcome = self.execute(userdata)
             if outcome is not None:
                 break
             self.sleep()
@@ -75,7 +75,7 @@ class StateMachine(State):
         if self._current_state is None:
             self.assert_consistent_transitions()
             self._current_state = self.initial_state
-            self._userdata = userdata
+            self._userdata = (userdata or UserData()) + self._own_userdata
         outcome = self._execute_current_state()
         return outcome
 
@@ -84,10 +84,10 @@ class StateMachine(State):
             self._current_state.sleep()
 
     def _execute_current_state(self):
-        outcome = self._current_state.execute(
-            UserData(reference=self.userdata, input_keys=self._current_state.input_keys,
-                     output_keys=self._current_state.output_keys, remap=self._remappings[self._current_state.name])
-        )
+        with UserData(reference=self._userdata, remap=self._remappings[self._current_state.name],
+                      input_keys=self._current_state.input_keys, output_keys=self._current_state.output_keys
+                      ) as userdata:
+            outcome = self._current_state.execute(userdata)
         if outcome is not None:
             try:
                 target = self._transitions[self._current_state.name][outcome]
@@ -102,7 +102,7 @@ class StateMachine(State):
 
     @property
     def userdata(self):
-        return self._userdata
+        return self._own_userdata
 
     @property
     def current_state(self):

@@ -99,6 +99,25 @@ class TestExceptions(unittest.TestCase):
         self.assertIsNone(outcome)
         self.assertIsInstance(sm._last_exception, UserDataError)
 
+    def test_modify_input_key(self):
+        class ModifyInputKey(EventState):
+
+            def __init__(self):
+                super(ModifyInputKey, self).__init__(outcomes=['done'], input_keys=['only_input'])
+
+            def execute(self, userdata):
+                userdata.only_input['new'] = 'not_allowed'
+                return 'done'
+
+        sm = OperatableStateMachine(outcomes=['done'])
+        sm.userdata.only_input = {'existing': 'is_allowed'}
+        with sm:
+            OperatableStateMachine.add('state', ModifyInputKey(), transitions={'done': 'done'})
+
+        outcome = sm.execute(None)
+        self.assertIsNone(outcome)
+        self.assertIsInstance(sm._last_exception, UserDataError)
+
 
 if __name__ == '__main__':
     rospy.init_node('test_flexbe_exceptions')

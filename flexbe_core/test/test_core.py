@@ -412,6 +412,81 @@ class TestCore(unittest.TestCase):
         self.assertListEqual(cc['main'].last_events, ['on_exit'])
         self.assertListEqual(cc['side'].last_events, ['on_exit'])
 
+    def test_user_data(self):
+        class TestUserdata(EventState):
+
+            def __init__(self, out_content='test_data'):
+                super(TestUserdata, self).__init__(outcomes=['done'], input_keys=['data_in'], output_keys=['data_out'])
+                self.data = None
+                self._out_content = out_content
+
+            def execute(self, userdata):
+                rospy.logwarn('\033[0m%s\n%s' % (self.path, str(userdata)))  # log for manual inspection
+                self.data = userdata.data_in
+                userdata.data_out = self._out_content
+                return 'done'
+
+        inner_sm = OperatableStateMachine(outcomes=['done'], input_keys=['sm_in'], output_keys=['sm_out'])
+        inner_sm.userdata.own = 'own_data'
+        with inner_sm:
+            OperatableStateMachine.add('own_state', TestUserdata('inner_data'), transitions={'done': 'outside_state'},
+                                       remapping={'data_in': 'own', 'data_out': 'sm_out'})
+            OperatableStateMachine.add('outside_state', TestUserdata(), transitions={'done': 'internal_state'},
+                                       remapping={'data_in': 'sm_in', 'data_out': 'data_in'})
+            OperatableStateMachine.add('internal_state', TestUserdata(), transitions={'done': 'done'},
+                                       remapping={})
+
+        sm = OperatableStateMachine(outcomes=['done'])
+        sm.userdata.outside = 'outside_data'
+        with sm:
+            OperatableStateMachine.add('before_state', TestUserdata(), transitions={'done': 'inner_sm'},
+                                       remapping={'data_in': 'outside'})
+            OperatableStateMachine.add('inner_sm', inner_sm, transitions={'done': 'after_state'},
+                                       remapping={'sm_in': 'outside'})
+            OperatableStateMachine.add('after_state', TestUserdata('last_data'), transitions={'done': 'modify_state'},
+                                       remapping={'data_in': 'sm_out'})
+            OperatableStateMachine.add('modify_state', TestUserdata(), transitions={'done': 'final_state'},
+                                       remapping={'data_out': 'outside', 'data_in': 'outside'})
+            OperatableStateMachine.add('final_state', TestUserdata(), transitions={'done': 'done'},
+                                       remapping={'data_in': 'data_out'})
+
+        # can pass userdata to state and get it from state
+        sm.execute(None)
+        self.assertEqual(sm['before_state'].data, 'outside_data')
+        self.assertEqual(sm._userdata.data_out, 'test_data')
+
+        # sub-state machine can set its own local userdata
+        sm.execute(None)
+        self.assertEqual(sm['inner_sm']['own_state'].data, 'own_data')
+        self.assertNotIn('own', sm._userdata)  # transparent to outer sm
+
+        # sub-state machine can read data from parent state machine
+        sm.execute(None)
+        self.assertEqual(sm['inner_sm']['outside_state'].data, 'outside_data')
+
+        # sub-state machine can pass along its local userdata
+        self.assertIn('data_in', sm['inner_sm']._userdata)
+        sm.execute(None)
+        self.assertEqual(sm['inner_sm']['internal_state'].data, 'test_data')
+        self.assertNotIn('data_in', sm._userdata)  # transparent to outer sm
+
+        # sub-state machine userdata is wrote back to the parent
+        self.assertEqual(sm._userdata.sm_out, 'inner_data')
+
+        # outer state machine can read data set by inner state machine
+        sm.execute(None)
+        self.assertEqual(sm['after_state'].data, 'inner_data')
+
+        # can remap different keys to achieve read-write access
+        sm.execute(None)
+        self.assertEqual(sm['modify_state'].data, 'outside_data')
+        self.assertEqual(sm._userdata.outside, 'test_data')
+
+        # one state can read data set by another one
+        outcome = sm.execute(None)
+        self.assertEqual(sm['final_state'].data, 'last_data')
+        self.assertEqual(outcome, 'done')
+
 
 if __name__ == '__main__':
     rospy.init_node('test_flexbe_core')
