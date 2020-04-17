@@ -75,7 +75,8 @@ class StateMachine(State):
         if self._current_state is None:
             self.assert_consistent_transitions()
             self._current_state = self.initial_state
-            self._userdata = (userdata or UserData()) + self._own_userdata
+            self._userdata = userdata or UserData()
+            self._userdata(add_from=self._own_userdata)
         outcome = self._execute_current_state()
         return outcome
 

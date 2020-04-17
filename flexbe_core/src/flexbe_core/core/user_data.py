@@ -58,16 +58,15 @@ class UserData(object):
             raise UserDataError("Key '%s' cannot be set, declare it as output key for write access." % key)
         self[key] = value
 
-    def __call__(self, reference=None):
+    def __call__(self, reference=None, add_from=None, update_from=None):
         self._reference = reference or self._reference
-        return self
-
-    def __add__(self, other):
-        if not isinstance(other, UserData):
-            raise UserDataError("Can only add other userdata, not %s" % str(other))
-        for key, value in other._data.items():
-            self._data[key] = value
-        return self
+        if isinstance(add_from, UserData):
+            for key, value in add_from._data.items():
+                if key not in self._data:
+                    self._data[key] = value
+        if isinstance(update_from, UserData):
+            for key, value in update_from._data.items():
+                self._data[key] = value
 
     def __len__(self):
         return len(self._data) + len(self._reference)
