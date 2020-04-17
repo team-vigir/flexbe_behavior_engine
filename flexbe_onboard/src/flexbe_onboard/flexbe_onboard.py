@@ -8,6 +8,7 @@ import threading
 import time
 import smach
 import zlib
+import contextlib
 from ast import literal_eval as cast
 
 from flexbe_core import Logger, BehaviorLibrary
@@ -25,6 +26,7 @@ class FlexbeOnboard(object):
     def __init__(self):
         self.be = None
         Logger.initialize()
+        self._tracked_imports = list()
         # hide SMACH transition log spamming
         smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
@@ -146,6 +148,8 @@ class FlexbeOnboard(object):
 
             # done, remove left-overs like the temporary behavior file
             try:
+                if not self._switching:
+                    self._clear_imports()
                 self._cleanup_behavior(msg.behavior_checksum)
             except Exception as e:
                 rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
@@ -215,11 +219,12 @@ class FlexbeOnboard(object):
 
         # import temp class file and initialize behavior
         try:
-            package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
-            clsmembers = inspect.getmembers(package, lambda member: (inspect.isclass(member) and
-                                                                     member.__module__ == package.__name__))
-            beclass = clsmembers[0][1]
-            be = beclass()
+            with self._track_imports():
+                package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
+                clsmembers = inspect.getmembers(package, lambda member: (inspect.isclass(member) and
+                                                                         member.__module__ == package.__name__))
+                beclass = clsmembers[0][1]
+                be = beclass()
             rospy.loginfo('Behavior ' + be.name + ' created.')
         except Exception as e:
             Logger.logerr('Exception caught in behavior definition:\n%s' % str(e))
@@ -275,7 +280,6 @@ class FlexbeOnboard(object):
         return True
 
     def _cleanup_behavior(self, behavior_checksum):
-        del(sys.modules["tmp_%d" % behavior_checksum])
         file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
         try:
             os.remove(file_path)
@@ -285,6 +289,12 @@ class FlexbeOnboard(object):
             os.remove(file_path + 'c')
         except OSError:
             pass
+
+    def _clear_imports(self):
+        for module in self._tracked_imports:
+            if module in sys.modules:
+                del sys.modules[module]
+        self._tracked_imports = list()
 
     def _cleanup_tempdir(self):
         try:
@@ -329,3 +339,11 @@ class FlexbeOnboard(object):
 
     class _attr_dict(dict):
         __getattr__ = dict.__getitem__
+
+    @contextlib.contextmanager
+    def _track_imports(self):
+        previous_modules = set(sys.modules.keys())
+        try:
+            yield
+        finally:
+            self._tracked_imports.extend(set(sys.modules.keys()) - previous_modules)
