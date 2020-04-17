@@ -79,5 +79,4 @@ class TestInterface(object):
             outcome = sm.execute(userdata)
             sm.sleep()
             spin_cb()
-        userdata.update(sm.userdata)
         return outcome

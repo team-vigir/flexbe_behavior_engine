@@ -1,0 +1,13 @@
+path: flexbe_testing.test.selftest_behavior_sm
+class: SelftestBehaviorSM
+
+params:
+    value: correct
+
+input:
+    data: 3
+
+output:
+    result: 6
+
+outcome: finished
