@@ -10,21 +10,10 @@ from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import ContainerStructure, BehaviorSync, BEStatus
 from std_msgs.msg import Empty, String, Int32, UInt8
 
-'''
-Created on 08.05.2013
 
-@author: Philipp Schillinger
-'''
-class VigirBehaviorMirror(object):
-    '''
-    classdocs
-    '''
-
+class FlexbeMirror(object):
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self._sm = None
 
         # set up proxys for sm <--> GUI communication
@@ -37,12 +26,11 @@ class VigirBehaviorMirror(object):
         self._active_id = 0
         self._starting_path = None
         self._current_struct = None
+        self._struct_buffer = list()
         self._sync_lock = threading.Lock()
 
         self._outcome_topic = 'flexbe/mirror/outcome'
 
-        self._struct_buffer = list()
-        
         # listen for mirror message
         self._sub = ProxySubscriberCached()
         self._sub.subscribe(self._outcome_topic, UInt8)
@@ -52,17 +40,18 @@ class VigirBehaviorMirror(object):
         self._sub.subscribe('flexbe/status', BEStatus, self._status_callback)
         self._sub.subscribe('flexbe/mirror/sync', BehaviorSync, self._sync_callback)
         self._sub.subscribe('flexbe/mirror/preempt', Empty, self._preempt_callback)
-    
-    
+
     def _mirror_callback(self, msg):
         rate = rospy.Rate(10)
         while self._stopping:
             rate.sleep()
-            
+
         if self._running:
-            rospy.logwarn('Received a new mirror structure while mirror is already running, adding to buffer (checksum: %s).' % str(msg.behavior_id))
+            rospy.logwarn('Received a new mirror structure while mirror is already running, '
+                          'adding to buffer (checksum: %s).' % str(msg.behavior_id))
         elif self._active_id != 0 and msg.behavior_id != self._active_id:
-            rospy.logwarn('checksum of received mirror structure (%s) does not match expected checksum (%s), will ignore.' % (str(msg.behavior_id), str(self._active_id)))
+            rospy.logwarn('Checksum of received mirror structure (%s) does not match expected (%s), '
+                          'will ignore.' % (str(msg.behavior_id), str(self._active_id)))
             return
         else:
             rospy.loginfo('Received a new mirror structure for checksum %s' % str(msg.behavior_id))
@@ -76,7 +65,6 @@ class VigirBehaviorMirror(object):
 
             self._execute_mirror()
 
-
     def _status_callback(self, msg):
         if msg.code == BEStatus.STARTED:
             thread = threading.Thread(target=self._start_mirror, args=[msg])
@@ -86,7 +74,6 @@ class VigirBehaviorMirror(object):
             thread = threading.Thread(target=self._stop_mirror, args=[msg])
             thread.daemon = True
             thread.start()
-
 
     def _start_mirror(self, msg):
         with self._sync_lock:
@@ -114,13 +101,12 @@ class VigirBehaviorMirror(object):
 
             if self._sm is None:
                 rospy.logwarn('Missing correct mirror structure, requesting...')
-                rospy.sleep(0.2) # no clean wayacquire to wait for publisher to be ready...
+                rospy.sleep(0.2)  # no clean wayacquire to wait for publisher to be ready...
                 self._pub.publish('flexbe/request_mirror_structure', Int32(msg.behavior_id))
                 self._active_id = msg.behavior_id
                 return
 
         self._execute_mirror()
-
 
     def _stop_mirror(self, msg):
         with self._sync_lock:
@@ -156,7 +142,6 @@ class VigirBehaviorMirror(object):
 
             self._stopping = False
 
-
     def _sync_callback(self, msg):
         if msg.behavior_id == self._active_id:
             thread = threading.Thread(target=self._restart_mirror, args=[msg])
@@ -167,7 +152,6 @@ class VigirBehaviorMirror(object):
             thread = threading.Thread(target=self._stop_mirror, args=[None])
             thread.daemon = True
             thread.start()
-
 
     def _restart_mirror(self, msg):
         with self._sync_lock:
@@ -190,7 +174,6 @@ class VigirBehaviorMirror(object):
                 rospy.loginfo('Stopping synchronization because behavior has stopped.')
 
         self._execute_mirror()
-        
 
     def _execute_mirror(self):
         self._running = True
@@ -211,8 +194,7 @@ class VigirBehaviorMirror(object):
         self._running = False
 
         rospy.loginfo('Mirror finished with result ' + result)
-    
-    
+
     def _mirror_state_machine(self, msg):
         self._current_struct = msg
         self._state_checksums = dict()
@@ -226,47 +208,44 @@ class VigirBehaviorMirror(object):
         for con_msg in msg.containers:
             if con_msg.path.find('/') != -1:
                 self._state_checksums[zlib.adler32(con_msg.path)] = con_msg.path
-        
-    
+
     def _add_node(self, msg, path):
-        #rospy.loginfo('Add node: '+path)
         container = None
         for con_msg in msg.containers:
             if con_msg.path == path:
                 container = con_msg
                 break
-            
+
         transitions = None
         if container.transitions is not None:
             transitions = {}
             for i in range(len(container.transitions)):
                 transitions[container.outcomes[i]] = container.transitions[i] + '_mirror'
-            
+
         path_frags = path.split('/')
         container_name = path_frags[len(path_frags)-1]
         if len(container.children) > 0:
             sm_outcomes = []
-            for outcome in container.outcomes: sm_outcomes.append(outcome + '_mirror')
+            for outcome in container.outcomes:
+                sm_outcomes.append(outcome + '_mirror')
             sm = PreemptableStateMachine(outcomes=sm_outcomes)
             with sm:
-                for child in container.children: 
+                for child in container.children:
                     self._add_node(msg, path+'/'+child)
-            if len(transitions) > 0: 
+            if len(transitions) > 0:
                 container_transitions = {}
-                for i in range(len(container.transitions)): container_transitions[sm_outcomes[i]] = transitions[container.outcomes[i]]
+                for i in range(len(container.transitions)):
+                    container_transitions[sm_outcomes[i]] = transitions[container.outcomes[i]]
                 PreemptableStateMachine.add(container_name + '_mirror', sm, transitions=container_transitions)
             else:
                 self._sm = sm
         else:
-            PreemptableStateMachine.add(container_name + '_mirror', MirrorState(container_name, path, container.outcomes, container.autonomy), transitions=transitions)
-            
+            PreemptableStateMachine.add(container_name + '_mirror',
+                                        MirrorState(container_name, path, container.outcomes, container.autonomy),
+                                        transitions=transitions)
 
     def _preempt_callback(self, msg):
         if self._sm is not None:
             rospy.logwarn('Explicit preempting is currently ignored, mirror should be preempted by onboard behavior.')
         else:
             rospy.logwarn('Could not preempt mirror because it seems not to be running!')
-
-
-
-

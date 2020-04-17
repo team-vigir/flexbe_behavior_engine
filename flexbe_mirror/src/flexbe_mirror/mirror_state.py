@@ -14,9 +14,6 @@ class MirrorState(EventState):
     '''
 
     def __init__(self, target_name, target_path, given_outcomes, outcome_autonomy):
-        '''
-        Constructor
-        '''
         super(MirrorState, self).__init__(outcomes=given_outcomes)
         self.set_rate(100)
         self._target_name = target_name
@@ -28,9 +25,6 @@ class MirrorState(EventState):
         self._sub = ProxySubscriberCached({self._outcome_topic: UInt8})
 
     def execute(self, userdata):
-        '''
-        Execute this state
-        '''
         if self._sub.has_buffered(self._outcome_topic):
             msg = self._sub.get_from_buffer(self._outcome_topic)
             if msg.data < len(self.outcomes):
