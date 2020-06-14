@@ -2,6 +2,26 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#120 <https://github.com/team-vigir/flexbe_behavior_engine/issues/120>`_ from cheffe112/startup_race_condition
+  wait for READY status from Behavior Engine before launching behavior to avoid race conditions on startup
+* avoid callback trigger before ready event has been created
+* Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework
+  State Logger Rework
+* Merge branch 'develop' into feature/state_logger_rework
+* wait for READY status from Behavior Engine before launching behavior
+  Whenever behavior_onboard and be_launcher are launched together, there used to be a race condition of publishing the behavior in behavior_launcher, but the subscriber in behavior_onboard not being ready yet. Hence, behavior_launcher now waits for the READY status to appear on the flexbe/status topic before it actually attempts to launch the behavior.
+* [flexbe_widget] Update evaluate_logs script to new format
+* Merge pull request `#118 <https://github.com/team-vigir/flexbe_behavior_engine/issues/118>`_ from StefanFabian/action_server_callback_based
+  Using event based action server instead of control loop.
+* Improved preempt logic.
+* Only accept goal if ActionServer is not active.
+* Handle errors before behavior start.
+* Using event based action server instead of control loop.
+  Waiting for terminal state of flexbe before setting goal to a terminal state and accepting a new one.
+* Contributors: Philipp Schillinger, Stefan Fabian, Tobias Doernbach
+
 1.2.4 (2020-03-25)
 ------------------
 * Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install

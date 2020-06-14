@@ -2,6 +2,18 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_onboard] Un-import behavior-specific imports after execution
+* [flexbe_onboard] Add test cases for onboard engine
+* Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework
+  State Logger Rework
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_onboard] Cleanup onboard and add thread locks
+  (see `#117 <https://github.com/team-vigir/flexbe_behavior_engine/issues/117>`_)
+* [flexbe_onboard] Expose new state logger args in onboard launch file
+* Contributors: Philipp Schillinger
+
 1.2.4 (2020-03-25)
 ------------------
 * Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install

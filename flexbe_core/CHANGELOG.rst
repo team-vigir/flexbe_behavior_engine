@@ -2,6 +2,18 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] Consider a running mirror as being controlled
+  (see `#123 <https://github.com/team-vigir/flexbe_behavior_engine/issues/123>`_)
+* Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework
+  State Logger Rework
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_core] Allow to specify a subset of logged userdata keys
+* [flexbe_core] Extend configuration options
+* [flexbe_core] Rework state logger implementation
+* Contributors: Philipp Schillinger
+
 1.2.4 (2020-03-25)
 ------------------
 * [flexbe_core] Add tests for proxies

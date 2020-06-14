@@ -2,6 +2,13 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_states] Fix ambiguous import of subscriber state
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_states] Clean up input state
+* Contributors: Philipp Schillinger
+
 1.2.4 (2020-03-25)
 ------------------
 * Merge branch 'fmessmer-feature/python3_compatibility' into develop

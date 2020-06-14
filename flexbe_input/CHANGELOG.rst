@@ -2,6 +2,11 @@
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'develop' into feature/state_logger_rework
+* Contributors: Philipp Schillinger
+
 1.2.4 (2020-03-25)
 ------------------
 * Merge branch 'fmessmer-feature/python3_compatibility' into develop

@@ -2,6 +2,11 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'develop' into feature/state_logger_rework
+* Contributors: Philipp Schillinger
+
 1.2.4 (2020-03-25)
 ------------------
 * Merge pull request `#109 <https://github.com/team-vigir/flexbe_behavior_engine/issues/109>`_ from Achllle/feature/testing/timeout_parameter
