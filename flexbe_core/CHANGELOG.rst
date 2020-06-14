@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2020-06-14)
+------------------
 * [flexbe_core] Consider a running mirror as being controlled
   (see `#123 <https://github.com/team-vigir/flexbe_behavior_engine/issues/123>`_)
 * Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework

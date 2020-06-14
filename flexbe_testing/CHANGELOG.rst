@@ -2,8 +2,8 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2020-06-14)
+------------------
 * Merge branch 'develop' into feature/state_logger_rework
 * Contributors: Philipp Schillinger
 

@@ -2,8 +2,8 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2020-06-14)
+------------------
 * Merge pull request `#120 <https://github.com/team-vigir/flexbe_behavior_engine/issues/120>`_ from cheffe112/startup_race_condition
   wait for READY status from Behavior Engine before launching behavior to avoid race conditions on startup
 * avoid callback trigger before ready event has been created

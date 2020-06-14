@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_widget</name>
-  <version>1.2.4</version>
+  <version>1.2.5</version>
   <description>
      flexbe_widget implements some smaller scripts for the behavior engine.
   </description>

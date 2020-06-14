@@ -2,8 +2,8 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2020-06-14)
+------------------
 * [flexbe_onboard] Un-import behavior-specific imports after execution
 * [flexbe_onboard] Add test cases for onboard engine
 * Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework

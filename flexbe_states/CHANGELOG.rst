@@ -2,8 +2,8 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.5 (2020-06-14)
+------------------
 * [flexbe_states] Fix ambiguous import of subscriber state
 * Merge branch 'develop' into feature/state_logger_rework
 * [flexbe_states] Clean up input state
