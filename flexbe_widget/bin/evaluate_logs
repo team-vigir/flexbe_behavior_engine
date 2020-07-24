@@ -1,4 +1,11 @@
-#!/usr/bin/env python
+#!/bin/bash
+if "true" : '''\'
+then
+python${ROS_PYTHON_VERSION:-} "${BASH_SOURCE[0]}" $*
+exit
+fi
+'''
+# flake8: noqa
 import sys
 import yaml
 import argparse
@@ -33,7 +40,7 @@ if __name__ == '__main__':
 
     try:
         with open(args.logfile) as f:
-            logs = yaml.load(f)
+            logs = yaml.safe_load(f)
     except Exception as e:
         print('Failed to load logfile "%s":\n%s' % (str(args.logfile), str(e)))
         sys.exit(1)
@@ -104,7 +111,7 @@ if __name__ == '__main__':
             'transition': lambda s: "%s > %s" % (s['state_path'], s['outcome'])
         }
         key_function = key_definitions[args.key]
-    except KeyError as e:
+    except KeyError:
         print('Invalid key selected: %s\nAvailable: %s' % (str(args.key), ', '.join(key_definitions.keys())))
         sys.exit(1)
 
@@ -117,7 +124,7 @@ if __name__ == '__main__':
                 accumulated[key] = defaultdict(int)
             for value in values:
                 accumulated[key][value] += state[value]
-    except KeyError as e:
+    except KeyError:
         keys = set(state.keys()) - {'state_name', 'state_path', 'state_class'}
         print('Invalid value selected: %s\nAvailable: %s' % (str(args.key), ', '.join(keys)))
         sys.exit(1)

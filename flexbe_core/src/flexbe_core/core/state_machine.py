@@ -138,7 +138,7 @@ class StateMachine(State):
 
     @property
     def _valid_targets(self):
-        return self._labels.keys() + self.outcomes
+        return list(self._labels.keys()) + self.outcomes
 
     def assert_consistent_transitions(self):
         for transitions in self._transitions.values():

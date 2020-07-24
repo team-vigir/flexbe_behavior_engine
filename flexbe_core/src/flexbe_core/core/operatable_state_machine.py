@@ -108,7 +108,7 @@ class OperatableStateMachine(PreemptableStateMachine):
             else:
                 msg = BehaviorSync()
                 msg.behavior_id = self.id
-                msg.current_state_checksum = zlib.adler32(self.get_deep_state().path)
+                msg.current_state_checksum = zlib.adler32(self.get_deep_state().path.encode()) & 0x7fffffff
                 self._pub.publish('flexbe/mirror/sync', msg)
         return outcome
 
@@ -177,7 +177,7 @@ class OperatableStateMachine(PreemptableStateMachine):
         msg.behavior_id = self.id
         # make sure we are already executing
         self.wait(condition=lambda: self.get_deep_state() is not None)
-        msg.current_state_checksum = zlib.adler32(self.get_deep_state().path)
+        msg.current_state_checksum = zlib.adler32(self.get_deep_state().path.encode()) & 0x7fffffff
         self._pub.publish('flexbe/mirror/sync', msg)
         self._pub.publish('flexbe/command_feedback', CommandFeedback(command="sync", args=[]))
         Logger.localinfo("<-- Sent synchronization message for mirror.")

@@ -71,7 +71,7 @@ class BehaviorActionServer(object):
 					with open(filepath, 'r') as f:
 						content = f.read()
 					if ns != '':
-						content = yaml.load(content)
+						content = yaml.full_load(content)
 						if ns in content:
 							content = content[ns]
 						content = yaml.dump(content)
@@ -94,7 +94,7 @@ class BehaviorActionServer(object):
 
 		be_filepath_old = self._behavior_lib.get_sourcecode_filepath(be_id, add_tmp=True)
 		if not os.path.isfile(be_filepath_old):
-			be_selection.behavior_checksum = zlib.adler32(be_content_new)
+			be_selection.behavior_checksum = zlib.adler32(be_content_new.encode()) & 0x7fffffff
 		else:
 			with open(be_filepath_old, "r") as f:
 				be_content_old = f.read()
@@ -105,7 +105,7 @@ class BehaviorActionServer(object):
 				content = be_content_new[b0:b1]
 				be_selection.modifications.append(BehaviorModification(a0, a1, content))
 
-			be_selection.behavior_checksum = zlib.adler32(be_content_new)
+			be_selection.behavior_checksum = zlib.adler32(be_content_new.encode()) & 0x7fffffff
 
 		# reset state before starting new behavior
 		self._current_state = None

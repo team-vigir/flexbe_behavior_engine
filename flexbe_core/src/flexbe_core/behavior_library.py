@@ -53,7 +53,7 @@ class BehaviorLibrary(object):
                 e = m.find("executable")
                 if pkg is not None and e.get("package_path").split(".")[0] != pkg:
                     continue  # ignore if manifest not in specified package
-                be_id = zlib.adler32(e.get("package_path"))
+                be_id = zlib.adler32(e.get("package_path").encode()) & 0x7fffffff
                 self._behavior_lib[be_id] = {
                     "name": m.get("name"),
                     "package": ".".join(e.get("package_path").split(".")[:-1]),

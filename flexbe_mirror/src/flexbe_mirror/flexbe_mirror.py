@@ -207,7 +207,7 @@ class FlexbeMirror(object):
         # calculate checksums of all states
         for con_msg in msg.containers:
             if con_msg.path.find('/') != -1:
-                self._state_checksums[zlib.adler32(con_msg.path)] = con_msg.path
+                self._state_checksums[zlib.adler32(con_msg.path.encode()) & 0x7fffffff] = con_msg.path
 
     def _add_node(self, msg, path):
         container = None

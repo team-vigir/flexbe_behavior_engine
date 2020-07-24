@@ -187,7 +187,7 @@ class FlexbeOnboard(object):
                 file_content += be_content[last_index:mod.index_begin] + mod.new_content
                 last_index = mod.index_end
             file_content += be_content[last_index:]
-            if zlib.adler32(file_content) != msg.behavior_checksum:
+            if zlib.adler32(file_content.encode()) & 0x7fffffff != msg.behavior_checksum:
                 mismatch_msg = ("Checksum mismatch of behavior versions! \n"
                                 "Attempted to load behavior: %s\n"
                                 "Make sure that all computers are on the same version a.\n"

@@ -1,4 +1,11 @@
-#!/usr/bin/env python
+#!/bin/bash
+if "true" : '''\'
+then
+python${ROS_PYTHON_VERSION:-} "${BASH_SOURCE[0]}" $*
+exit
+fi
+'''
+# flake8: noqa
 import rospy
 import sys
 import os
@@ -36,7 +43,7 @@ if __name__ == '__main__':
         test_name, _ = os.path.splitext(name)
         try:
             with open(filename, 'r') as f:
-                config = yaml.load(f)
+                config = yaml.full_load(f)
             test_cases[test_name] = config
         except IOError as io_error:
             rospy.logerr(io_error)
@@ -46,7 +53,7 @@ if __name__ == '__main__':
     tester = Tester()
 
     success_cases = 0
-    for test_name, test_config in test_cases.iteritems():
+    for test_name, test_config in test_cases.items():
         if rospy.is_shutdown():
             break
         success_cases += tester.run_test(test_name, test_config)
