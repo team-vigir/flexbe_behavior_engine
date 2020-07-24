@@ -82,7 +82,7 @@ class ConcurrencyContainer(OperatableStateMachine):
     def _execute_single_state(self, state, force_exit=False):
         result = None
         try:
-            with UserData(reference=self.userdata, remap=self._remappings[state.name],
+            with UserData(reference=self._userdata, remap=self._remappings[state.name],
                           input_keys=state.input_keys, output_keys=state.output_keys) as userdata:
                 if force_exit:
                     state._entering = True
