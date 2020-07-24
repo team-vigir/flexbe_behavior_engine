@@ -29,4 +29,6 @@ catkin_package(
 if(CATKIN_ENABLE_TESTING)
 	find_package(rostest REQUIRED)
 	add_rostest(test/flexbe_proxies.test)
+	add_rostest(test/flexbe_core.test)
+	add_rostest(test/flexbe_exceptions.test)
 endif()

@@ -60,10 +60,10 @@ class TestInterface(object):
 
     def _execute_state(self, userdata, spin_cb):
         self._instance.on_start()
-        outcome = EventState._loopback_name
-        while outcome == EventState._loopback_name and not rospy.is_shutdown():
+        outcome = None
+        while outcome is None and not rospy.is_shutdown():
             outcome = self._instance.execute(userdata)
-            self._instance._rate.sleep()
+            self._instance.sleep()
             spin_cb()
         self._instance.on_stop()
         return outcome
@@ -73,12 +73,10 @@ class TestInterface(object):
         self._instance.confirm()
         # do not execute behavior directly, instead explicitly spin its state machine
         # this is required here for spinning ROS and processing roslaunch context callbacks
-        outcome = EventState._loopback_name
+        outcome = None
         sm = self._instance._state_machine
-        sm._set_current_state(sm._initial_state_label)
-        while outcome == EventState._loopback_name and not rospy.is_shutdown():
-            outcome = sm._async_execute(userdata)
-            sm._rate.sleep()
+        while outcome is None and not rospy.is_shutdown():
+            outcome = sm.execute(userdata)
+            sm.sleep()
             spin_cb()
-        userdata.update(sm.userdata)
         return outcome

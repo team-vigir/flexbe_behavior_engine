@@ -1,18 +1,10 @@
 #!/usr/bin/env python
-
-import rospy
-import actionlib
 import pickle
 
 from flexbe_core import EventState, Logger
 from flexbe_msgs.msg import BehaviorInputAction, BehaviorInputGoal, BehaviorInputResult
 from flexbe_core.proxy import ProxyActionClient
 
-'''
-Created on 02/13/2015
-
-@author: Philipp Schillinger
-'''
 
 class InputState(EventState):
     '''
@@ -36,7 +28,6 @@ class InputState(EventState):
         '''
         super(InputState, self).__init__(outcomes=['received', 'aborted', 'no_connection', 'data_error'],
                                          output_keys=['data'])
-
         self._action_topic = 'flexbe/behavior_input'
         self._client = ProxyActionClient({self._action_topic: BehaviorInputAction})
 
@@ -46,9 +37,6 @@ class InputState(EventState):
         self._received = False
 
     def execute(self, userdata):
-        '''
-        Execute this state
-        '''
         if not self._connected:
             return 'no_connection'
         if self._received:

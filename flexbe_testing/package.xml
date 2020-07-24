@@ -15,7 +15,6 @@
   <build_depend>rostest</build_depend>
 
   <run_depend>rospy</run_depend>
-  <run_depend>smach_ros</run_depend>
   <run_depend>flexbe_core</run_depend>
   <run_depend>flexbe_msgs</run_depend>
 

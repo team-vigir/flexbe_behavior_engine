@@ -131,7 +131,7 @@ class StateLogger(object):
                         outcome = execute_method(*args, **kwargs)
                         return outcome
                     finally:
-                        if StateLogger.enabled and outcome != cls._loopback_name:
+                        if StateLogger.enabled and outcome is not None:
                             StateLogger.get(name).info(dict(
                                 StateLogger._basic(self),
                                 outcome=outcome))
@@ -188,7 +188,7 @@ class StateLogger(object):
             result.update({
                 'name': state.name,
                 'state': state.__class__.__name__,
-                'path': state._get_path()
+                'path': state.path
             })
         return result
 

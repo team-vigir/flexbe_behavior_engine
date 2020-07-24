@@ -26,12 +26,16 @@ class Logger(object):
     def log(text, severity):
         if Logger._pub is None:
             Logger.initialize()
-
+        # send message with logged text
         msg = BehaviorLog()
         msg.text = str(text)
         msg.status_code = severity
         Logger._pub.publish(msg)
+        # also log locally
+        Logger.local(text, severity)
 
+    @staticmethod
+    def local(text, severity):
         if severity == Logger.REPORT_INFO:
             rospy.loginfo(text)
         elif severity == Logger.REPORT_WARN:
@@ -46,21 +50,29 @@ class Logger(object):
             rospy.logdebug(text + ' (unknown log level %s)' % str(severity))
 
     @staticmethod
-    def logdebug(text):
-        Logger.log(text, Logger.REPORT_DEBUG)
+    def logdebug(text, *args):
+        Logger.log(text % args, Logger.REPORT_DEBUG)
 
     @staticmethod
-    def loginfo(text):
-        Logger.log(text, Logger.REPORT_INFO)
+    def loginfo(text, *args):
+        Logger.log(text % args, Logger.REPORT_INFO)
 
     @staticmethod
-    def logwarn(text):
-        Logger.log(text, Logger.REPORT_WARN)
+    def logwarn(text, *args):
+        Logger.log(text % args, Logger.REPORT_WARN)
 
     @staticmethod
-    def loghint(text):
-        Logger.log(text, Logger.REPORT_HINT)
+    def loghint(text, *args):
+        Logger.log(text % args, Logger.REPORT_HINT)
 
     @staticmethod
-    def logerr(text):
-        Logger.log(text, Logger.REPORT_ERROR)
+    def logerr(text, *args):
+        Logger.log(text % args, Logger.REPORT_ERROR)
+
+    @staticmethod
+    def localdebug(text, *args):
+        Logger.local(text % args, Logger.REPORT_DEBUG)
+
+    @staticmethod
+    def localinfo(text, *args):
+        Logger.local(text % args, Logger.REPORT_INFO)

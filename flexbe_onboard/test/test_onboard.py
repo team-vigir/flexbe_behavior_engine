@@ -58,7 +58,7 @@ class TestOnboard(unittest.TestCase):
 
         # send valid simple behavior request
         with open(self.lib.get_sourcecode_filepath(be_id)) as f:
-            request.behavior_checksum = zlib.adler32(f.read())
+            request.behavior_checksum = zlib.adler32(f.read().encode()) & 0x7fffffff
         behavior_pub.publish(request)
         self.assertStatus(BEStatus.STARTED, 1)
         self.assertStatus(BEStatus.FINISHED, 3)
@@ -81,7 +81,7 @@ class TestOnboard(unittest.TestCase):
             request.modifications.append(BehaviorModification(index, index + len(replace), by))
         for replace, by in modifications:
             content = content.replace(replace, by)
-        request.behavior_checksum = zlib.adler32(content)
+        request.behavior_checksum = zlib.adler32(content.encode()) & 0x7fffffff
         behavior_pub.publish(request)
         self.assertStatus(BEStatus.STARTED, 1)
         result = self.assertStatus(BEStatus.FINISHED, 3)
