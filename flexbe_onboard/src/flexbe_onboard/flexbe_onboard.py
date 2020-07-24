@@ -148,8 +148,9 @@ class FlexbeOnboard(object):
 
             # done, remove left-overs like the temporary behavior file
             try:
-                if not self._switching:
-                    self._clear_imports()
+                # hotfix: do not clear imports for now, not working correctly (e.g., flexbe/flexbe_app#66)
+                # if not self._switching:
+                #     self._clear_imports()
                 self._cleanup_behavior(msg.behavior_checksum)
             except Exception as e:
                 rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
