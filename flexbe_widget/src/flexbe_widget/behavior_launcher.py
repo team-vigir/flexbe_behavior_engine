@@ -38,7 +38,7 @@ class BehaviorLauncher(object):
 		rospy.loginfo("%d behaviors available, ready for start request." % self._behavior_lib.count_behaviors())
 
 	def _status_callback(self, msg):
-		if msg.code == BEStatus.READY:
+		if msg.code in [BEStatus.READY, BEStatus.FINISHED, BEStatus.FAILED, BEStatus.ERROR]:
 			self._ready_event.set()
 
 	def _callback(self, msg):
