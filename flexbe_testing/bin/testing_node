@@ -43,7 +43,7 @@ if __name__ == '__main__':
         test_name, _ = os.path.splitext(name)
         try:
             with open(filename, 'r') as f:
-                config = yaml.full_load(f)
+                config = getattr(yaml, 'full_load', yaml.load)(f)
             test_cases[test_name] = config
         except IOError as io_error:
             rospy.logerr(io_error)
