@@ -8,6 +8,15 @@ import roslaunch
 from .logger import Logger
 
 
+class Callback(roslaunch.pmon.ProcessListener):
+    def __init__(self, callback):
+        self._callback = callback
+
+    def process_died(self, process_name, exit_code):
+        rospy.loginfo("{}, {}".format(process_name, exit_code))
+        self._callback(process_name, exit_code)
+
+
 class TestContext(object):
     """
     Default context for a test case.
@@ -29,6 +38,10 @@ class TestContext(object):
     def __exit__(self, exception_type, exception_value, traceback):
         pass
 
+    @property
+    def success(self):
+        return True
+
 
 class LaunchContext(TestContext):
     """ Test context that runs a specified launch file configuration. """
@@ -37,6 +50,8 @@ class LaunchContext(TestContext):
         self._run_id = rospy.get_param('/run_id')
         launchpath = None
         launchcontent = None
+
+        self._exit_codes = []
 
         # load from system path
         if launch_config.startswith('~') or launch_config.startswith('/'):
@@ -57,6 +72,7 @@ class LaunchContext(TestContext):
         else:
             loader.load_string(launchcontent, launchconfig, verbose=False)
         self._launchrunner = roslaunch.launch.ROSLaunchRunner(self._run_id, launchconfig)
+        self._launchrunner.add_process_listener(Callback(lambda process_name, exit_code: self._exit_codes.append(exit_code)))
         self._wait_cond = wait_cond
         self._valid = True
 
@@ -86,3 +102,7 @@ class LaunchContext(TestContext):
     def __exit__(self, exception_type, exception_value, traceback):
         self._launchrunner.stop()
         Logger.print_positive('launchfile stopped')
+
+    @property
+    def success(self):
+        return not any(code > 0 for code in self._exit_codes)

@@ -114,6 +114,11 @@ class Tester(object):
                 else:
                     Logger.print_negative('no result for %s' % expected_key)
                     output_ok = False
+
+            if not context.success and config.get('require_launch_success', False):
+                Logger.print_negative('Launch file did not exit cleanly')
+                output_ok = False
+
             if len(expected) > 0 and output_ok:
                 Logger.print_positive('all result outputs match expected')
 
