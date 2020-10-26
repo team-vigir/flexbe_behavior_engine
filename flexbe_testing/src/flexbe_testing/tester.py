@@ -92,6 +92,9 @@ class Tester(object):
                     self._tests['test_%s_pass' % name] = self._test_pass(False)
                     return 0
 
+                if config.get('require_launch_success', False):
+                    context.wait_for_finishing()
+
             # evaluate outcome
             self._tests['test_%s_outcome' % name] = self._test_outcome(outcome, config['outcome'])
             outcome_ok = outcome == config['outcome']
