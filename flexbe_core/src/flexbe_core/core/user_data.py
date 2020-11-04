@@ -1,4 +1,5 @@
 #!/user/bin/env python
+from copy import deepcopy
 from flexbe_core.core.exceptions import UserDataError
 
 
@@ -6,7 +7,7 @@ class UserData(object):
 
     def __init__(self, reference=None, input_keys=None, output_keys=None, remap=None):
         self._data = dict()
-        self._reference = reference or dict()
+        self._reference = reference if reference is not None else dict()
         self._input_keys = input_keys
         self._output_keys = output_keys
         self._remap = remap or dict()
@@ -29,7 +30,7 @@ class UserData(object):
             return self._remap.get(key, key) in self._reference
 
     def __getitem__(self, key):
-        if key in self._data:
+        if key in self._data and self._remap.get(key, key) not in self._reference:
             return self._data[key]
         if key not in self:
             raise UserDataError("Key '%s' cannot be accessed, declare it as input key for read access." % key
@@ -39,6 +40,11 @@ class UserData(object):
         if self._output_keys is not None and key not in self._output_keys:
             self._data[key] = value
             self._hashes[key] = hash(repr(value))
+            if getattr(value.__class__, "_has_header", False):
+                # This is specific to rospy: If the value here is a message and has a header,
+                #   it will automatically be modified during publishing by rospy.
+                #   So to avoid hash issues, we need to return a copy.
+                value = deepcopy(value)
         return value
 
     def __setitem__(self, key, value):
