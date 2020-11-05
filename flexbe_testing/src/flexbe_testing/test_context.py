@@ -13,7 +13,7 @@ class Callback(roslaunch.pmon.ProcessListener):
         self._callback = callback
 
     def process_died(self, process_name, exit_code):
-        rospy.loginfo("{}, {}".format(process_name, exit_code))
+        rospy.loginfo("Process {} exited with {}".format(process_name, exit_code))
         self._callback(process_name, exit_code)
 
 
