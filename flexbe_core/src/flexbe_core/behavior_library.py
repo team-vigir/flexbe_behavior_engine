@@ -94,7 +94,11 @@ class BehaviorLibrary(object):
         except StopIteration:
             Logger.logwarn("Did not find behavior '%s' in libary, updating..." % be_name)
             self.parse_packages()
-            return find()
+            try:
+                return find()
+            except StopIteration:
+                Logger.logerr("Still cannot find behavior '%s' in libary after update, giving up!" % be_name)
+                return None, None
 
     def count_behaviors(self):
         """

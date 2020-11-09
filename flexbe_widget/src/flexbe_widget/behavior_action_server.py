@@ -48,7 +48,7 @@ class BehaviorActionServer(object):
 		rospy.loginfo('Received a new request to start behavior: %s' % goal.behavior_name)
 		be_id, behavior = self._behavior_lib.find_behavior(goal.behavior_name)
 		if be_id is None:
-			Logger.logerr("Did not find behavior with requested name: %s" % goal.behavior_name)
+			rospy.logerr("Deny goal: Did not find behavior with requested name %s" % goal.behavior_name)
 			self._as.set_preempted()
 			return
 
