@@ -92,6 +92,9 @@ class Tester(object):
                     self._tests['test_%s_pass' % name] = self._test_pass(False)
                     return 0
 
+                if config.get('require_launch_success', False):
+                    context.wait_for_finishing()
+
             # evaluate outcome
             self._tests['test_%s_outcome' % name] = self._test_outcome(outcome, config['outcome'])
             outcome_ok = outcome == config['outcome']
@@ -114,6 +117,11 @@ class Tester(object):
                 else:
                     Logger.print_negative('no result for %s' % expected_key)
                     output_ok = False
+
+            if not context.success and config.get('require_launch_success', False):
+                Logger.print_negative('Launch file did not exit cleanly')
+                output_ok = False
+
             if len(expected) > 0 and output_ok:
                 Logger.print_positive('all result outputs match expected')
 
