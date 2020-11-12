@@ -99,6 +99,8 @@ class Behavior(object):
 
         if default_keys is not None:
             state_machine._input_keys = list(set(state_machine._input_keys) - set(default_keys))
+        for key in state_machine._input_keys:
+            state_machine._own_userdata(remove_key=key)
 
         return state_machine
 
@@ -115,8 +117,8 @@ class Behavior(object):
         if input_data is None:
             input_data = dict()
         for k, v in input_data.items():
-            if k in self._state_machine.userdata:
-                self._state_machine.userdata[k] = v
+            if k in self._state_machine._own_userdata:
+                self._state_machine._own_userdata[k] = v
 
     def set_parameter(self, name, value):
         """

@@ -30,7 +30,7 @@ class UserData(object):
             return self._remap.get(key, key) in self._reference
 
     def __getitem__(self, key):
-        if key in self._data and self._remap.get(key, key) not in self._reference:
+        if key in self._data:
             return self._data[key]
         if key not in self:
             raise UserDataError("Key '%s' cannot be accessed, declare it as input key for read access." % key
@@ -64,7 +64,7 @@ class UserData(object):
             raise UserDataError("Key '%s' cannot be set, declare it as output key for write access." % key)
         self[key] = value
 
-    def __call__(self, reference=None, add_from=None, update_from=None):
+    def __call__(self, reference=None, add_from=None, update_from=None, remove_key=None):
         self._reference = reference or self._reference
         if isinstance(add_from, UserData):
             for key, value in add_from._data.items():
@@ -73,6 +73,8 @@ class UserData(object):
         if isinstance(update_from, UserData):
             for key, value in update_from._data.items():
                 self._data[key] = value
+        if remove_key is not None and remove_key in self._data:
+            del self._data[remove_key]
 
     def __len__(self):
         return len(self._data) + len(self._reference)
