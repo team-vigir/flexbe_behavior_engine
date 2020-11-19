@@ -2,6 +2,17 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* [flexbe_states] Cleanup of states
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
 1.2.5 (2020-06-14)
 ------------------
 * [flexbe_states] Fix ambiguous import of subscriber state

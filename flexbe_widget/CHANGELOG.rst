@@ -2,6 +2,20 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] [flexbe_widget] Correctly handle non-existing behaviors in action goals
+  (fix `#133 <https://github.com/team-vigir/flexbe_behavior_engine/issues/133>`_)
+* [flexbe_core] [flexbe_testing] [flexbe_widget] Use yaml backwards compatible
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Add support for python3
+* [flexbe_widget] Accept more valid status codes by launcher
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
 1.2.5 (2020-06-14)
 ------------------
 * Merge pull request `#120 <https://github.com/team-vigir/flexbe_behavior_engine/issues/120>`_ from cheffe112/startup_race_condition

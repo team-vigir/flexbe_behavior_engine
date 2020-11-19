@@ -2,6 +2,29 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] Further fixes to userdata
+* [flexbe_core] [flexbe_widget] Correctly handle non-existing behaviors in action goals
+  (fix `#133 <https://github.com/team-vigir/flexbe_behavior_engine/issues/133>`_)
+* [flexbe_core] Several fixes to userdata
+  (see `#129 <https://github.com/team-vigir/flexbe_behavior_engine/issues/129>`_)
+* [flexbe_core] [flexbe_testing] [flexbe_widget] Use yaml backwards compatible
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Merge branch 'feature/core_rework' of https://github.com/team-vigir/flexbe_behavior_engine into feature/core_rework
+* Add support for python3
+* [flexbe_core] Fix typo in userdata handling of concurrency container
+* [flexbe_core] Use more explicit userdata update operations
+* [flexbe_core] Add userdata tests and improvements
+* [flexbe_core] Add checks and specific exception types
+* [flexbe_core] Add test cases for state capabilities
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
 1.2.5 (2020-06-14)
 ------------------
 * [flexbe_core] Consider a running mirror as being controlled

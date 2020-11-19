@@ -2,6 +2,28 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#132 <https://github.com/team-vigir/flexbe_behavior_engine/issues/132>`_ from LoyVanBeek/feature/test_require_launch_file_success
+  Optionally fail test if launch-file fails
+* Clear up logging for exiting processes
+* Check all launched nodes have exited
+  And check they exit code to decide success/fail of launch file
+* Optionally fail test if launch-file fails
+  If the launch-file in a FlexBE test fails, signal this to the TestContext that can then optionally fail due to this
+  This allows to run scripts etc to verify State/Behavior side effects
+* [flexbe_core] [flexbe_testing] [flexbe_widget] Use yaml backwards compatible
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Add support for python3
+* [flexbe_testing] Add a behavior to the self-test
+* [flexbe_testing] Fix check of userdata output
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Loy van Beek, Philipp Schillinger
+
 1.2.5 (2020-06-14)
 ------------------
 * Merge branch 'develop' into feature/state_logger_rework
