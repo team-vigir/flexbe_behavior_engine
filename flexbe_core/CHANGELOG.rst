@@ -2,8 +2,8 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2020-11-19)
+------------------
 * [flexbe_core] Further fixes to userdata
 * [flexbe_core] [flexbe_widget] Correctly handle non-existing behaviors in action goals
   (fix `#133 <https://github.com/team-vigir/flexbe_behavior_engine/issues/133>`_)

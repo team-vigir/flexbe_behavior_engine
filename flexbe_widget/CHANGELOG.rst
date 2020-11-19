@@ -2,8 +2,8 @@
 Changelog for package flexbe_widget
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2020-11-19)
+------------------
 * [flexbe_core] [flexbe_widget] Correctly handle non-existing behaviors in action goals
   (fix `#133 <https://github.com/team-vigir/flexbe_behavior_engine/issues/133>`_)
 * [flexbe_core] [flexbe_testing] [flexbe_widget] Use yaml backwards compatible

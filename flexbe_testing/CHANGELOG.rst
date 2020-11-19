@@ -2,8 +2,8 @@
 Changelog for package flexbe_testing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2020-11-19)
+------------------
 * Merge pull request `#132 <https://github.com/team-vigir/flexbe_behavior_engine/issues/132>`_ from LoyVanBeek/feature/test_require_launch_file_success
   Optionally fail test if launch-file fails
 * Clear up logging for exiting processes

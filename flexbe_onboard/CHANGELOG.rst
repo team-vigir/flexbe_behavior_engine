@@ -2,8 +2,8 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.0 (2020-11-19)
+------------------
 * Merge remote-tracking branch 'origin/feature/core_rework' into develop
   # Conflicts:
   #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
