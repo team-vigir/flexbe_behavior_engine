@@ -1,4 +1,4 @@
-<package>
+<package format="2">
   <name>flexbe_input</name>
   <version>1.3.1</version>
   <description>
@@ -12,11 +12,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>actionlib</build_depend>
+  <depend>actionlib</depend>
 
-  <run_depend>actionlib</run_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>flexbe_msgs</run_depend>
-  <run_depend>python-six</run_depend>
+  <exec_depend>flexbe_msgs</exec_depend>
+  <exec_depend>python-six</exec_depend>
+  <exec_depend>rospy</exec_depend>
 
 </package>
