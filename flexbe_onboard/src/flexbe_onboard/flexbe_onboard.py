@@ -152,7 +152,7 @@ class FlexbeOnboard(object):
                 rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
 
             if not self._switching:
-                rospy.loginfo('Behavior execution finished with result %s.', str(result))
+                Logger.loginfo('Behavior execution finished with result %s.', str(result))
                 rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
             self._running = False
             self.be = None
@@ -224,7 +224,10 @@ class FlexbeOnboard(object):
                 be = beclass()
             rospy.loginfo('Behavior ' + be.name + ' created.')
         except Exception as e:
-            Logger.logerr('Exception caught in behavior definition:\n%s' % str(e))
+            Logger.logerr('Exception caught in behavior definition:\n%s\n'
+                          'See onboard terminal for more information.' % str(e))
+            import traceback
+            traceback.print_exc()
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
             return
 
