@@ -2,13 +2,21 @@
 from flexbe_core.core.exceptions import StateError
 
 
+def _remove_duplicates(input_list):
+    output_list = list()
+    for entry in input_list:
+        if entry not in output_list:
+            output_list.append(entry)
+    return output_list
+
+
 class State(object):
 
     def __init__(self, *args, **kwargs):
-        self._outcomes = list(set(kwargs.get('outcomes', [])))
+        self._outcomes = _remove_duplicates(kwargs.get('outcomes', []))
         io_keys = kwargs.get('io_keys', [])
-        self._input_keys = list(set(kwargs.get('input_keys', []) + io_keys))
-        self._output_keys = list(set(kwargs.get('output_keys', []) + io_keys))
+        self._input_keys = _remove_duplicates(kwargs.get('input_keys', []) + io_keys)
+        self._output_keys = _remove_duplicates(kwargs.get('output_keys', []) + io_keys)
         # properties of instances of a state machine
         self._name = None
         self._parent = None
