@@ -45,6 +45,7 @@ class FlexbeOnboard(object):
         self._execute_heartbeat()
 
         # listen for new behavior to start
+        self._enable_clear_imports = rospy.get_param('~enable_clear_imports', False)
         self._running = False
         self._run_lock = threading.Lock()
         self._switching = False
@@ -144,9 +145,10 @@ class FlexbeOnboard(object):
 
             # done, remove left-overs like the temporary behavior file
             try:
-                # hotfix: do not clear imports for now, not working correctly (e.g., flexbe/flexbe_app#66)
-                # if not self._switching:
-                #     self._clear_imports()
+                # do not clear imports for now, not working correctly (e.g., flexbe/flexbe_app#66)
+                # only if specifically enabled
+                if not self._switching and self._enable_clear_imports:
+                    self._clear_imports()
                 self._cleanup_behavior(msg.behavior_checksum)
             except Exception as e:
                 rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
@@ -229,6 +231,8 @@ class FlexbeOnboard(object):
             import traceback
             traceback.print_exc()
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+            if self._enable_clear_imports:
+                self._clear_imports()
             return
 
         # initialize behavior parameters
@@ -259,8 +263,13 @@ class FlexbeOnboard(object):
             be.prepare_for_execution(self._convert_input_data(msg.input_keys, msg.input_values))
             rospy.loginfo('State machine built.')
         except Exception as e:
-            Logger.logerr('Behavior construction failed!\n%s' % str(e))
+            Logger.logerr('Behavior construction failed!\n%s\n'
+                          'See onboard terminal for more information.' % str(e))
+            import traceback
+            traceback.print_exc()
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+            if self._enable_clear_imports:
+                self._clear_imports()
             return
 
         return be
