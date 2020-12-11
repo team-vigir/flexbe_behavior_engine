@@ -2,8 +2,8 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2020-12-11)
+------------------
 * [flexbe_onboard] Fix assertion in onboard test
 * [flexbe_onboard] Offer option to enable clearing of imports
   (see `#135 <https://github.com/team-vigir/flexbe_behavior_engine/issues/135>`_)

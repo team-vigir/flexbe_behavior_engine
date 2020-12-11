@@ -2,8 +2,8 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.3.1 (2020-12-11)
+------------------
 * [flexbe_states] Pass flexible calculation state input as kwargs for python3 compatibility
 * Contributors: Philipp Schillinger
 
