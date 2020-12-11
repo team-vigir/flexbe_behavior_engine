@@ -59,10 +59,14 @@ class TestOnboard(unittest.TestCase):
         # send valid simple behavior request
         with open(self.lib.get_sourcecode_filepath(be_id)) as f:
             request.behavior_checksum = zlib.adler32(f.read().encode()) & 0x7fffffff
+        self.sub.enable_buffer('flexbe/log')
         behavior_pub.publish(request)
         self.assertStatus(BEStatus.STARTED, 1)
         self.assertStatus(BEStatus.FINISHED, 3)
-        self.assertIn('data', self.sub.get_last_msg('flexbe/log').text)
+        behavior_logs = []
+        while self.sub.has_buffered('flexbe/log'):
+            behavior_logs.append(self.sub.get_from_buffer('flexbe/log').text)
+        self.assertIn('Test data', behavior_logs)
 
         # send valid complex behavior request
         be_id, _ = self.lib.find_behavior("Test Behavior Complex")
@@ -86,7 +90,10 @@ class TestOnboard(unittest.TestCase):
         self.assertStatus(BEStatus.STARTED, 1)
         result = self.assertStatus(BEStatus.FINISHED, 3)
         self.assertEqual(result.args[0], 'finished')
-        self.assertIn('value_2', self.sub.get_last_msg('flexbe/log').text)
+        behavior_logs = []
+        while self.sub.has_buffered('flexbe/log'):
+            behavior_logs.append(self.sub.get_from_buffer('flexbe/log').text)
+        self.assertIn('value_2', behavior_logs)
 
         # send the same behavior with different parameters
         request.arg_keys = ['param', 'invalid']
@@ -97,7 +104,10 @@ class TestOnboard(unittest.TestCase):
         self.assertStatus(BEStatus.STARTED, 1)
         result = self.assertStatus(BEStatus.FINISHED, 3)
         self.assertEqual(result.args[0], 'failed')
-        self.assertIn('value_1', self.sub.get_last_msg('flexbe/log').text)
+        behavior_logs = []
+        while self.sub.has_buffered('flexbe/log'):
+            behavior_logs.append(self.sub.get_from_buffer('flexbe/log').text)
+        self.assertIn('value_1', behavior_logs)
 
 
 if __name__ == '__main__':
