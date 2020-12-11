@@ -2,6 +2,12 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_core] Replace set conversion for python3 compatibility
+  (see `#136 <https://github.com/team-vigir/flexbe_behavior_engine/issues/136>`_)
+* Contributors: Philipp Schillinger
+
 1.3.0 (2020-11-19)
 ------------------
 * [flexbe_core] Further fixes to userdata

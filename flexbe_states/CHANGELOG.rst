@@ -2,6 +2,11 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_states] Pass flexible calculation state input as kwargs for python3 compatibility
+* Contributors: Philipp Schillinger
+
 1.3.0 (2020-11-19)
 ------------------
 * Merge remote-tracking branch 'origin/feature/core_rework' into develop

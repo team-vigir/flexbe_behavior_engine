@@ -2,6 +2,9 @@
 Changelog for package flexbe_mirror
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.3.0 (2020-11-19)
 ------------------
 * Merge remote-tracking branch 'origin/feature/core_rework' into develop

@@ -2,6 +2,14 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* [flexbe_onboard] Fix assertion in onboard test
+* [flexbe_onboard] Offer option to enable clearing of imports
+  (see `#135 <https://github.com/team-vigir/flexbe_behavior_engine/issues/135>`_)
+* [flexbe_onboard] Print stack trace on behavior import errors
+* Contributors: Philipp Schillinger
+
 1.3.0 (2020-11-19)
 ------------------
 * Merge remote-tracking branch 'origin/feature/core_rework' into develop
