@@ -1,100 +1,80 @@
 #!/usr/bin/env python
-
-import roslib; roslib.load_manifest('flexbe_onboard')
 import rospy
-import rospkg
 import os
 import sys
 import inspect
 import tempfile
 import threading
 import time
-import smach
-import random
-import yaml
 import zlib
-import xml.etree.ElementTree as ET
+import contextlib
 from ast import literal_eval as cast
 
 from flexbe_core import Logger, BehaviorLibrary
-
-from flexbe_msgs.msg import BehaviorSelection, BEStatus, ContainerStructure, CommandFeedback
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 
-from std_msgs.msg import Int32, Empty
+from flexbe_msgs.msg import BehaviorSelection, BEStatus, CommandFeedback
+from std_msgs.msg import Empty
 
 
-'''
-Created on 20.05.2013
-
-@author: Philipp Schillinger
-'''
-
-class VigirBeOnboard(object):
-    '''
-    Implements an idle state where the robot waits for a behavior to be started.
-    '''
+class FlexbeOnboard(object):
+    """
+    Controls the execution of robot behaviors.
+    """
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self.be = None
         Logger.initialize()
-        smach.set_loggers (
-            rospy.logdebug, # hide SMACH transition log spamming
-            rospy.logwarn,
-            rospy.logdebug,
-            rospy.logerr
-        )
-
-        #ProxyPublisher._simulate_delay = True
-        #ProxySubscriberCached._simulate_delay = True
-
+        self._tracked_imports = list()
         # prepare temp folder
-        rp = rospkg.RosPack()
         self._tmp_folder = tempfile.mkdtemp()
         sys.path.append(self._tmp_folder)
         rospy.on_shutdown(self._cleanup_tempdir)
-        
+
         # prepare manifest folder access
         self._behavior_lib = BehaviorLibrary()
-        
-        self._pub = ProxyPublisher()
-        self._sub = ProxySubscriberCached()
 
+        # prepare communication
         self.status_topic = 'flexbe/status'
         self.feedback_topic = 'flexbe/command_feedback'
-
-        self._pub.createPublisher(self.status_topic, BEStatus, _latch = True)
-        self._pub.createPublisher(self.feedback_topic, CommandFeedback)
-
-        # listen for new behavior to start
-        self._running = False
-        self._switching = False
-        self._sub.subscribe('flexbe/start_behavior', BehaviorSelection, self._behavior_callback)
-
-        # heartbeat
-        self._pub.createPublisher('flexbe/heartbeat', Empty)
+        self._pub = ProxyPublisher({
+            self.feedback_topic: CommandFeedback,
+            'flexbe/heartbeat': Empty
+        })
+        self._pub.createPublisher(self.status_topic, BEStatus, _latch=True)
         self._execute_heartbeat()
 
-        rospy.sleep(0.5) # wait for publishers etc to really be set up
+        # listen for new behavior to start
+        self._enable_clear_imports = rospy.get_param('~enable_clear_imports', False)
+        self._running = False
+        self._run_lock = threading.Lock()
+        self._switching = False
+        self._switch_lock = threading.Lock()
+        self._sub = ProxySubscriberCached()
+        self._sub.subscribe('flexbe/start_behavior', BehaviorSelection, self._behavior_callback)
+
+        rospy.sleep(0.5)  # wait for publishers etc to really be set up
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
         rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
-
 
     def _behavior_callback(self, msg):
         thread = threading.Thread(target=self._behavior_execution, args=[msg])
         thread.daemon = True
         thread.start()
 
+    # =================== #
+    # Main execution loop #
+    # ------------------- #
+
     def _behavior_execution(self, msg):
+        # sending a behavior while one is already running is considered as switching
         if self._running:
             Logger.loginfo('--> Initiating behavior switch...')
             self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['received']))
         else:
             Logger.loginfo('--> Starting new behavior...')
 
+        # construct the behavior that should be executed
         be = self._prepare_behavior(msg)
         if be is None:
             Logger.logerr('Dropped behavior start request because preparation failed.')
@@ -104,71 +84,88 @@ class VigirBeOnboard(object):
                 rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
             return
 
-        if self._running:
-            if self._switching:
-                Logger.logwarn('Already switching, dropped new start request.')
-                return
-            self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['start']))
-            if not self._is_switchable(be):
-                Logger.logerr('Dropped behavior start request because switching is not possible.')
-                self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['not_switchable']))
-                return
+        # perform the behavior switch if required
+        with self._switch_lock:
             self._switching = True
-            active_state = self.be.get_current_state()
-            rospy.loginfo("Current state %s is kept active.", active_state.name)
-            try:
-                be.prepare_for_switch(active_state)
-                self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['prepared']))
-            except Exception as e:
-                Logger.logerr('Failed to prepare behavior switch:\n%s' % str(e))
-                self._switching = False
-                self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['failed']))
-                return
-            rospy.loginfo('Preempting current behavior version...')
-            self.be.preempt_for_switch()
-            rate = rospy.Rate(10)
-            while self._running:
-                rate.sleep()
+            if self._running:
+                self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['start']))
+                # ensure that switching is possible
+                if not self._is_switchable(be):
+                    Logger.logerr('Dropped behavior start request because switching is not possible.')
+                    self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['not_switchable']))
+                    return
+                # wait if running behavior is currently starting or stopping
+                rate = rospy.Rate(100)
+                while not rospy.is_shutdown():
+                    active_state = self.be.get_current_state()
+                    if active_state is not None or not self._running:
+                        break
+                    rate.sleep()
+                # extract the active state if any
+                if active_state is not None:
+                    rospy.loginfo("Current state %s is kept active.", active_state.name)
+                    try:
+                        be.prepare_for_switch(active_state)
+                        self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['prepared']))
+                    except Exception as e:
+                        Logger.logerr('Failed to prepare behavior switch:\n%s' % str(e))
+                        self._pub.publish(self.feedback_topic, CommandFeedback(command="switch", args=['failed']))
+                        return
+                    # stop the rest
+                    rospy.loginfo('Preempting current behavior version...')
+                    self.be.preempt()
+
+        # execute the behavior
+        with self._run_lock:
             self._switching = False
+            self.be = be
+            self._running = True
 
-        self._running = True
-        self.be = be
+            result = None
+            try:
+                rospy.loginfo('Behavior ready, execution starts now.')
+                rospy.loginfo('[%s : %s]', be.name, msg.behavior_checksum)
+                self.be.confirm()
+                args = [self.be.requested_state_path] if self.be.requested_state_path is not None else []
+                self._pub.publish(self.status_topic,
+                                  BEStatus(behavior_id=self.be.id, code=BEStatus.STARTED, args=args))
+                result = self.be.execute()
+                if self._switching:
+                    self._pub.publish(self.status_topic,
+                                      BEStatus(behavior_id=self.be.id, code=BEStatus.SWITCHING))
+                else:
+                    self._pub.publish(self.status_topic,
+                                      BEStatus(behavior_id=self.be.id, code=BEStatus.FINISHED, args=[str(result)]))
+            except Exception as e:
+                self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.FAILED))
+                Logger.logerr('Behavior execution failed!\n%s' % str(e))
+                import traceback
+                Logger.loginfo(traceback.format_exc())
+                result = result or "exception"  # only set result if not executed
 
-        result = ""
-        try:
-            rospy.loginfo('Behavior ready, execution starts now.')
-            rospy.loginfo('[%s : %s]', be.name, msg.behavior_checksum)
-            self.be.confirm()
-            args = [self.be.requested_state_path] if self.be.requested_state_path is not None else []
-            self._pub.publish(self.status_topic, BEStatus(behavior_id=self.be.id, code=BEStatus.STARTED, args=args))
-            result = self.be.execute()
-            if self._switching:
-                self._pub.publish(self.status_topic, BEStatus(behavior_id=self.be.id, code=BEStatus.SWITCHING))
-            else:
-                self._pub.publish(self.status_topic, BEStatus(behavior_id=self.be.id, code=BEStatus.FINISHED, args=[str(result)]))
-        except Exception as e:
-            self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.FAILED))
-            Logger.logerr('Behavior execution failed!\n%s' % str(e))
-            import traceback
-            Logger.loginfo(traceback.format_exc())
-            result = "failed"
+            # done, remove left-overs like the temporary behavior file
+            try:
+                # do not clear imports for now, not working correctly (e.g., flexbe/flexbe_app#66)
+                # only if specifically enabled
+                if not self._switching and self._enable_clear_imports:
+                    self._clear_imports()
+                self._cleanup_behavior(msg.behavior_checksum)
+            except Exception as e:
+                rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
 
-        try:
-            self._cleanup_behavior(msg.behavior_checksum)
-        except Exception as e:
-            rospy.logerr('Failed to clean up behavior:\n%s' % str(e))
+            if not self._switching:
+                Logger.loginfo('Behavior execution finished with result %s.', str(result))
+                rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
+            self._running = False
+            self.be = None
 
-        self.be = None
-        if not self._switching:
-            rospy.loginfo('Behavior execution finished with result %s.', str(result))
-            rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
-        self._running = False
-
+    # ==================================== #
+    # Preparation of new behavior requests #
+    # ------------------------------------ #
 
     def _prepare_behavior(self, msg):
         # get sourcecode from ros package
         try:
-            rp = rospkg.RosPack()
             behavior = self._behavior_lib.get_behavior(msg.behavior_id)
             if behavior is None:
                 raise ValueError(msg.behavior_id)
@@ -179,8 +176,10 @@ class VigirBeOnboard(object):
             else:
                 be_filepath = self._behavior_lib.get_sourcecode_filepath(msg.behavior_id)
                 be_file = open(be_filepath, "r")
-            be_content = be_file.read()
-            be_file.close()
+            try:
+                be_content = be_file.read()
+            finally:
+                be_file.close()
         except Exception as e:
             Logger.logerr('Failed to retrieve behavior from library:\n%s' % str(e))
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
@@ -194,7 +193,7 @@ class VigirBeOnboard(object):
                 file_content += be_content[last_index:mod.index_begin] + mod.new_content
                 last_index = mod.index_end
             file_content += be_content[last_index:]
-            if zlib.adler32(file_content) != msg.behavior_checksum:
+            if zlib.adler32(file_content.encode()) & 0x7fffffff != msg.behavior_checksum:
                 mismatch_msg = ("Checksum mismatch of behavior versions! \n"
                                 "Attempted to load behavior: %s\n"
                                 "Make sure that all computers are on the same version a.\n"
@@ -210,9 +209,8 @@ class VigirBeOnboard(object):
         # create temp file for behavior class
         try:
             file_path = os.path.join(self._tmp_folder, 'tmp_%d.py' % msg.behavior_checksum)
-            sc_file = open(file_path, "w")
-            sc_file.write(file_content)
-            sc_file.close()
+            with open(file_path, "w") as sc_file:
+                sc_file.write(file_content)
         except Exception as e:
             Logger.logerr('Failed to create temporary file for behavior class:\n%s' % str(e))
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
@@ -220,14 +218,21 @@ class VigirBeOnboard(object):
 
         # import temp class file and initialize behavior
         try:
-            package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
-            clsmembers = inspect.getmembers(package, lambda member: inspect.isclass(member) and member.__module__ == package.__name__)
-            beclass = clsmembers[0][1]
-            be = beclass()
+            with self._track_imports():
+                package = __import__("tmp_%d" % msg.behavior_checksum, fromlist=["tmp_%d" % msg.behavior_checksum])
+                clsmembers = inspect.getmembers(package, lambda member: (inspect.isclass(member) and
+                                                                         member.__module__ == package.__name__))
+                beclass = clsmembers[0][1]
+                be = beclass()
             rospy.loginfo('Behavior ' + be.name + ' created.')
         except Exception as e:
-            Logger.logerr('Exception caught in behavior definition:\n%s' % str(e))
+            Logger.logerr('Exception caught in behavior definition:\n%s\n'
+                          'See onboard terminal for more information.' % str(e))
+            import traceback
+            traceback.print_exc()
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+            if self._enable_clear_imports:
+                self._clear_imports()
             return
 
         # initialize behavior parameters
@@ -247,7 +252,6 @@ class VigirBeOnboard(object):
                     rospy.loginfo(key + ' = ' + msg.arg_values[i] + suffix)
                 else:
                     rospy.logwarn('Parameter ' + msg.arg_keys[i] + ' (set to ' + msg.arg_values[i] + ') not defined')
-
         except Exception as e:
             Logger.logerr('Failed to initialize parameters:\n%s' % str(e))
             self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
@@ -259,29 +263,32 @@ class VigirBeOnboard(object):
             be.prepare_for_execution(self._convert_input_data(msg.input_keys, msg.input_values))
             rospy.loginfo('State machine built.')
         except Exception as e:
-           Logger.logerr('Behavior construction failed!\n%s' % str(e))
-           self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
-           return
+            Logger.logerr('Behavior construction failed!\n%s\n'
+                          'See onboard terminal for more information.' % str(e))
+            import traceback
+            traceback.print_exc()
+            self._pub.publish(self.status_topic, BEStatus(behavior_id=msg.behavior_checksum, code=BEStatus.ERROR))
+            if self._enable_clear_imports:
+                self._clear_imports()
+            return
 
         return be
 
+    # ================ #
+    # Helper functions #
+    # ---------------- #
 
     def _is_switchable(self, be):
         if self.be.name != be.name:
-            Logger.logerr('Unable to switch behavior, names do not match:\ncurrent: %s <--> new: %s' % (self.be.name, be.name))
+            Logger.logerr('Unable to switch behavior, names do not match:\ncurrent: %s <--> new: %s' %
+                          (self.be.name, be.name))
             return False
         # locked inside
         # locked state exists in new behavior
-        #if self.be.id == be.id:
-            #Logger.logwarn('Behavior version ID is the same.')
-        #    Logger.logwarn('Skipping behavior switch, version ID is the same.')
-        #    return False
         # ok, can switch
         return True
 
-
     def _cleanup_behavior(self, behavior_checksum):
-        del(sys.modules["tmp_%d" % behavior_checksum])
         file_path = os.path.join(self._tmp_folder, 'tmp_%d.pyc' % behavior_checksum)
         try:
             os.remove(file_path)
@@ -292,6 +299,11 @@ class VigirBeOnboard(object):
         except OSError:
             pass
 
+    def _clear_imports(self):
+        for module in self._tracked_imports:
+            if module in sys.modules:
+                del sys.modules[module]
+        self._tracked_imports = list()
 
     def _cleanup_tempdir(self):
         try:
@@ -301,17 +313,19 @@ class VigirBeOnboard(object):
 
     def _convert_input_data(self, keys, values):
         result = dict()
-
         for k, v in zip(keys, values):
+            # action call has empty string as default, not a valid input key
+            if k == '':
+                continue
             try:
                 result[k] = self._convert_dict(cast(v))
             except ValueError:
                 # unquoted strings will raise a ValueError, so leave it as string in this case
                 result[k] = str(v)
             except SyntaxError as se:
-                Logger.loginfo('Unable to parse input value for key "%s", assuming string:\n%s\n%s' % (k, str(v), str(se)))
+                Logger.loginfo('Unable to parse input value for key "%s", assuming string:\n%s\n%s' %
+                               (k, str(v), str(se)))
                 result[k] = str(v)
-
         return result
 
     def _execute_heartbeat(self):
@@ -322,9 +336,8 @@ class VigirBeOnboard(object):
     def _heartbeat_worker(self):
         while True:
             self._pub.publish('flexbe/heartbeat', Empty())
-            time.sleep(1) # sec
+            time.sleep(1)
 
-    class _attr_dict(dict): __getattr__ = dict.__getitem__
     def _convert_dict(self, o):
         if isinstance(o, list):
             return [self._convert_dict(e) for e in o]
@@ -332,3 +345,14 @@ class VigirBeOnboard(object):
             return self._attr_dict((k, self._convert_dict(v)) for k, v in list(o.items()))
         else:
             return o
+
+    class _attr_dict(dict):
+        __getattr__ = dict.__getitem__
+
+    @contextlib.contextmanager
+    def _track_imports(self):
+        previous_modules = set(sys.modules.keys())
+        try:
+            yield
+        finally:
+            self._tracked_imports.extend(set(sys.modules.keys()) - previous_modules)

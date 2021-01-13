@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+name: FlexBE CI
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    strategy:
+      matrix:
+        ros: [kinetic, melodic, noetic]
+        include:
+          - os: ubuntu-16.04
+            ros: kinetic
+          - os: ubuntu-18.04
+            ros: melodic
+          - os: ubuntu-20.04
+            ros: noetic
+            python: python3
+
+    runs-on: ${{ matrix.os }}
+    env:
+      ROS_DISTRO: ${{ matrix.ros }}
+      PYTHON: ${{ matrix.python }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Prepare CI
+        run: |
+          git clone https://github.com/FlexBE/flexbe_ci.git ~/flexbe_ci
+          source ~/flexbe_ci/setup.bash $ROS_DISTRO
+
+      - name: Install ROS
+        run: ~/flexbe_ci/ci_scripts/install_ros.bash
+      - name: Setup Workspace
+        run: ~/flexbe_ci/ci_scripts/setup_workspace.bash
+      - name: Clone FlexBE Repos
+        run: ~/flexbe_ci/ci_scripts/run_rosinstall.bash
+      - name: Test Create Repo
+        run: ~/flexbe_ci/ci_scripts/test_create_repo.bash
+      - name: Test Devel Workspace
+        run: ~/flexbe_ci/ci_scripts/run_devel_tests.bash
+      - name: Test Install Workspace
+        run: ~/flexbe_ci/ci_scripts/run_install_tests.bash

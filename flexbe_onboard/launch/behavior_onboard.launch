@@ -3,10 +3,19 @@
 <launch>
 <arg name="log_enabled" default="False" />
 <arg name="log_folder" default="~/.flexbe_logs" />
+<arg name="log_serialize" default="yaml" />
+<arg name="log_level" default="INFO" />
+
+<!-- Defaults to False because it might cause problems when executing behaviors multiple times,
+     see https://github.com/FlexBE/flexbe_app/issues/66 -->
+<arg name="enable_clear_imports" default="False" doc="Delete behavior-specific module imports after execution." />
 
 <node name="behavior" pkg="flexbe_onboard" type="start_behavior" output="screen" respawn="true">
     <param name="~log_enabled" value="$(arg log_enabled)"/>
     <param name="~log_folder" value="$(arg log_folder)"/>
+    <param name="~log_serialize" value="$(arg log_serialize)"/>
+    <param name="~log_level" value="$(arg log_level)"/>
+    <param name="~enable_clear_imports" value="$(arg enable_clear_imports)"/>
 </node>
 
 </launch>

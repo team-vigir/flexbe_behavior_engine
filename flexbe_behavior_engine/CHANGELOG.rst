@@ -2,6 +2,20 @@
 Changelog for package flexbe_behavior_engine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+
+1.3.0 (2020-11-19)
+------------------
+
+1.2.5 (2020-06-14)
+------------------
+* Merge branch 'develop' into feature/state_logger_rework
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors

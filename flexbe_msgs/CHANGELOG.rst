@@ -2,6 +2,30 @@
 Changelog for package flexbe_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+
+1.3.0 (2020-11-19)
+------------------
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
+1.2.5 (2020-06-14)
+------------------
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_msgs] Remove deprecated constants from input action
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+* [flexbe_msgs] [flexbe_core] Add debug level to logger
+  (see `#101 <https://github.com/team-vigir/flexbe_behavior_engine/issues/101>`_)
+* Contributors: Philipp Schillinger
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors

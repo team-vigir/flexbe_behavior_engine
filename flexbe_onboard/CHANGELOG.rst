@@ -2,6 +2,49 @@
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+* [flexbe_onboard] Fix assertion in onboard test
+* [flexbe_onboard] Offer option to enable clearing of imports
+  (see `#135 <https://github.com/team-vigir/flexbe_behavior_engine/issues/135>`_)
+* [flexbe_onboard] Print stack trace on behavior import errors
+* Contributors: Philipp Schillinger
+
+1.3.0 (2020-11-19)
+------------------
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Add support for python3
+* [flexbe_onboard] Remove clearing imports, not working robustly
+  (see e.g. `flexbe/flexbe_app#66 <https://github.com/flexbe/flexbe_app/issues/66>`_)
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
+1.2.5 (2020-06-14)
+------------------
+* [flexbe_onboard] Un-import behavior-specific imports after execution
+* [flexbe_onboard] Add test cases for onboard engine
+* Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework
+  State Logger Rework
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_onboard] Cleanup onboard and add thread locks
+  (see `#117 <https://github.com/team-vigir/flexbe_behavior_engine/issues/117>`_)
+* [flexbe_onboard] Expose new state logger args in onboard launch file
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+* Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install
+  Let behavior library find sourcecode in devel or install spaces
+* Let behavior library find sourcecode in devel or install spaces
+  (fix `#104 <https://github.com/team-vigir/flexbe_behavior_engine/issues/104>`_)
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors

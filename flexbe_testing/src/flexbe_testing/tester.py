@@ -1,17 +1,14 @@
 #!/usr/bin/env python
-import rospy
 import rosunit
 import unittest
 import re
+
+from flexbe_core.core.user_data import UserData
 
 from .logger import Logger
 from .test_interface import TestInterface
 from .test_context import TestContext, LaunchContext
 from .data_provider import DataProvider
-
-import smach
-# hide SMACH transition log spamming
-smach.set_loggers(rospy.logdebug, rospy.logwarn, rospy.logdebug, rospy.logerr)
 
 
 class Tester(object):
@@ -81,7 +78,7 @@ class Tester(object):
                     return 0
 
                 # prepare user data
-                userdata = smach.UserData()
+                userdata = UserData()
                 for input_key, input_value in list(config.get('input', dict()).items()):
                     userdata[input_key] = data.parse(input_value)
                 expected = {key: data.parse(value) for key, value in config.get('output', dict()).items()}
@@ -95,6 +92,9 @@ class Tester(object):
                     self._tests['test_%s_pass' % name] = self._test_pass(False)
                     return 0
 
+                if config.get('require_launch_success', False):
+                    context.wait_for_finishing()
+
             # evaluate outcome
             self._tests['test_%s_outcome' % name] = self._test_outcome(outcome, config['outcome'])
             outcome_ok = outcome == config['outcome']
@@ -106,7 +106,7 @@ class Tester(object):
             # evaluate output
             output_ok = True
             for expected_key, expected_value in list(expected.items()):
-                if expected_key in list(userdata.keys()):
+                if expected_key in userdata:
                     equals = userdata[expected_key] == expected_value
                     self._tests['test_%s_output_%s' % (name, expected_key)] = \
                         self._test_output(userdata[expected_key], expected_value)
@@ -117,6 +117,11 @@ class Tester(object):
                 else:
                     Logger.print_negative('no result for %s' % expected_key)
                     output_ok = False
+
+            if not context.success and config.get('require_launch_success', False):
+                Logger.print_negative('Launch file did not exit cleanly')
+                output_ok = False
+
             if len(expected) > 0 and output_ok:
                 Logger.print_positive('all result outputs match expected')
 

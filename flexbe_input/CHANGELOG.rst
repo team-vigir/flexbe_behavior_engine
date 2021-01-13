@@ -2,6 +2,31 @@
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+
+1.3.0 (2020-11-19)
+------------------
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Add support for python3
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
+1.2.5 (2020-06-14)
+------------------
+* Merge branch 'develop' into feature/state_logger_rework
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* use six.moves for Queue
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge remote-tracking branch 'origin/develop' into feature/test_behaviors

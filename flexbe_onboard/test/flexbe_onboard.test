@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<launch>
+    <test name="test_flexbe_onboard" pkg="flexbe_onboard" type="test_onboard.py" test-name="test_flexbe_onboard" />
+</launch>

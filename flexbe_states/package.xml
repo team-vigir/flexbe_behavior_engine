@@ -1,6 +1,6 @@
 <package>
   <name>flexbe_states</name>
-  <version>1.2.3</version>
+  <version>1.3.1</version>
   <description>
      flexbe_states provides a collection of predefined states.
      Feel free to add new states.
@@ -15,7 +15,6 @@
 
   <build_depend>rostest</build_depend>
 
-  <run_depend>smach_ros</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>rosbag</run_depend>
   <run_depend>flexbe_core</run_depend>

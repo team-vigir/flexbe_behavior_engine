@@ -1,16 +1,21 @@
-#!/usr/bin/env python
-
-import roslib; roslib.load_manifest('flexbe_onboard')
+#!/bin/bash
+if "true" : '''\'
+then
+python${ROS_PYTHON_VERSION:-} "${BASH_SOURCE[0]}" $*
+exit
+fi
+'''
+# flake8: noqa
 import rospy
 
 from flexbe_core.proxy import ProxySubscriberCached
+from flexbe_onboard.flexbe_onboard import FlexbeOnboard
 
-from flexbe_onboard.flexbe_onboard import VigirBeOnboard
 
 if __name__ == '__main__':
     rospy.init_node('flexbe_onboard')
-    
-    VigirBeOnboard()
+
+    FlexbeOnboard()
 
     # Wait for ctrl-c to stop the application
     rospy.spin()

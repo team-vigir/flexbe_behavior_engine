@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+
+<launch>
+    <test name="test_flexbe_exceptions" pkg="flexbe_core" type="test_exceptions.py" test-name="test_flexbe_exceptions" />
+</launch>

@@ -2,6 +2,70 @@
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+* [flexbe_core] Replace set conversion for python3 compatibility
+  (see `#136 <https://github.com/team-vigir/flexbe_behavior_engine/issues/136>`_)
+* Contributors: Philipp Schillinger
+
+1.3.0 (2020-11-19)
+------------------
+* [flexbe_core] Further fixes to userdata
+* [flexbe_core] [flexbe_widget] Correctly handle non-existing behaviors in action goals
+  (fix `#133 <https://github.com/team-vigir/flexbe_behavior_engine/issues/133>`_)
+* [flexbe_core] Several fixes to userdata
+  (see `#129 <https://github.com/team-vigir/flexbe_behavior_engine/issues/129>`_)
+* [flexbe_core] [flexbe_testing] [flexbe_widget] Use yaml backwards compatible
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* Merge branch 'feature/core_rework' of https://github.com/team-vigir/flexbe_behavior_engine into feature/core_rework
+* Add support for python3
+* [flexbe_core] Fix typo in userdata handling of concurrency container
+* [flexbe_core] Use more explicit userdata update operations
+* [flexbe_core] Add userdata tests and improvements
+* [flexbe_core] Add checks and specific exception types
+* [flexbe_core] Add test cases for state capabilities
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
+1.2.5 (2020-06-14)
+------------------
+* [flexbe_core] Consider a running mirror as being controlled
+  (see `#123 <https://github.com/team-vigir/flexbe_behavior_engine/issues/123>`_)
+* Merge pull request `#113 <https://github.com/team-vigir/flexbe_behavior_engine/issues/113>`_ from team-vigir/feature/state_logger_rework
+  State Logger Rework
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_core] Allow to specify a subset of logged userdata keys
+* [flexbe_core] Extend configuration options
+* [flexbe_core] Rework state logger implementation
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+* [flexbe_core] Add tests for proxies
+* [flexbe_core] Several minor improvements of proxies
+  (see `#114 <https://github.com/team-vigir/flexbe_behavior_engine/issues/114>`_)
+* [flexbe_msgs] [flexbe_core] Add debug level to logger
+  (see `#101 <https://github.com/team-vigir/flexbe_behavior_engine/issues/101>`_)
+* Merge pull request `#110 <https://github.com/team-vigir/flexbe_behavior_engine/issues/110>`_ from team-vigir/fix/catkin_install
+  Let behavior library find sourcecode in devel or install spaces
+* Let behavior library find sourcecode in devel or install spaces
+  (fix `#104 <https://github.com/team-vigir/flexbe_behavior_engine/issues/104>`_)
+* [flexbe_core] Fix reset of requested outcome when re-visiting the same state and immediately requesting an outcome
+* [flexbe_core] Fix duplicate sleep in case of state machine inside concurrency
+* [flexbe_core] Robustify priority container path handling
+* Do not trigger on_resume and on_exit when stopped during pause
+  (see `#103 <https://github.com/team-vigir/flexbe_behavior_engine/issues/103>`_)
+* Remove mistakenly added text
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* Remove explicit list construction where not required
+* Remove redundant type check
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors

@@ -2,6 +2,35 @@
 Changelog for package flexbe_states
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.1 (2020-12-11)
+------------------
+* [flexbe_states] Pass flexible calculation state input as kwargs for python3 compatibility
+* Contributors: Philipp Schillinger
+
+1.3.0 (2020-11-19)
+------------------
+* Merge remote-tracking branch 'origin/feature/core_rework' into develop
+  # Conflicts:
+  #	flexbe_core/src/flexbe_core/core/operatable_state_machine.py
+  #	flexbe_onboard/src/flexbe_onboard/flexbe_onboard.py
+* [flexbe_states] Cleanup of states
+* Major clean-up of most core components
+* Remove smach dependency
+* Contributors: Philipp Schillinger
+
+1.2.5 (2020-06-14)
+------------------
+* [flexbe_states] Fix ambiguous import of subscriber state
+* Merge branch 'develop' into feature/state_logger_rework
+* [flexbe_states] Clean up input state
+* Contributors: Philipp Schillinger
+
+1.2.4 (2020-03-25)
+------------------
+* Merge branch 'fmessmer-feature/python3_compatibility' into develop
+* python3 compatibility via 2to3
+* Contributors: Philipp Schillinger, fmessmer
+
 1.2.3 (2020-01-10)
 ------------------
 * Merge pull request `#97 <https://github.com/team-vigir/flexbe_behavior_engine/issues/97>`_ from team-vigir/feature/test_behaviors

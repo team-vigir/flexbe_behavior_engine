@@ -2,7 +2,7 @@ path: flexbe_states.flexible_calculation_state
 class: FlexibleCalculationState
 
 params:
-    calculation: "lambda x: x[0] * x[1]"
+    calculation: "lambda b, a: a - b"
     input_keys: ['a', 'b']
 
 input:
@@ -10,6 +10,6 @@ input:
     b: 4
 
 output:
-    output_value: 12
+    output_value: -1
 
 outcome: done
