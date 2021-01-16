@@ -8,8 +8,8 @@
 ###########################################################
 
 from flexbe_core import Behavior, Autonomy, OperatableStateMachine, ConcurrencyContainer, PriorityContainer, Logger
-from flexbe_states.calculation_state import CalculationState
-from flexbe_states.decision_state import DecisionState
+from flexbe_testing.calculation_state import CalculationState
+from flexbe_testing.decision_state import DecisionState
 # Additional imports can be added inside the following tags
 # [MANUAL_IMPORT]
 
