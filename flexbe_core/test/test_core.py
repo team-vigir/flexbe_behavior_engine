@@ -358,6 +358,7 @@ class TestCore(unittest.TestCase):
         cc.execute(None)
         cc.sleep()
         cc.execute(None)
+        rospy.logwarn("self.assertAlmostEqual(cc.sleep_duration, .1, places=2)")
         self.assertAlmostEqual(cc.sleep_duration, .1, places=2)
         cc.sleep()
         cc['main'].set_rate(15)
