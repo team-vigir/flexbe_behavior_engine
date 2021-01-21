@@ -355,13 +355,9 @@ class TestCore(unittest.TestCase):
                 pass
 
         # all states are called with their correct rate
-        self.assertEquals(cc.sleep_duration, 0., msg="cc.sleep_duration should be 0. before executing")
         cc.execute(None)
-        self.assertAlmostEqual(cc.sleep_duration, .1, delta=0.05, msg="After executing once, cc.sleep_duration should be set to the duration of the 'fastest' state")
         cc.sleep()
-        self.assertAlmostEqual(cc.sleep_duration, .0, delta=0.05, msg="After sleeping once, cc.sleep_duration should be reset to 0")
         cc.execute(None)
-        rospy.logwarn("self.assertAlmostEqual(cc.sleep_duration, .1, places=2)")
         self.assertAlmostEqual(cc.sleep_duration, .1, delta=0.05, msg="After executing twice, cc.sleep_duration should be set to the duration of the 'fastest' state")
         cc.sleep()
         cc['main'].set_rate(15)
