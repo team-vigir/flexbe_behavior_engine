@@ -50,9 +50,7 @@ class ConcurrencyContainer(OperatableStateMachine):
                     # but is required here to reset the sleep time after executing
                     state.sleep()
 
-            Logger.loginfo("BEFORE: state.sleep_duration({ssd}) if sleep_dur({sd}) is None else "
-                           "min(sleep_dur, state.sleep_duration)({m})"
-                           .format(ssd=state.sleep_duration, sd=sleep_dur, m=min(sleep_dur, state.sleep_duration)))
+            Logger.loginfo("BEFORE: state.sleep_duration({ssd}) if sleep_dur({sd}) is None else".format(ssd=state.sleep_duration, sd=sleep_dur))
             sleep_dur = state.sleep_duration if sleep_dur is None else min(sleep_dur, state.sleep_duration)
             Logger.loginfo("AFTER: sleep_dur={sd}".format(sd=sleep_dur))
         if sleep_dur > 0:
