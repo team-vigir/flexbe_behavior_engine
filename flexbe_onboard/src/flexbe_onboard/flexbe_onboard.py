@@ -2,6 +2,8 @@
 import rospy
 import os
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import inspect
 import tempfile
 import threading

@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import os
 from rospkg import RosPack
 import xml.etree.ElementTree as ET

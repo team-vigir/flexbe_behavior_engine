@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import rospy
 import threading
 import zlib

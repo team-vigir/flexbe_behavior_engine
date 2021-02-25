@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import zlib
 from flexbe_core.core.user_data import UserData
 from flexbe_core.logger import Logger

@@ -7,6 +7,9 @@ from rospkg import RosPack, ResourceNotFound
 from flexbe_core import Logger, BehaviorLibrary
 from std_msgs.msg import String
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import pickle
 import zlib
 import difflib

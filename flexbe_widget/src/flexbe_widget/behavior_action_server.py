@@ -8,6 +8,9 @@ from flexbe_core import BehaviorLibrary
 
 from std_msgs.msg import String, Empty
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 import zlib
 import difflib
 import os
