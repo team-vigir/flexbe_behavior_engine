@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Prepare CI
         run: |
-          git clone https://github.com/mojin-robotics/flexbe_ci.git ~/flexbe_ci
+          git clone https://github.com/fmessmer/flexbe_ci.git -b fix_flexbe_ci_mojin ~/flexbe_ci
           source ~/flexbe_ci/setup.bash $ROS_DISTRO
       - name: Install ROS
         run: ~/flexbe_ci/ci_scripts/install_ros.bash
