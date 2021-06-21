@@ -1,6 +1,6 @@
-#!/usr/bin/env python
 import os
-from rospkg import RosPack
+from ros2pkg import api as rospkg
+from catkin_pkg.package import parse_package
 import xml.etree.ElementTree as ET
 import zlib
 
@@ -13,7 +13,6 @@ class BehaviorLibrary(object):
     '''
 
     def __init__(self):
-        self._rp = RosPack()
         self._behavior_lib = dict()
         self.parse_packages()
 
@@ -22,10 +21,11 @@ class BehaviorLibrary(object):
         Parses all ROS packages to update the internal behavior library.
         """
         self._behavior_lib = dict()
-        for pkg in self._rp.list():
-            for export in self._rp._load_manifest(pkg).exports:
-                if export.tag == "flexbe_behaviors":
-                    self._add_behavior_manifests(self._rp.get_path(pkg), pkg)
+        for pkg_name, pkg_path in rospkg.get_packages_with_prefixes().items():
+            pkg = parse_package(os.path.join(pkg_path, 'share', pkg_name))
+            for export in pkg.exports:
+                if export.tagname == "flexbe_behaviors":
+                    self._add_behavior_manifests(os.path.join(pkg_path, 'share', 'manifest'), pkg_name)
 
     def _add_behavior_manifests(self, path, pkg=None):
         """
@@ -124,6 +124,7 @@ class BehaviorLibrary(object):
         if be_entry is None:
             # rely on get_behavior to handle/log missing package
             return None
+        #TODO Replace use of non-existing self._rp
         try:
             module_path = __import__(be_entry["package"]).__path__[-1]
         except ImportError:

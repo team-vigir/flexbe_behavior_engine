@@ -16,6 +16,16 @@ from .logger import Logger  # noqa: F401
 from .state_logger import StateLogger  # noqa: F401
 
 
+def set_node(node):
+    from .proxy import initialize_proxies
+    from .core import RosState, RosStateMachine
+    Logger.initialize(node)
+    StateLogger.initialize_ros(node)
+    initialize_proxies(node)
+    RosState.initialize_ros(node)
+    RosStateMachine.initialize_ros(node)
+
+
 class Autonomy:
     """
     Provides constants for the available required Autonomy Levels.

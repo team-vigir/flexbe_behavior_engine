@@ -1,19 +1,23 @@
-#!/usr/bin/env python
-import rospy
-import actionlib
+from rclpy.action import ActionClient
 from threading import Timer
 
 from flexbe_core.logger import Logger
 
 
+#TODO implement action client
 class ProxyActionClient(object):
     """
     A proxy for calling actions.
     """
+    _node = None
     _clients = {}
 
     _result = {}
     _feedback = {}
+
+    @staticmethod
+    def _initialize(node):
+        ProxyActionClient._node = node
 
     def __init__(self, topics={}, wait_duration=10):
         """
@@ -43,7 +47,7 @@ class ProxyActionClient(object):
         @param wait_duration: Defines how long to wait for the given client if it is not available right now.
         """
         if topic not in ProxyActionClient._clients:
-            ProxyActionClient._clients[topic] = actionlib.SimpleActionClient(topic, msg_type)
+            ProxyActionClient._clients[topic] = ActionClient(ProxyActionClient._node, msg_type, topic)
             self._check_topic_available(topic, wait_duration)
 
     def send_goal(self, topic, goal):

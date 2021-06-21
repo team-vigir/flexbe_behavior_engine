@@ -1,17 +1,20 @@
-#!/usr/bin/env python
-import rospy
 from threading import Timer
 
 from flexbe_core.logger import Logger
+from flexbe_core.proxy.qos import QOS_DEFAULT
 
 
 class ProxyPublisher(object):
     """
     A proxy for publishing topics.
     """
+    _node = None
     _topics = {}
 
-    def __init__(self, topics={}, _latch=False, _queue_size=100):
+    def _initialize(node):
+        ProxyPublisher._node = node
+
+    def __init__(self, topics={}, qos=None, **kwargs):
         """
         Initializes the proxy with optionally a given set of topics.
         Automatically creates a publisher for sending status messages.
@@ -26,9 +29,9 @@ class ProxyPublisher(object):
         @param: _queue_size: Defines the queue size of the new publishers.
         """
         for topic, msg_type in topics.items():
-            self.createPublisher(topic, msg_type, _latch, _queue_size)
+            self.createPublisher(topic, msg_type, qos, **kwargs)
 
-    def createPublisher(self, topic, msg_type, _latch=False, _queue_size=100):
+    def createPublisher(self, topic, msg_type, qos=None, **kwargs):
         """
         Adds a new publisher to the proxy.
 
@@ -37,15 +40,12 @@ class ProxyPublisher(object):
 
         @type msg_type: a message class
         @param msg_type: The type of messages of this topic.
-
-        @type _latch: bool
-        @param: _latch: Defines if messages on the given topics should be latched.
-
-        @type _queue_size: int
-        @param: _queue_size: Defines the queue size of the publisher.
         """
+        if '_latch' in kwargs or '_queue_size' in kwargs:
+            Logger.warning('DEPRECATED use of arguments in publisher')
         if topic not in ProxyPublisher._topics:
-            ProxyPublisher._topics[topic] = rospy.Publisher(topic, msg_type, latch=_latch, queue_size=_queue_size)
+            qos = qos or QOS_DEFAULT
+            ProxyPublisher._topics[topic] = ProxyPublisher._node.create_publisher(msg_type, topic, qos)
 
     def is_available(self, topic):
         """
@@ -67,12 +67,12 @@ class ProxyPublisher(object):
         @param msg: The message to publish.
         """
         if topic not in ProxyPublisher._topics:
-            Logger.logwarn('ProxyPublisher: topic %s not yet registered!' % topic)
+            Logger.warning('ProxyPublisher: topic %s not yet registered!' % topic)
             return
-        try:
-            ProxyPublisher._topics[topic].publish(msg)
-        except Exception as e:
-            Logger.logwarn('Something went wrong when publishing to %s!\n%s' % (topic, str(e)))
+        # try:
+        ProxyPublisher._topics[topic].publish(msg)
+        # except Exception as e:
+        #     Logger.warning('Something went wrong when publishing to %s!\n%s' % (topic, str(e)))
 
     def wait_for_any(self, topic, timeout=5.0):
         """
@@ -86,7 +86,7 @@ class ProxyPublisher(object):
         """
         pub = ProxyPublisher._topics.get(topic)
         if pub is None:
-            Logger.logerr("Publisher %s not yet registered, need to add it first!" % topic)
+            Logger.error("Publisher %s not yet registered, need to add it first!" % topic)
             return False
         t = Timer(.5, self._print_wait_warning, [topic])
         t.start()
@@ -99,15 +99,15 @@ class ProxyPublisher(object):
             warning_sent = True
 
         if not available:
-            Logger.logerr("Waiting for subscribers on %s timed out!" % topic)
+            Logger.error("Waiting for subscribers on %s timed out!" % topic)
             return False
         else:
             if warning_sent:
-                Logger.loginfo("Finally found subscriber on %s..." % (topic))
+                Logger.info("Finally found subscriber on %s..." % (topic))
         return True
 
     def _print_wait_warning(self, topic):
-        Logger.logwarn("Waiting for subscribers on %s..." % (topic))
+        Logger.warning("Waiting for subscribers on %s..." % (topic))
 
     def _wait_for_subscribers(self, pub, timeout=5.0):
         starting_time = rospy.get_rostime()

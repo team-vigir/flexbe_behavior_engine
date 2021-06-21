@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 import unittest
-import rospy
-import actionlib
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached, ProxyActionClient, ProxyServiceCaller
 
 from std_msgs.msg import String

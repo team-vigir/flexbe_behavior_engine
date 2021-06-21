@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rospy
+from rclpy.node import Node
 
 from flexbe_msgs.msg import BehaviorLog
 
@@ -17,15 +17,17 @@ class Logger(object):
     LOGGING_TOPIC = 'flexbe/log'
 
     _pub = None
+    _node = None
 
     @staticmethod
-    def initialize():
-        Logger._pub = rospy.Publisher(Logger.LOGGING_TOPIC, BehaviorLog, queue_size=100)
+    def initialize(node: Node):
+        Logger._node = node
+        Logger._pub = node.create_publisher(BehaviorLog, Logger.LOGGING_TOPIC, 100)
 
     @staticmethod
-    def log(text, severity):
-        if Logger._pub is None:
-            Logger.initialize()
+    def log(text: str, severity: int):
+        if Logger._node is None:
+            raise RuntimeError('Unable to log, run "Logger.initialize" first to define the target ROS node.')
         # send message with logged text
         msg = BehaviorLog()
         msg.text = str(text)
@@ -35,19 +37,21 @@ class Logger(object):
         Logger.local(text, severity)
 
     @staticmethod
-    def local(text, severity):
+    def local(text: str, severity: int):
+        if Logger._node is None:
+            raise RuntimeError('Unable to log, run "Logger.initialize" first to define the target ROS node.')
         if severity == Logger.REPORT_INFO:
-            rospy.loginfo(text)
+            Logger._node.get_logger().info(text)
         elif severity == Logger.REPORT_WARN:
-            rospy.logwarn(text)
+            Logger._node.get_logger().warning(text)
         elif severity == Logger.REPORT_HINT:
-            rospy.loginfo('\033[94mBehavior Hint: %s\033[0m', text)
+            Logger._node.get_logger().info('\033[94mBehavior Hint: %s\033[0m', text)
         elif severity == Logger.REPORT_ERROR:
-            rospy.logerr(text)
+            Logger._node.get_logger().error(text)
         elif severity == Logger.REPORT_DEBUG:
-            rospy.logdebug(text)
+            Logger._node.get_logger().debug(text)
         else:
-            rospy.logdebug(text + ' (unknown log level %s)' % str(severity))
+            Logger._node.get_logger().debug(text + ' (unknown log level %s)' % str(severity))
 
     @staticmethod
     def logdebug(text, *args):
@@ -76,3 +80,23 @@ class Logger(object):
     @staticmethod
     def localinfo(text, *args):
         Logger.local(text % args, Logger.REPORT_INFO)
+
+    @staticmethod
+    def debug(text, *args):
+        Logger.logdebug(text, *args)
+
+    @staticmethod
+    def info(text, *args):
+        Logger.loginfo(text, *args)
+
+    @staticmethod
+    def warning(text, *args):
+        Logger.logwarn(text, *args)
+
+    @staticmethod
+    def hint(text, *args):
+        Logger.loghint(text, *args)
+
+    @staticmethod
+    def error(text, *args):
+        Logger.logerr(text, *args)

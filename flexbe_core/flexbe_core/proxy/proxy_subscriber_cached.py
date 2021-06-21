@@ -1,17 +1,22 @@
-#!/usr/bin/env python
-import rospy
+from functools import partial
+from collections import defaultdict
 
 from flexbe_core.logger import Logger
+from flexbe_core.proxy.qos import QOS_DEFAULT
 
 
 class ProxySubscriberCached(object):
     """
     A proxy for subscribing topics that caches and buffers received messages.
     """
+    _node = None
     _topics = {}
     _persistant_topics = []
 
-    def __init__(self, topics={}):
+    def _initialize(node):
+        ProxySubscriberCached._node = node
+
+    def __init__(self, topics={}, qos=None):
         """
         Initializes the proxy with optionally a given set of topics.
 
@@ -19,9 +24,9 @@ class ProxySubscriberCached(object):
         @param topics: A dictionary containing a collection of topic - message type pairs.
         """
         for topic, msg_type in topics.items():
-            self.subscribe(topic, msg_type)
+            self.subscribe(topic, msg_type, qos=qos)
 
-    def subscribe(self, topic, msg_type, callback=None, buffered=False):
+    def subscribe(self, topic, msg_type, callback=None, buffered=False, qos=None):
         """
         Adds a new subscriber to the proxy.
 
@@ -38,13 +43,16 @@ class ProxySubscriberCached(object):
         @param buffered: True if all messages should be bufferd, False if only the last message should be cached.
         """
         if topic not in ProxySubscriberCached._topics:
-            sub = rospy.Subscriber(topic, msg_type, self._callback, callback_args=topic)
+            qos = qos or QOS_DEFAULT
+            sub = ProxySubscriberCached._node.create_subscription(msg_type, topic,
+                                                                  partial(self._callback, topic=topic), qos)
             ProxySubscriberCached._topics[topic] = {'subscriber': sub,
                                                     'last_msg': None,
                                                     'buffered': buffered,
-                                                    'msg_queue': []}
+                                                    'msg_queue': [],
+                                                    'callbacks': defaultdict(list)}
         if callback is not None:
-            ProxySubscriberCached._topics[topic]['subscriber'].impl.add_callback(callback, None)
+            ProxySubscriberCached._topics[topic]['callbacks'].append(callback)
 
     def _callback(self, msg, topic):
         """
@@ -61,6 +69,8 @@ class ProxySubscriberCached(object):
         ProxySubscriberCached._topics[topic]['last_msg'] = msg
         if ProxySubscriberCached._topics[topic]['buffered']:
             ProxySubscriberCached._topics[topic]['msg_queue'].append(msg)
+        for callback in ProxySubscriberCached._topics[topic]['callbacks']:
+            callback(msg)
 
     def set_callback(self, topic, callback):
         """
@@ -72,7 +82,7 @@ class ProxySubscriberCached(object):
         @type callback: function
         @param callback: The callback to be added.
         """
-        ProxySubscriberCached._topics[topic]['subscriber'].impl.add_callback(callback, None)
+        ProxySubscriberCached._topics[topic]['callbacks'].append(callback)
 
     def enable_buffer(self, topic):
         """
@@ -119,7 +129,7 @@ class ProxySubscriberCached(object):
         @param topic: The topic of interest.
         """
         if not ProxySubscriberCached._topics[topic]['buffered']:
-            Logger.logwarn('Attempted to access buffer of non-buffered topic!')
+            Logger.warning('Attempted to access buffer of non-buffered topic!')
             return None
         if len(ProxySubscriberCached._topics[topic]['msg_queue']) == 0:
             return None
@@ -179,7 +189,7 @@ class ProxySubscriberCached(object):
         @type topic: string
         @param topic: The topic of interest.
         """
-        Logger.logwarn('Deprecated (ProxySubscriberCached): use "is_available(topic)" instead of "has_topic(topic)".')
+        Logger.warning('Deprecated (ProxySubscriberCached): use "is_available(topic)" instead of "has_topic(topic)".')
         return self.is_available(topic)
 
     def unsubscribe_topic(self, topic):

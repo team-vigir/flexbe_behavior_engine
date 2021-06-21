@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import rospy
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 
 from flexbe_core.core.state import State
@@ -9,10 +8,17 @@ class RosState(State):
     """
     A state to interface with ROS.
     """
+    _node = None
+    _breakpoints = []
+
+    @staticmethod
+    def initialize_ros(node):
+        RosState._node = node
+        RosState._breakpoints = node.declare_parameter('breakpoints', [])
 
     def __init__(self, *args, **kwargs):
         super(RosState, self).__init__(*args, **kwargs)
-        self._rate = rospy.Rate(10)
+        self._rate = RosState._node.create_rate(10)
         self._is_controlled = False
 
         self._pub = ProxyPublisher()
@@ -23,20 +29,19 @@ class RosState(State):
 
     @property
     def sleep_duration(self):
-        return self._rate.remaining().to_sec()
+        return self._rate._time.time_until_next_call()
 
     def set_rate(self, rate):
         """
         Set the execution rate of this state,
         i.e., the rate with which the execute method is being called.
 
-        Note: The rate is best-effort,
-              a rospy.Rate does not guarantee real-time properties.
+        Note: The rate is best-effort, real-time support is not yet available.
 
         @type label: float
         @param label: The desired rate in Hz.
         """
-        self._rate = rospy.Rate(rate)
+        self._rate = RosState._node.create_rate(rate)
 
     def _enable_ros_control(self):
         self._is_controlled = True
@@ -46,4 +51,4 @@ class RosState(State):
 
     @property
     def is_breakpoint(self):
-        return self.path in rospy.get_param('/flexbe/breakpoints', [])
+        return self.path in RosState._breakpoints.get_parameter_value().string_array_value

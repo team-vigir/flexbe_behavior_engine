@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import rospy
 import os
 import time
 import yaml
@@ -15,15 +14,31 @@ class StateLogger(object):
     '''
     Realizes logging of active states.
     '''
-
     enabled = False
     _serialize_impl = 'yaml'
+    _node = None
+
+    # parameters
+    _log_folder = None
+    _log_enabled = None
+    _log_serialize = None
+    _log_level = None
+    _log_config = None
+
+    @staticmethod
+    def initialize_ros(node):
+        StateLogger._node = node
+        StateLogger._log_folder = node.declare_parameter('log_folder', '~/.flexbe_logs')
+        StateLogger._log_enabled = node.declare_parameter('log_enabled', False)
+        StateLogger._log_serialize = node.declare_parameter('log_serialize', 'yaml')
+        StateLogger._log_level = node.declare_parameter('log_level', 'INFO')
+        StateLogger._log_config = node.declare_parameter('log_config', '')
 
     @staticmethod
     def initialize(be_name=None):
-        log_folder = os.path.expanduser(rospy.get_param("~log_folder", "~/.flexbe_logs"))
+        log_folder = os.path.expanduser(StateLogger._log_folder.get_parameter_value().string_value)
 
-        if log_folder == "" or not rospy.get_param("~log_enabled", False):
+        if log_folder == "" or not StateLogger._log_enabled.get_parameter_value().bool_value:
             StateLogger.enabled = False
             return
         StateLogger.enabled = True
@@ -35,7 +50,7 @@ class StateLogger(object):
         if be_name is not None:
             name = be_name.replace(" ", "_").replace(",", "_").replace(".", "_").replace("/", "_").lower()
 
-        StateLogger._serialize_impl = rospy.get_param('~log_serialize', 'yaml')
+        StateLogger._serialize_impl = StateLogger._log_serialize.get_parameter_value().string_value
 
         logger_config = dict({
             'version': 1,
@@ -54,7 +69,7 @@ class StateLogger(object):
                 }
             },
             'loggers': {'flexbe': {'level': 'INFO', 'handlers': ['file']}}
-        }, **rospy.get_param('~log_config', {}))
+        }, **yaml.safe_load(StateLogger._log_config.get_parameter_value().string_value))
         if ('handlers' in logger_config and 'file' in logger_config['handlers'] and
                 'filename' in logger_config['handlers']['file']):
             logger_config['handlers']['file']['filename'] %= {
@@ -63,7 +78,8 @@ class StateLogger(object):
                 'timestamp': time.strftime("%Y-%m-%d-%H_%M_%S")
             }
         if 'loggers' in logger_config and 'flexbe' in logger_config['loggers']:
-            logger_config['loggers']['flexbe']['level'] = rospy.get_param('~log_level', 'INFO').upper()
+            level = StateLogger._log_level.get_parameter_value().string_value
+            logger_config['loggers']['flexbe']['level'] = level.upper()
         logging.config.dictConfig(logger_config)
 
     @staticmethod
@@ -100,15 +116,16 @@ class StateLogger(object):
                             event_method = getattr(self, method)
                             @wraps(event_method)
                             def event_wrapper(*args, **kwargs):
-                                time_start = rospy.get_time()
+                                time_start = StateLogger._node.get_clock().now().nanoseconds
                                 try:
                                     event_method(*args, **kwargs)
                                 finally:
                                     if StateLogger.enabled:
+                                        duration = StateLogger._node.get_clock().now().nanoseconds - time_start
                                         StateLogger.get(name).info(dict(
                                             StateLogger._basic(self),
                                             event=event,
-                                            duration=rospy.get_time() - time_start))
+                                            duration=duration * 1e-9))
                             setattr(self, method, event_wrapper)
                     wrap_event_method(event, method)
             cls.__init__ = log_events_init
@@ -161,8 +178,9 @@ class StateLogger(object):
                             try:
                                 logdata['userdata'][key] = StateLogger._serialize(userdata[key])
                             except Exception as e:
-                                rospy.logwarn('State %s failed to log userdata for key %s: %s' %
-                                              (self.name, key, str(e)))
+                                from flexbe_core import Logger
+                                Logger.warning('State %s failed to log userdata for key %s: %s' %
+                                               (self.name, key, str(e)))
                         logger.debug(logdata)
                     on_enter_method(userdata)
                 setattr(self, 'on_enter', on_enter_wrapper)
@@ -183,7 +201,7 @@ class StateLogger(object):
 
     @staticmethod
     def _basic(state):
-        result = {'time': rospy.get_time()}
+        result = {'time': StateLogger._node.get_clock().now().nanoseconds * 1e-9}
         if state is not None:
             result.update({
                 'name': state.name,
