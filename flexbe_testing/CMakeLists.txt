@@ -7,7 +7,7 @@ catkin_python_setup()
 
 catkin_package()
 
-FILE(GLOB BIN_FILES "bin/*")
+file(GLOB BIN_FILES "bin/*")
 
 install(PROGRAMS ${BIN_FILES} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

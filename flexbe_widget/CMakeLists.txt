@@ -5,10 +5,13 @@ find_package(catkin REQUIRED)
 
 catkin_python_setup()
 
-catkin_package(
-    INCLUDE_DIRS src
-    LIBRARIES ${PROJECT_NAME})
+catkin_package()
 
-FILE(GLOB BIN_FILES "bin/*")
-
-install(PROGRAMS ${BIN_FILES} DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+install(PROGRAMS
+    bin/be_action_server
+    bin/be_compress
+    bin/be_launcher
+    bin/breakpoint
+    bin/create_repo
+    bin/evaluate_logs
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

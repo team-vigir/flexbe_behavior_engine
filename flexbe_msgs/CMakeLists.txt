@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(flexbe_msgs)
 
-find_package(catkin REQUIRED COMPONENTS message_generation actionlib_msgs actionlib)
+find_package(catkin REQUIRED COMPONENTS actionlib actionlib_msgs message_generation)
 
 add_message_files(FILES 
   BEStatus.msg
@@ -21,10 +21,10 @@ add_message_files(FILES
   UICommand.msg
 )
 add_action_files(FILES 
-  BehaviorInput.action
   BehaviorExecution.action
+  BehaviorInput.action
   BehaviorSynthesis.action
 )
 generate_messages(DEPENDENCIES actionlib_msgs)
 
-catkin_package(CATKIN_DEPENDS message_runtime actionlib_msgs)
+catkin_package(CATKIN_DEPENDS actionlib actionlib_msgs message_runtime)
