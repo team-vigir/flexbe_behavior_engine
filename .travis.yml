@@ -12,6 +12,7 @@ env:
     - CATKIN_LINT=pedantic
     - CMAKE_ARGS=-DCMAKE_BUILD_TYPE=Release
     - PARALLEL_TESTS=1
+    - PYLINT_CHECK=false
     - ROS_REPO=main
   matrix:
     - ROS_DISTRO=kinetic
