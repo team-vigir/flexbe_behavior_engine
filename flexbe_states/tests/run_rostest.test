@@ -21,10 +21,13 @@
 		$(arg path)/log_state_msg.test
 		$(arg path)/operator_decision_state_suggested.test
 		$(arg path)/subscriber_state_unavailable.test
-		$(arg path)/subscriber_state_pose.test
 		$(arg path)/wait_state_short.test
 
 	" />
+	<!--
+		TODO: This test uses pyyaml to load a Python object encoded in yaml buyt that doesn't work on Noetic
+		$(arg path)/subscriber_state_pose.test
+	-->
 </include>
 
 </launch>
