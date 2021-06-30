@@ -19,8 +19,6 @@ jobs:
       CATKIN_LINT_ARGS: '--ignore description_boilerplate'
       CCACHE_DIR: /github/home/.ccache  # Directory for ccache (and how we enable ccache in industrial_ci)
       CMAKE_ARGS: -DCMAKE_BUILD_TYPE=Release
-      PYLINT_ARGS: '--output-format=parseable --errors-only --disable=method-hidden'
-      PYLINT_CHECK: true
       ROS_REPO: main
 
     strategy:
