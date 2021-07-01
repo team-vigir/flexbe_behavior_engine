@@ -8,4 +8,4 @@ string[] arg_values
 string[] input_keys
 string[] input_values
 
-flexbe_msgs/BehaviorModification[] modifications
+BehaviorModification[] modifications

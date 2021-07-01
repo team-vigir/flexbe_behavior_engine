@@ -7,6 +7,9 @@ catkin_python_setup()
 
 catkin_package()
 
+
+install(DIRECTORY launch
+  	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(PROGRAMS
     bin/be_action_server
     bin/be_compress
