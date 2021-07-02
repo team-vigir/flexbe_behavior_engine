@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import roslib; roslib.load_manifest('flexbe_input')
 import rospy
 import pickle
 import actionlib

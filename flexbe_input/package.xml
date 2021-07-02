@@ -18,8 +18,8 @@
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
 
-  <depend>actionlib</depend>
-
+  <exec_depend>actionlib</exec_depend>
+  <exec_depend>actionlib_msgs</exec_depend>
   <exec_depend>flexbe_msgs</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-six</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-six</exec_depend>

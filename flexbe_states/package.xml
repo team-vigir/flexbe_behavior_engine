@@ -19,8 +19,6 @@
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
 
-  <depend>rostest</depend>
-
   <exec_depend>flexbe_core</exec_depend>
   <exec_depend>flexbe_msgs</exec_depend>
   <exec_depend>flexbe_testing</exec_depend>
@@ -28,6 +26,7 @@
   <exec_depend>rospy</exec_depend>
 
   <test_depend>geometry_msgs</test_depend>
+  <test_depend>rostest</test_depend>
 
   <export>
     <flexbe_states/>
