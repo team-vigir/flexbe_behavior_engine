@@ -231,7 +231,7 @@ class Behavior(object):
                 value = (value != "0")
             elif type(attr) is dict:
                 import yaml
-                value = getattr(yaml, 'full_load', yaml.load)(value)
+                value = getattr(yaml, 'unsafe_load', yaml.load)(value)
         setattr(self, name, value)
 
     def set_up(self, id, autonomy_level, debug):
