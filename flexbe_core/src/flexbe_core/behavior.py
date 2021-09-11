@@ -228,7 +228,7 @@ class Behavior(object):
             elif type(attr) is float:
                 value = float(value)
             elif type(attr) is bool:
-                value = (value != "0")
+                value = (value != "0" and value.lower() != "false")
             elif type(attr) is dict:
                 import yaml
                 value = getattr(yaml, 'unsafe_load', yaml.load)(value)
