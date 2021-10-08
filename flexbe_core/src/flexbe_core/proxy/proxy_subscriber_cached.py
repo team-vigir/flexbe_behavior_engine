@@ -134,7 +134,9 @@ class ProxySubscriberCached(object):
         @type topic: string
         @param topic: The topic of interest.
         """
-        return ProxySubscriberCached._topics[topic]['last_msg'] is not None
+        if self.is_available(topic):
+            return ProxySubscriberCached._topics[topic]['last_msg'] is not None
+        return False
 
     def has_buffered(self, topic):
         """
