@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import rospy
 import rostopic
 from flexbe_core import EventState, Logger
 
@@ -53,8 +54,11 @@ class SubscriberState(EventState):
             self._sub.remove_last_msg(self._topic)
 
     def _connect(self):
-        msg_type, msg_topic, _ = rostopic.get_topic_class(self._topic)
-        if msg_topic == self._topic:
+        global_topic = self._topic
+        if global_topic[0] != '/':
+            global_topic = rospy.get_namespace() + global_topic
+        msg_type, msg_topic, _ = rostopic.get_topic_class(global_topic)
+        if msg_topic == global_topic:
             self._sub = ProxySubscriberCached({self._topic: msg_type})
             self._connected = True
             return True
