@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import time
 from flexbe_core import EventState, Logger
 
 class LogFileKeyState(EventState):
@@ -32,4 +33,4 @@ class LogFileKeyState(EventState):
         '''Log upon entering the state.'''
         Logger.log(self._text.format(userdata.data), self._severity)
         with open(os.path.expanduser(self._filepath), "a") as file_object:
-            file_object.write(self._text.format(userdata.data)+"\n")
+            file_object.write(str(time.time()) + ": "+ self._text.format(userdata.data)+"\n")
