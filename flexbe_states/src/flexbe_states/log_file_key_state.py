@@ -18,7 +18,7 @@ class LogFileKeyState(EventState):
     <= done                        Indicates that the message has been logged.
     '''
 
-    def __init__(self, text, filepath="~/.flexbe_logs/log_file.txt", severity=Logger.REPORT_HINT):
+    def __init__(self, text, filepath="~/.flexbe_logs/log_file.csv", severity=Logger.REPORT_HINT):
         super(LogFileKeyState, self).__init__(outcomes=['done'],
                                           input_keys=['data'])
         self._filepath = filepath
@@ -33,4 +33,4 @@ class LogFileKeyState(EventState):
         '''Log upon entering the state.'''
         Logger.log(self._text.format(userdata.data), self._severity)
         with open(os.path.expanduser(self._filepath), "a") as file_object:
-            file_object.write(str(time.time()) + ": "+ self._text.format(userdata.data)+"\n")
+            file_object.write(str(time.time()) + ";"+ self._text.format(userdata.data)+"\n")
