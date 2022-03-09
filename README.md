@@ -1,4 +1,16 @@
 # FlexBE Behavior Engine
+
+> NOTE:  As of 9-March-2022 development of the ROS 2 version of FlexBE
+> will be maintained at https://github.com/FlexBE/flexbe_behavior_engine.
+>
+> It is suggested that you migrate to there for new ROS 1 work as well.
+>
+> This site is being maintained for historical reasons, but future work
+> should use the https://github.com/FlexBE site, which will be the one-stop
+> shop for all things FlexBE going forward.
+
+
+
 FlexBE is a high-level behavior engine coordinating the capabilities of a robot in order to solve complex tasks.
 Behaviors are modeled as hierarchical state machines where states correspond to active actions and transitions describe the reaction to outcomes.
 Main advantage over similar approaches is the good operator integration and extensive user interface.
@@ -16,11 +28,11 @@ Execute the following commands to install FlexBE:
 
     roscd && cd ../src
     git clone https://github.com/team-vigir/flexbe_behavior_engine.git
-    
+
 Furthermore, create your own repository for behavior development (contains examples):
-    
+
     rosrun flexbe_widget create_repo [your_project_name]
-    
+
 Finally, it is recommended to install the FlexBE App user interface by following [these steps](http://philserver.bplaced.net/fbe/download.php).
 
 ## Usage
@@ -28,7 +40,7 @@ Finally, it is recommended to install the FlexBE App user interface by following
 Use the following launch file for running the onboard engine:
 
     roslaunch flexbe_onboard behavior_onboard.launch
-    
+
 Use the following launch file for running the operator control station (requires the FlexBE App):
 
     roslaunch flexbe_app flexbe_ocs.launch
