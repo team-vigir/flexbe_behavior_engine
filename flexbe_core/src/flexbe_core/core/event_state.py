@@ -5,7 +5,7 @@ from flexbe_core.core.preemptable_state import PreemptableState
 from flexbe_core.core.priority_container import PriorityContainer
 
 from flexbe_msgs.msg import CommandFeedback
-from std_msgs.msg import Bool, Empty
+from std_msgs.msg import Bool, Empty, String
 
 from flexbe_core.core.operatable_state import OperatableState
 
@@ -24,6 +24,8 @@ class EventState(OperatableState):
         super(EventState, self).__init__(*args, **kwargs)
         self.__execute = self.execute
         self.execute = self._event_execute
+        self.__on_enter = self.on_enter
+        self.on_enter = self._event_on_enter
 
         self._entering = True
         self._skipped = False
@@ -33,6 +35,14 @@ class EventState(OperatableState):
         self._feedback_topic = 'flexbe/command_feedback'
         self._repeat_topic = 'flexbe/command/repeat'
         self._pause_topic = 'flexbe/command/pause'
+        self._update_topic = 'flexbe/behavior_update'
+
+        self._pub.createPublisher(self._update_topic, String)
+
+    def _event_on_enter(self, *args, **kwargs):
+        Logger.loginfo("Enter state " + self.path)
+        self._pub.publish(self._update_topic, String(self.path))
+        self.__on_enter(*args, **kwargs)
 
     def _event_execute(self, *args, **kwargs):
         if self._is_controlled and self._sub.has_msg(self._pause_topic):
@@ -121,12 +131,6 @@ class EventState(OperatableState):
     def on_resume(self, userdata):
         """
         Will be executed each time this state is resumed.
-        """
-        pass
-
-    def on_enter(self, userdata):
-        """
-        Will be executed each time the state is entered from any other state (but not from itself).
         """
         pass
 
