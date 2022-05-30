@@ -16,6 +16,8 @@ from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, CommandFeedback
 from std_msgs.msg import Empty
 
+import diagnostic_msgs
+import diagnostic_updater
 
 class FlexbeOnboard(object):
     """
@@ -33,6 +35,10 @@ class FlexbeOnboard(object):
 
         # prepare manifest folder access
         self._behavior_lib = BehaviorLibrary()
+
+        self._diagnostic_updater = diagnostic_updater.Updater()
+        self._diagnostic_updater.setHardwareID('flexbe_onboard')
+        self._diagnostic_updater.add("method updater", self.produce_diagnostics)
 
         # prepare communication
         self.status_topic = 'flexbe/status'
@@ -336,7 +342,16 @@ class FlexbeOnboard(object):
     def _heartbeat_worker(self):
         while True:
             self._pub.publish('flexbe/heartbeat', Empty())
+            self._diagnostic_updater.update()
             time.sleep(1)
+
+    def produce_diagnostics(self, stat):
+        if self._running:
+            stat.summary(diagnostic_msgs.msg.DiagnosticStatus.OK,
+                         "behavior running")
+        else:
+            stat.summary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                         "behavior not running")
 
     def _convert_dict(self, o):
         if isinstance(o, list):
