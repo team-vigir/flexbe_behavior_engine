@@ -351,7 +351,21 @@ class FlexbeOnboard(object):
                          "behavior running")
         else:
             stat.summary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
-                         "behavior not running")
+                         "no behavior running")
+
+        if self.be:
+            stat.add("behavior.id", self.be.id)
+            stat.add("behavior.name", self.be.name)
+
+            active_state = self.be.get_current_state()
+            if active_state:
+                stat.add("behavior.active_state", active_state.name)
+            else:
+                stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                            "no state active")
+        else:
+            stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                         "no behavior started")
 
     def _convert_dict(self, o):
         if isinstance(o, list):
