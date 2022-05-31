@@ -16,6 +16,8 @@ from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, CommandFeedback
 from std_msgs.msg import Empty
 
+import diagnostic_msgs
+import diagnostic_updater
 
 class FlexbeOnboard(object):
     """
@@ -34,6 +36,11 @@ class FlexbeOnboard(object):
         # prepare manifest folder access
         self._behavior_lib = BehaviorLibrary()
 
+        self._diagnostic_updater = diagnostic_updater.Updater()
+        self._diagnostic_updater.setHardwareID('flexbe_onboard')
+        self._diagnostic_updater.add("method updater", self.produce_diagnostics)
+        self._diag_lock = threading.Lock()
+
         # prepare communication
         self.status_topic = 'flexbe/status'
         self.feedback_topic = 'flexbe/command_feedback'
@@ -42,7 +49,6 @@ class FlexbeOnboard(object):
             'flexbe/heartbeat': Empty
         })
         self._pub.createPublisher(self.status_topic, BEStatus, _latch=True)
-        self._execute_heartbeat()
 
         # listen for new behavior to start
         self._enable_clear_imports = rospy.get_param('~enable_clear_imports', False)
@@ -55,6 +61,8 @@ class FlexbeOnboard(object):
 
         rospy.sleep(0.5)  # wait for publishers etc to really be set up
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
+
+        self._execute_heartbeat()  # start hearbeat and diagnostics thread last
         rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
 
     def _behavior_callback(self, msg):
@@ -119,7 +127,8 @@ class FlexbeOnboard(object):
         with self._run_lock:
             self._switching = False
             self.be = be
-            self._running = True
+            with self._diag_lock:
+                self._running = True
 
             result = None
             try:
@@ -156,7 +165,8 @@ class FlexbeOnboard(object):
             if not self._switching:
                 Logger.loginfo('Behavior execution finished with result %s.', str(result))
                 rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
-            self._running = False
+            with self._diag_lock:
+                self._running = False
             self.be = None
 
     # ==================================== #
@@ -336,7 +346,31 @@ class FlexbeOnboard(object):
     def _heartbeat_worker(self):
         while True:
             self._pub.publish('flexbe/heartbeat', Empty())
+            self._diagnostic_updater.update()
             time.sleep(1)
+
+    def produce_diagnostics(self, stat):
+        with self._diag_lock:
+            if self._running:
+                stat.summary(diagnostic_msgs.msg.DiagnosticStatus.OK,
+                            "behavior running")
+            else:
+                stat.summary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                            "no behavior running")
+
+            if self.be:
+                stat.add("behavior.id", self.be.id)
+                stat.add("behavior.name", self.be.name)
+
+                active_state = self.be.get_current_state()
+                if active_state:
+                    stat.add("behavior.active_state", active_state.name)
+                else:
+                    stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                                "no state active")
+            else:
+                stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                            "no behavior started")
 
     def _convert_dict(self, o):
         if isinstance(o, list):
