@@ -39,6 +39,7 @@ class FlexbeOnboard(object):
         self._diagnostic_updater = diagnostic_updater.Updater()
         self._diagnostic_updater.setHardwareID('flexbe_onboard')
         self._diagnostic_updater.add("method updater", self.produce_diagnostics)
+        self._diag_lock = threading.Lock()
 
         # prepare communication
         self.status_topic = 'flexbe/status'
@@ -125,7 +126,8 @@ class FlexbeOnboard(object):
         with self._run_lock:
             self._switching = False
             self.be = be
-            self._running = True
+            with self._diag_lock:
+                self._running = True
 
             result = None
             try:
@@ -162,7 +164,8 @@ class FlexbeOnboard(object):
             if not self._switching:
                 Logger.loginfo('Behavior execution finished with result %s.', str(result))
                 rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
-            self._running = False
+            with self._diag_lock:
+                self._running = False
             self.be = None
 
     # ==================================== #
@@ -346,26 +349,27 @@ class FlexbeOnboard(object):
             time.sleep(1)
 
     def produce_diagnostics(self, stat):
-        if self._running:
-            stat.summary(diagnostic_msgs.msg.DiagnosticStatus.OK,
-                         "behavior running")
-        else:
-            stat.summary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
-                         "no behavior running")
+        with self._diag_lock:
+            if self._running:
+                stat.summary(diagnostic_msgs.msg.DiagnosticStatus.OK,
+                            "behavior running")
+            else:
+                stat.summary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                            "no behavior running")
 
-        if self.be:
-            stat.add("behavior.id", self.be.id)
-            stat.add("behavior.name", self.be.name)
+            if self.be:
+                stat.add("behavior.id", self.be.id)
+                stat.add("behavior.name", self.be.name)
 
-            active_state = self.be.get_current_state()
-            if active_state:
-                stat.add("behavior.active_state", active_state.name)
+                active_state = self.be.get_current_state()
+                if active_state:
+                    stat.add("behavior.active_state", active_state.name)
+                else:
+                    stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
+                                "no state active")
             else:
                 stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
-                            "no state active")
-        else:
-            stat.mergeSummary(diagnostic_msgs.msg.DiagnosticStatus.WARN,
-                         "no behavior started")
+                            "no behavior started")
 
     def _convert_dict(self, o):
         if isinstance(o, list):
