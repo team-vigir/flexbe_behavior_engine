@@ -49,7 +49,6 @@ class FlexbeOnboard(object):
             'flexbe/heartbeat': Empty
         })
         self._pub.createPublisher(self.status_topic, BEStatus, _latch=True)
-        self._execute_heartbeat()
 
         # listen for new behavior to start
         self._enable_clear_imports = rospy.get_param('~enable_clear_imports', False)
@@ -62,6 +61,8 @@ class FlexbeOnboard(object):
 
         rospy.sleep(0.5)  # wait for publishers etc to really be set up
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
+
+        self._execute_heartbeat()  # start hearbeat and diagnostics thread last
         rospy.loginfo('\033[92m--- Behavior Engine ready! ---\033[0m')
 
     def _behavior_callback(self, msg):
