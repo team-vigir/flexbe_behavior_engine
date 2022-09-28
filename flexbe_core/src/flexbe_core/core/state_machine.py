@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from flexbe_core.core.ros_state import RosState
 from flexbe_core.core.state import State
 from flexbe_core.core.user_data import UserData
 from flexbe_core.core.exceptions import StateError, StateMachineError
