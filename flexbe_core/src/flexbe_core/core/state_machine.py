@@ -68,7 +68,6 @@ class StateMachine(State):
             outcome = self.execute(userdata)
             if outcome is not None:
                 break
-            self.sleep()
         return outcome
 
     def execute(self, userdata):
@@ -98,6 +97,8 @@ class StateMachine(State):
             self._current_state = self._labels.get(target)
             if self._current_state is None:
                 return target
+        elif isinstance(self._current_state, RosState):
+            self.sleep()
 
     # properties
 
