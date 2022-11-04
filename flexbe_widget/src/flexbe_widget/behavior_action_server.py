@@ -71,7 +71,7 @@ class BehaviorActionServer(object):
 					with open(filepath, 'r') as f:
 						content = f.read()
 					if ns != '':
-						content = getattr(yaml, 'full_load', yaml.load)(content)
+						content = getattr(yaml, 'unsafe_load', yaml.load)(content)
 						if ns in content:
 							content = content[ns]
 						content = yaml.dump(content)
