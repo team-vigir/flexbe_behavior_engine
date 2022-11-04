@@ -228,10 +228,10 @@ class Behavior(object):
             elif type(attr) is float:
                 value = float(value)
             elif type(attr) is bool:
-                value = (value != "0")
+                value = (value != "0" and value.lower() != "false")
             elif type(attr) is dict:
                 import yaml
-                value = getattr(yaml, 'full_load', yaml.load)(value)
+                value = getattr(yaml, 'unsafe_load', yaml.load)(value)
         setattr(self, name, value)
 
     def set_up(self, id, autonomy_level, debug):

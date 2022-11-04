@@ -64,7 +64,7 @@ class BehaviorLauncher(object):
 					else:
 						yamlpath = os.path.join(self._rp.get_path(path.split('/')[0]), '/'.join(path.split('/')[1:]))
 					with open(yamlpath, 'r') as f:
-						content = getattr(yaml, 'full_load', yaml.load)(f)
+						content = getattr(yaml, 'unsafe_load', yaml.load)(f)
 					if ns != '' and ns in content:
 						content = content[ns]
 					be_selection.arg_keys.append(key)
