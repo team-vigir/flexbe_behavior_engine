@@ -65,7 +65,7 @@ class UserData(object):
         self[key] = value
 
     def __call__(self, reference=None, add_from=None, update_from=None, remove_key=None):
-        self._reference = reference or self._reference
+        self._reference = reference if reference is not None else self._reference
         if isinstance(add_from, UserData):
             for key, value in add_from._data.items():
                 if key not in self._data:
