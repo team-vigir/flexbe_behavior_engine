@@ -9,12 +9,18 @@ import time
 import zlib
 import contextlib
 from ast import literal_eval as cast
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 from flexbe_core import Logger, BehaviorLibrary
 from flexbe_core.proxy import ProxyPublisher, ProxySubscriberCached
+from flexbe_core.core.operatable_state_machine import OperatableStateMachine
+from flexbe_core.core.state_machine import StateMachine
+from flexbe_core import Behavior
 
 from flexbe_msgs.msg import BehaviorSelection, BEStatus, CommandFeedback
 from std_msgs.msg import Empty
+from std_srvs.srv import Trigger, TriggerRequest, TriggerResponse
 
 import diagnostic_msgs
 import diagnostic_updater
@@ -58,6 +64,8 @@ class FlexbeOnboard(object):
         self._switch_lock = threading.Lock()
         self._sub = ProxySubscriberCached()
         self._sub.subscribe('flexbe/start_behavior', BehaviorSelection, self._behavior_callback)
+
+        self._userdata_service = rospy.Service('flexbe/get_userdata', Trigger, self._userdata_callback)
 
         rospy.sleep(0.5)  # wait for publishers etc to really be set up
         self._pub.publish(self.status_topic, BEStatus(code=BEStatus.READY))
@@ -168,6 +176,38 @@ class FlexbeOnboard(object):
             with self._diag_lock:
                 self._running = False
             self.be = None
+
+
+    def _userdata_callback(self, request):
+        response = TriggerResponse()
+        print("SM: "+self.be._state_machine._name)
+        # print("userdata:\n",self.be._state_machine._userdata )
+        userdata = self.be._state_machine._userdata._data
+        # print("BE: ", self.be.name)
+        # for behavior in self.be._state_machine._states:
+        #     print("STATEs: ", behavior.name)
+        userdata.update(self._get_userdata_from_whole_sm(self.be._state_machine, {}))
+        Logger.loginfo("Current userdata: \n{}".format(pp.pformat(userdata)))
+        response.message = str(userdata)
+        return response
+
+    def _get_userdata_from_whole_sm(self, state_machine, userdata):
+        for subbehavior in state_machine._states:
+            print("STATE: ", subbehavior.name)
+            if isinstance(subbehavior, StateMachine):
+                # print("USERDATA: ", subbehavior._userdata)
+                if subbehavior._userdata:
+                    # print("DATA:", subbehavior._userdata._data)
+                    # for name, data in subbehavior._userdata._data.items():
+                        userdata.update(subbehavior._userdata._data.items())
+                        # print("NAME: ", name, " DATA: ", data)
+                # else:
+                #     Logger.logerr("{} has no userdata: {}".format(subbehavior.name, subbehavior._userdata))
+                self._get_userdata_from_whole_sm(subbehavior, userdata)
+            # # if we haven't checked all subbehaviors, check the next subbehavior
+            # elif subbehavior != state_machine._states[-1]:
+            #     print("SUBBEHAVIOR ", subbehavior.name,"NOT StateMachine but ", type(subbehavior),"... next")
+        return userdata
 
     # ==================================== #
     # Preparation of new behavior requests #
