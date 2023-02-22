@@ -25,12 +25,18 @@ add_message_files(FILES
   SynthesisErrorCodes.msg
   SynthesisRequest.msg
   UICommand.msg
+  UserdataInfo.msg
 )
 add_action_files(FILES 
   BehaviorInput.action
   BehaviorExecution.action
   BehaviorSynthesis.action
 )
+
+add_service_files(FILES
+  GetUserdata.srv
+)
+
 #add_action_files(FILES ...)
 # opt arg DEPENDENCIES ...
 generate_messages(DEPENDENCIES actionlib_msgs)
