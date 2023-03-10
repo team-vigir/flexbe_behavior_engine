@@ -21,7 +21,7 @@ class Logger(object):
     @staticmethod
     def initialize():
         Logger._pub = rospy.Publisher(Logger.LOGGING_TOPIC, BehaviorLog, queue_size=100)
-        Logger._last_logged = None
+        Logger._last_logged = {}
 
     @staticmethod
     def log(text, severity):
@@ -34,6 +34,16 @@ class Logger(object):
         Logger._pub.publish(msg)
         # also log locally
         Logger.local(text, severity)
+
+    @staticmethod
+    def log_throttle(period, text, severity):
+        # creat unique identifier for each logging message
+        log_id = str(severity)  + "_" + text
+        # only log when it's the first time or period time has passed for the logging message
+        if not log_id in Logger._last_logged.keys() or \
+            rospy.Time.now().to_sec() - Logger._last_logged[log_id].to_sec() > period:
+                Logger.log(text, severity)
+                Logger._last_logged.update({log_id: rospy.Time.now()})
 
     @staticmethod
     def local(text, severity):
@@ -72,43 +82,26 @@ class Logger(object):
 
     @staticmethod
     def logdebug_throttle(period: float, text: str, *args):
-        # only log when it's the first time or period time has passed
-        if not Logger._last_logged or \
-            rospy.Time.now().to_sec() - Logger._last_logged.to_sec() > period:
-            Logger.log(text % args, Logger.REPORT_DEBUG)
-            Logger._last_logged = rospy.Time.now()
+        Logger.log_throttle(period, text % args, Logger.REPORT_DEBUG)
 
     @staticmethod
     def loginfo_throttle(period: float, text: str, *args):
-        # only log when it's the first time or period time has passed
-        if not Logger._last_logged or \
-            rospy.Time.now().to_sec() - Logger._last_logged.to_sec() > period:
-            Logger.log(text % args, Logger.REPORT_INFO)
-            Logger._last_logged = rospy.Time.now()
+        Logger.log_throttle(period, text % args, Logger.REPORT_INFO)
+
 
     @staticmethod
     def logwarn_throttle(period: float, text: str, *args):
-        # only log when it's the first time or period time has passed
-        if not Logger._last_logged or \
-            rospy.Time.now().to_sec() - Logger._last_logged.to_sec() > period:
-            Logger.log(text % args, Logger.REPORT_WARN)
-            Logger._last_logged = rospy.Time.now()
+        Logger.log_throttle(period, text % args, Logger.REPORT_WARN)
 
     @staticmethod
     def loghint_throttle(period: float, text: str, *args):
-        # only log when it's the first time or period time has passed
-        if not Logger._last_logged or \
-            rospy.Time.now().to_sec() - Logger._last_logged.to_sec() > period:
-            Logger.log(text % args, Logger.REPORT_HINT)
-            Logger._last_logged = rospy.Time.now()
+        Logger.log_throttle(period, text % args, Logger.REPORT_HINT)
+
 
     @staticmethod
     def logerr_throttle(period: float, text: str, *args):
-        # only log when it's the first time or period time has passed
-        if not Logger._last_logged or \
-            rospy.Time.now().to_sec() - Logger._last_logged.to_sec() > period:
-            Logger.log(text % args, Logger.REPORT_ERROR)
-            Logger._last_logged = rospy.Time.now()
+        Logger.log_throttle(period, text % args, Logger.REPORT_ERROR)
+
 
     @staticmethod
     def localdebug(text: str, *args):
