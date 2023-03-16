@@ -165,31 +165,35 @@ class FlexbeOnboard(object):
 
 
     def _userdata_callback(self, request):
-        userdata = []
-        # get userdata from top-level behavior
-        if self.be._state_machine._userdata:
-            for key, data in self.be._state_machine._userdata._data.items():
-                # add userdata if fits to the requested key (get all userdata for empty string)
-                if (request.userdata_key == "" or request.userdata_key == key):
-                    userdata.append(UserdataInfo(state=self.be._state_machine._name,
-                                                key=str(key),
-                                                type=type(data).__name__,
-                                                data=str(data)))
-        # get userdata from sub-behaviors
-        userdata = self._get_userdata_from_whole_sm(self.be._state_machine, userdata, request.userdata_key, str(self.be._state_machine._name) + "/")
-
         response = GetUserdataResponse()
-        if (len(userdata) > 0):
-            # also print in terminal (better readable for complex message types)
-            printable_userdata = ""
-            for ud in userdata:
-                printable_userdata += "\t{}:{}\n".format(ud.key, ud.data)
-            Logger.loginfo("Current userdata: \n{}".format(printable_userdata))
-            response.success = True
+        userdata = []
+        if self.be and self.be._state_machine:
+            # get userdata from top-level behavior
+            if self.be._state_machine._userdata:
+                for key, data in self.be._state_machine._userdata._data.items():
+                    # add userdata if fits to the requested key (get all userdata for empty string)
+                    if (request.userdata_key == "" or request.userdata_key == key):
+                        userdata.append(UserdataInfo(state=self.be._state_machine._name,
+                                                    key=str(key),
+                                                    type=type(data).__name__,
+                                                    data=str(data)))
+            # get userdata from sub-behaviors
+            userdata = self._get_userdata_from_whole_sm(self.be._state_machine, userdata, request.userdata_key, str(self.be._state_machine._name) + "/")
+
+            if (len(userdata) > 0):
+                # also print in terminal (better readable for complex message types)
+                printable_userdata = ""
+                for ud in userdata:
+                    printable_userdata += "\t{}:{}\n".format(ud.key, ud.data)
+                Logger.loginfo("Current userdata: \n{}".format(printable_userdata))
+                response.success = True
+            else:
+                response.success = False
+            response.message = "Found {} occurences of '{}'".format(len(userdata), request.userdata_key)
+            response.userdata = userdata
         else:
             response.success = False
-        response.message = "Found {} occurences of '{}'".format(len(userdata), request.userdata_key)
-        response.userdata = userdata
+            response.message = "no state_machine running"
         return response
 
     # ==================================== #
