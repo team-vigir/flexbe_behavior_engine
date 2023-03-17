@@ -110,3 +110,15 @@ class Logger(object):
     @staticmethod
     def localinfo(text: str, *args):
         Logger.local(text % args, Logger.REPORT_INFO)
+
+    @staticmethod
+    def localwarn(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_WARN)
+
+    @staticmethod
+    def localhint(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_HINT)
+
+    @staticmethod
+    def localerr(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_ERROR)
