@@ -111,3 +111,4 @@ class ConcurrencyContainer(OperatableStateMachine):
             if state in self._returned_outcomes:
                 continue  # skip states that already exited themselves
             self._execute_single_state(state, force_exit=True)
+        self._current_state = None
