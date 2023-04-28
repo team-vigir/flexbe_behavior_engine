@@ -24,5 +24,6 @@
   <exec_depend>flexbe_msgs</exec_depend>
   <exec_depend>flexbe_states</exec_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
 </package>
