@@ -100,6 +100,23 @@ class ProxyActionClient(object):
         @param topic: The topic of interest.
         """
         return ProxyActionClient._result.get(topic)
+    
+    def get_goal_status_text(self, topic):
+        """
+        Returns the result status text if any.
+
+        @type topic: string
+        @param topic: The topic of interest.
+        """
+
+        if (not topic in ProxyActionClient._clients):
+            return "Failed to get status text: Invalid action topic = [" + topic +"]"
+
+        try:
+            status = ProxyActionClient._clients[topic].get_goal_status_text()
+            return status
+        except:
+            return "Failed to retrieve goal status text for topic = [" + topic +"]"
 
     def remove_result(self, topic):
         """
