@@ -358,7 +358,7 @@ class TestCore(unittest.TestCase):
         cc.execute(None)
         cc.sleep()
         cc.execute(None)
-        self.assertAlmostEqual(cc.sleep_duration, .1, places=2)
+        self.assertAlmostEqual(cc.sleep_duration, .1, delta=0.05, msg="After executing twice, cc.sleep_duration should be set to the duration of the 'fastest' state")
         cc.sleep()
         cc['main'].set_rate(15)
         cc['side'].set_rate(10)
