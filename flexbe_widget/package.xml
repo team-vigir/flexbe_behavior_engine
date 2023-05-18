@@ -4,7 +4,7 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>flexbe_widget</name>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
   <description>
      flexbe_widget implements some smaller scripts for the behavior engine.
   </description>

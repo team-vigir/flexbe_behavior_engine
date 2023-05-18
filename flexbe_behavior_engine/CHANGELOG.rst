@@ -1,6 +1,14 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package flexbe_behavior_engine
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.4.0 (2023-05-18)
+------------------
+* Updates for Melodic and Noetic releases on github.com/FlexBE
+* [flexbe_core] Merge pull request #153 from omercans/fix/set-current-state-of-cc-to-none-on-forced-exit
+* [flexbe_core] Merge pull request #154 from duwke/patch-1 - Check topic availability before returning last_msg
+* [flexbe_states] Merge pull request #160 from cpswarm/fix_namespace - namespace fix for topic lookup with rostopic in subscriber state
+* [flexbe_core] Merge pull request #163 from LoyVanBeek/fix/nested_sm_userdata - Fix nested state machine userdata
+* [flexbe_onboard] Merge pull request #165 from HannesBachter/feature/get_userdata - get userdata by service
 
 1.3.1 (2020-12-11)
 ------------------

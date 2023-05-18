@@ -8,19 +8,19 @@ The user interface features a runtime control interface as well as a graphical e
 
 Please refer to the FlexBE Homepage ([flexbe.github.io](http://flexbe.github.io)) for further information, tutorials, application examples, and much more.
 
-![FlexBE CI](https://github.com/team-vigir/flexbe_behavior_engine/workflows/FlexBE%20CI/badge.svg)
+![FlexBE CI](https://github.com/FlexBE/flexbe_behavior_engine/workflows/FlexBE%20CI/badge.svg)
 
 ## Installation
 
 Execute the following commands to install FlexBE:
 
     roscd && cd ../src
-    git clone https://github.com/team-vigir/flexbe_behavior_engine.git
-    
+    git clone https://github.com/FlexBE/flexbe_behavior_engine.git
+
 Furthermore, create your own repository for behavior development (contains examples):
-    
+
     rosrun flexbe_widget create_repo [your_project_name]
-    
+
 Finally, it is recommended to install the FlexBE App user interface by following [these steps](http://philserver.bplaced.net/fbe/download.php).
 
 ## Usage
@@ -28,7 +28,7 @@ Finally, it is recommended to install the FlexBE App user interface by following
 Use the following launch file for running the onboard engine:
 
     roslaunch flexbe_onboard behavior_onboard.launch
-    
+
 Use the following launch file for running the operator control station (requires the FlexBE App):
 
     roslaunch flexbe_app flexbe_ocs.launch
