@@ -1,6 +1,9 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package flexbe_input
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.4.0 (2023-05-18)
+------------------
+* Updates for Melodic and Noetic releases on github.com/FlexBE
 
 1.3.1 (2020-12-11)
 ------------------

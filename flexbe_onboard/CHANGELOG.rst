@@ -1,6 +1,10 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.4.0 (2023-05-18)
+------------------
+* Updates for Melodic and Noetic releases on github.com/FlexBE
+* [flexbe_onboard] Merge pull request #165 from HannesBachter/feature/get_userdata - get userdata by service
 
 1.3.1 (2020-12-11)
 ------------------

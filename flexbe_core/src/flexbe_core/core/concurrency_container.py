@@ -17,20 +17,20 @@ class ConcurrencyContainer(OperatableStateMachine):
         super(ConcurrencyContainer, self).__init__(*args, **kwargs)
         self._conditions = conditions
         self._returned_outcomes = dict()
-        self._sleep_dur = None
 
     def sleep(self):
-        if self._sleep_dur is not None:
-            self.wait(seconds=self._sleep_dur)
-            self._sleep_dur = None
+        self.wait(seconds=self.sleep_duration)
 
     @property
     def sleep_duration(self):
-        return self._sleep_dur or 0.
+        sleep_dur = None
+        for state in self._states:
+            if state.sleep_duration > 0:
+                sleep_dur = state.sleep_duration if sleep_dur is None else min(sleep_dur, state.sleep_duration)
+        return sleep_dur or 0.
 
     def _execute_current_state(self):
         # execute all states that are done with sleeping and determine next sleep duration
-        sleep_dur = None
         for state in self._states:
             if state.name in list(self._returned_outcomes.keys()) and self._returned_outcomes[state.name] is not None:
                 continue  # already done with executing
@@ -49,9 +49,6 @@ class ConcurrencyContainer(OperatableStateMachine):
                     # this sleep returns immediately since sleep duration is negative,
                     # but is required here to reset the sleep time after executing
                     state.sleep()
-            sleep_dur = state.sleep_duration if sleep_dur is None else min(sleep_dur, state.sleep_duration)
-        if sleep_dur > 0:
-            self._sleep_dur = sleep_dur
 
         # Determine outcome
         outcome = None
@@ -114,3 +111,4 @@ class ConcurrencyContainer(OperatableStateMachine):
             if state in self._returned_outcomes:
                 continue  # skip states that already exited themselves
             self._execute_single_state(state, force_exit=True)
+        self._current_state = None

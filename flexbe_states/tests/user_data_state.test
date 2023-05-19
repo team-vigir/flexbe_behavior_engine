@@ -1,0 +1,10 @@
+path: flexbe_states.user_data_state
+class: UserDataState
+
+params:
+    data: "Test data"
+
+output:
+    data: "Test data"
+
+outcome: done
