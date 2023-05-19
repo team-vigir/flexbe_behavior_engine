@@ -8,10 +8,8 @@ jobs:
   test:
     strategy:
       matrix:
-        ros: [melodic, noetic]
+        ros: [noetic]
         include:
-          - os: ubuntu-18.04
-            ros: melodic
           - os: ubuntu-20.04
             ros: noetic
             python: python3
