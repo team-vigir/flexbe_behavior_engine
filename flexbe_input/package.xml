@@ -8,7 +8,9 @@
   <description>
      flexbe_input enables to send data to onboard behavior when required.
   </description>
-  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
+  <author>Philipp Schillinger</author>
+  <maintainer email="philsplus@gmail.com">Philipp Schillinger</maintainer>
++ <maintainer email="robotics@cnu.edu">David Conner</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_input</url>

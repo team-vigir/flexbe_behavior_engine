@@ -6,8 +6,9 @@
     A meta-package to aggregate all the FlexBE packages
   </description>
 
-  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
-  <maintainer email="robotics@cnu.edu">David Conner</maintainer>
+  <author>Philipp Schillinger</author>
+  <maintainer email="philsplus@gmail.com">Philipp Schillinger</maintainer>
++ <maintainer email="robotics@cnu.edu">David Conner</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe</url>

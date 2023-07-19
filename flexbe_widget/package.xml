@@ -8,11 +8,12 @@
   <description>
      flexbe_widget implements some smaller scripts for the behavior engine.
   </description>
-  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
+  <author>Philipp Schillinger</author>
+  <maintainer email="philsplus@gmail.com">Philipp Schillinger</maintainer>
++ <maintainer email="robotics@cnu.edu">David Conner</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_widget</url>
-  <author>Philipp Schillinger</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
