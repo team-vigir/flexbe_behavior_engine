@@ -1,6 +1,11 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package flexbe_onboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.4.1 (2023-07-19)
+------------------
+* make cmake_minimum_version consistent 3.10.2 for Noetic
+* update maintainer tags in Noetic
+
 1.4.0 (2023-05-18)
 ------------------
 * Updates for Melodic and Noetic releases on github.com/FlexBE

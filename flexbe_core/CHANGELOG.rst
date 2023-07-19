@@ -1,6 +1,11 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package flexbe_core
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1.4.1 (2023-07-19)
+------------------
+* make cmake_minimum_version consistent 3.10.2 for Noetic
+* ignore time dependent tests on build farm due to OS switching; just warn
+
 1.4.0 (2023-05-18)
 ------------------
 * Updates for Melodic and Noetic releases on github.com/FlexBE
