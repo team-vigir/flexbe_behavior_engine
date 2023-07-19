@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.10.2)
 project(flexbe_msgs)
 
 find_package(catkin REQUIRED COMPONENTS message_generation actionlib_msgs actionlib)
