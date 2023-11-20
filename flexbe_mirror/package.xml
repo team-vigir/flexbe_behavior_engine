@@ -4,15 +4,16 @@
   schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>flexbe_mirror</name>
-  <version>1.3.1</version>
+  <version>1.4.1</version>
   <description>
      flexbe_mirror implements functionality to remotely mirror an executed behavior.
   </description>
-  <maintainer email="schillin@kth.se">Philipp Schillinger</maintainer>
+  <author>Philipp Schillinger</author>
+  <maintainer email="philsplus@gmail.com">Philipp Schillinger</maintainer>
++ <maintainer email="robotics@cnu.edu">David Conner</maintainer>
   <license>BSD</license>
 
   <url>http://ros.org/wiki/flexbe_mirror</url>
-  <author>Philipp Schillinger</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>

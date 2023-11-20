@@ -16,11 +16,15 @@ class Logger(object):
 
     LOGGING_TOPIC = 'flexbe/log'
 
+    # max number of items in last logged dict (used for log_throttle)
+    MAX_LAST_LOGGED_SIZE = 1024
+
     _pub = None
 
     @staticmethod
     def initialize():
         Logger._pub = rospy.Publisher(Logger.LOGGING_TOPIC, BehaviorLog, queue_size=100)
+        Logger._last_logged = {}
 
     @staticmethod
     def log(text, severity):
@@ -33,6 +37,23 @@ class Logger(object):
         Logger._pub.publish(msg)
         # also log locally
         Logger.local(text, severity)
+
+    @staticmethod
+    def log_throttle(period, text, severity):
+        # creat unique identifier for each logging message
+        log_id = str(severity)  + "_" + text
+        # only log when it's the first time or period time has passed for the logging message
+        if not log_id in Logger._last_logged.keys() or \
+            rospy.Time.now().to_sec() - Logger._last_logged[log_id].to_sec() > period:
+                Logger.log(text, severity)
+                Logger._last_logged.update({log_id: rospy.Time.now()})
+
+        if len(Logger._last_logged) > Logger.MAX_LAST_LOGGED_SIZE:
+            # iterate through last logged items, sorted by the timestamp (oldest last)
+            for i, log in enumerate(sorted(Logger._last_logged.items(), key=lambda item: item[1], reverse=True)):
+                # remove oldest items that exceed the max logged size
+                if i > Logger.MAX_LAST_LOGGED_SIZE:
+                    Logger._last_logged.pop(log[0])
 
     @staticmethod
     def local(text, severity):
@@ -50,29 +71,64 @@ class Logger(object):
             rospy.logdebug(text + ' (unknown log level %s)' % str(severity))
 
     @staticmethod
-    def logdebug(text, *args):
+    def logdebug(text: str, *args):
         Logger.log(text % args, Logger.REPORT_DEBUG)
 
     @staticmethod
-    def loginfo(text, *args):
+    def loginfo(text: str, *args):
         Logger.log(text % args, Logger.REPORT_INFO)
 
     @staticmethod
-    def logwarn(text, *args):
+    def logwarn(text: str, *args):
         Logger.log(text % args, Logger.REPORT_WARN)
 
     @staticmethod
-    def loghint(text, *args):
+    def loghint(text: str, *args):
         Logger.log(text % args, Logger.REPORT_HINT)
 
     @staticmethod
-    def logerr(text, *args):
+    def logerr(text: str, *args):
         Logger.log(text % args, Logger.REPORT_ERROR)
 
     @staticmethod
-    def localdebug(text, *args):
+    def logdebug_throttle(period: float, text: str, *args):
+        Logger.log_throttle(period, text % args, Logger.REPORT_DEBUG)
+
+    @staticmethod
+    def loginfo_throttle(period: float, text: str, *args):
+        Logger.log_throttle(period, text % args, Logger.REPORT_INFO)
+
+
+    @staticmethod
+    def logwarn_throttle(period: float, text: str, *args):
+        Logger.log_throttle(period, text % args, Logger.REPORT_WARN)
+
+    @staticmethod
+    def loghint_throttle(period: float, text: str, *args):
+        Logger.log_throttle(period, text % args, Logger.REPORT_HINT)
+
+
+    @staticmethod
+    def logerr_throttle(period: float, text: str, *args):
+        Logger.log_throttle(period, text % args, Logger.REPORT_ERROR)
+
+
+    @staticmethod
+    def localdebug(text: str, *args):
         Logger.local(text % args, Logger.REPORT_DEBUG)
 
     @staticmethod
-    def localinfo(text, *args):
+    def localinfo(text: str, *args):
         Logger.local(text % args, Logger.REPORT_INFO)
+
+    @staticmethod
+    def localwarn(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_WARN)
+
+    @staticmethod
+    def localhint(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_HINT)
+
+    @staticmethod
+    def localerr(text: str, *args):
+        Logger.local(text % args, Logger.REPORT_ERROR)

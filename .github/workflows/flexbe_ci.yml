@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 name: FlexBE CI
-# Controls when the action will run. 
+# Controls when the action will run.
 on: [push, pull_request, workflow_dispatch]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -8,10 +8,8 @@ jobs:
   test:
     strategy:
       matrix:
-        ros: [melodic, noetic]
+        ros: [noetic]
         include:
-          - os: ubuntu-18.04
-            ros: melodic
           - os: ubuntu-20.04
             ros: noetic
             python: python3
@@ -24,7 +22,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Prepare CI
         run: |
           git clone https://github.com/FlexBE/flexbe_ci.git ~/flexbe_ci
