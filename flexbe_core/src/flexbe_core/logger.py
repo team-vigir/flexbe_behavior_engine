@@ -16,6 +16,9 @@ class Logger(object):
 
     LOGGING_TOPIC = 'flexbe/log'
 
+    # max number of items in last logged dict (used for log_throttle)
+    MAX_LAST_LOGGED_SIZE = 1024
+
     _pub = None
 
     @staticmethod
@@ -44,6 +47,13 @@ class Logger(object):
             rospy.Time.now().to_sec() - Logger._last_logged[log_id].to_sec() > period:
                 Logger.log(text, severity)
                 Logger._last_logged.update({log_id: rospy.Time.now()})
+
+        if len(Logger._last_logged) > Logger.MAX_LAST_LOGGED_SIZE:
+            # iterate through last logged items, sorted by the timestamp (oldest last)
+            for i, log in enumerate(sorted(Logger._last_logged.items(), key=lambda item: item[1], reverse=True)):
+                # remove oldest items that exceed the max logged size
+                if i > Logger.MAX_LAST_LOGGED_SIZE:
+                    Logger._last_logged.pop(log[0])
 
     @staticmethod
     def local(text, severity):
